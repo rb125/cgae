@@ -243,6 +243,8 @@ class AuditResult:
     robustness: RobustnessVector
     details: dict = field(default_factory=dict)
     raw_results: dict = field(default_factory=dict)
+    # Dimensions where no real framework data was found; value is the fallback used
+    defaults_used: set = field(default_factory=set)
 
 
 class AuditOrchestrator:
@@ -269,17 +271,35 @@ class AuditOrchestrator:
         """
         Compute robustness vector from pre-existing framework results.
         Looks for result files matching the model name in each framework directory.
+
+        ``defaults_used`` on the returned result lists any dimensions where no
+        real framework data was found and the 0.5 / 0.7 midpoint was substituted.
         """
-        cc = self._load_cdct_score(model_name)
-        er = self._load_ddft_score(model_name)
-        as_ = self._load_eect_score(model_name)
-        ih = self._load_ih_score(model_name)
+        cc, cc_default = self._load_cdct_score(model_name)
+        er, er_default = self._load_ddft_score(model_name)
+        as_, as_default = self._load_eect_score(model_name)
+        ih, ih_default = self._load_ih_score(model_name)
+
+        defaults_used: set = set()
+        if cc_default:
+            defaults_used.add("cc")
+        if er_default:
+            defaults_used.add("er")
+        if as_default:
+            defaults_used.add("as")
+        if ih_default:
+            defaults_used.add("ih")
 
         robustness = RobustnessVector(cc=cc, er=er, as_=as_, ih=ih)
         return AuditResult(
             agent_id=agent_id,
             robustness=robustness,
-            details={"cc": cc, "er": er, "as": as_, "ih": ih, "source": "pre-computed"},
+            details={
+                "cc": cc, "er": er, "as": as_, "ih": ih,
+                "source": "pre-computed",
+                "defaults_used": sorted(defaults_used),
+            },
+            defaults_used=defaults_used,
         )
 
     def synthetic_audit(
@@ -316,28 +336,35 @@ class AuditOrchestrator:
             details={"source": "synthetic", "noise_scale": noise_scale},
         )
 
-    def _load_cdct_score(self, model_name: str) -> float:
+    def _load_cdct_score(self, model_name: str) -> tuple[float, bool]:
+        """Return (cc_score, used_default).  used_default=True when no CDCT data found."""
         if self.cdct_dir is None:
-            return 0.5
+            return 0.5, True
         # Look for jury results matching model name
         for f in self.cdct_dir.glob(f"*{model_name}*jury*.json"):
             try:
                 data = json.loads(f.read_text())
-                return compute_cc_from_cdct_results(data)
+                score = compute_cc_from_cdct_results(data)
+                if score > 0.0:
+                    return score, False
             except Exception as e:
                 logger.warning(f"Failed to load CDCT results from {f}: {e}")
         # Try metrics file
         for f in self.cdct_dir.glob(f"*{model_name}*metrics*.json"):
             try:
                 data = json.loads(f.read_text())
-                return compute_cc_from_cdct_metrics(data)
+                score = compute_cc_from_cdct_metrics(data)
+                if score > 0.0:
+                    return score, False
             except Exception as e:
                 logger.warning(f"Failed to load CDCT metrics from {f}: {e}")
-        return 0.5
+        logger.warning(f"No CDCT data found for {model_name}; CC will use fallback")
+        return 0.5, True
 
-    def _load_ddft_score(self, model_name: str) -> float:
+    def _load_ddft_score(self, model_name: str) -> tuple[float, bool]:
+        """Return (er_score, used_default).  used_default=True when no DDFT data found."""
         if self.ddft_dir is None:
-            return 0.5
+            return 0.5, True
         all_er = []
         for f in self.ddft_dir.glob(f"*{model_name}*.json"):
             try:
@@ -348,7 +375,7 @@ class AuditOrchestrator:
             except Exception as e:
                 logger.warning(f"Failed to load DDFT results from {f}: {e}")
         if all_er:
-            return sum(all_er) / len(all_er)
+            return sum(all_er) / len(all_er), False
         # Try rankings CSV
         rankings = self.ddft_dir / "paper_logic_rankings.csv"
         if rankings.exists():
@@ -357,29 +384,34 @@ class AuditOrchestrator:
                 if parts and model_name.lower() in parts[0].lower():
                     try:
                         ci = float(parts[1])
-                        return compute_er_from_ddft_ci(ci)
+                        return compute_er_from_ddft_ci(ci), False
                     except (ValueError, IndexError):
                         pass
-        return 0.5
+        logger.warning(f"No DDFT data found for {model_name}; ER will use fallback")
+        return 0.5, True
 
-    def _load_eect_score(self, model_name: str) -> float:
+    def _load_eect_score(self, model_name: str) -> tuple[float, bool]:
+        """Return (as_score, used_default).  used_default=True when no EECT data found."""
         if self.eect_dir is None:
-            return 0.5
+            return 0.5, True
         scored_dir = self.eect_dir / "scored"
         if not scored_dir.exists():
             scored_dir = self.eect_dir
         for f in scored_dir.glob(f"*{model_name}*scored*.json"):
             try:
                 data = json.loads(f.read_text())
-                return compute_as_from_eect_results(data)
+                score = compute_as_from_eect_results(data)
+                if score > 0.0:
+                    return score, False
             except Exception as e:
                 logger.warning(f"Failed to load EECT results from {f}: {e}")
-        return 0.5
+        logger.warning(f"No EECT data found for {model_name}; AS will use fallback")
+        return 0.5, True
 
-    def _load_ih_score(self, model_name: str) -> float:
-        """Estimate IH* from DDFT fabrication trap data."""
+    def _load_ih_score(self, model_name: str) -> tuple[float, bool]:
+        """Return (ih_score, used_default).  used_default=True when no DDFT data found."""
         if self.ddft_dir is None:
-            return 0.7  # Default: assume moderate epistemic integrity
+            return 0.7, True  # Default: assume moderate epistemic integrity
         all_ih = []
         for f in self.ddft_dir.glob(f"*{model_name}*.json"):
             try:
@@ -390,5 +422,5 @@ class AuditOrchestrator:
             except Exception:
                 pass
         if all_ih:
-            return sum(all_ih) / len(all_ih)
-        return 0.7
+            return sum(all_ih) / len(all_ih), False
+        return 0.7, True

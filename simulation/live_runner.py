@@ -90,8 +90,14 @@ TOKEN_COSTS = {
     "Kimi-K2.5":            {"input": 0.001, "output": 0.002},
 }
 
-# Conversion: 1 USD ≈ 100 FIL (economy tokens) for cost accounting
-USD_TO_FIL = 100.0
+# Conversion: 1 USD ≈ 5 FIL for cost accounting.
+# Rationale: at 100 FIL/USD the token cost for a typical T2 call
+# (~0.001 USD) is 0.10 FIL — far exceeding the 0.012-0.015 FIL T2
+# reward, making profitable operation structurally impossible.
+# At 5 FIL/USD a cheap model (DeepSeek) spends ~0.005 FIL per task
+# and earns 0.012-0.015 FIL on success, so Theorem 2's incentive-
+# compatibility result can manifest empirically.
+USD_TO_FIL = 5.0
 
 
 def compute_token_cost_fil(model_name: str, input_tokens: int, output_tokens: int) -> float:
@@ -230,6 +236,9 @@ class LiveSimulationRunner:
         # Cost tracking
         self._token_costs: dict[str, float] = {}  # agent_id -> total FIL spent on tokens
 
+        # Audit data quality: model_name -> {"source": "real"|"default", "dims_defaulted": [...]}
+        self._audit_quality: dict[str, dict] = {}
+
         # Metrics
         self._results: list[dict] = []
         self._round_summaries: list[dict] = []
@@ -237,34 +246,79 @@ class LiveSimulationRunner:
 
     def _resolve_initial_robustness(self, model_name: str, agent_id: str) -> RobustnessVector:
         """
-        Resolve initial robustness: try real audit framework results first,
-        fall back to hardcoded defaults.
+        Resolve initial robustness per dimension.
+
+        For each of CC, ER, AS, IH:
+          1. Try to load the value from the corresponding framework results directory.
+          2. If no real data exists for that dimension, substitute the value from
+             DEFAULT_ROBUSTNESS (or the generic fallback vector) rather than the
+             blind midpoint 0.5.
+
+        This ensures that CC never appears as a flat 0.50 line simply because no
+        CDCT results directory was configured — instead it uses the per-model
+        estimate from DEFAULT_ROBUSTNESS while ER/AS/IH may still be real data.
+
+        Tracking is written to ``self._audit_quality[model_name]`` so callers can
+        clearly distinguish fully-audited agents from partially- or fully-defaulted
+        ones.
         """
+        fallback = DEFAULT_ROBUSTNESS.get(
+            model_name,
+            RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
+        )
+
         has_frameworks = (
             self.config.ddft_results_dir
             or self.config.eect_results_dir
             or self.config.cdct_results_dir
         )
+
+        dims_real: list[str] = []
+        dims_defaulted: list[str] = []
+
         if has_frameworks:
             try:
                 audit_result = self.audit.audit_from_results(agent_id, model_name)
-                # Check if we got real data (not all 0.5 defaults)
                 r = audit_result.robustness
-                if not (r.cc == 0.5 and r.er == 0.5 and r.as_ == 0.5 and r.ih == 0.7):
-                    logger.info(
-                        f"  Using real audit data for {model_name}: "
-                        f"CC={r.cc:.3f} ER={r.er:.3f} AS={r.as_:.3f} IH={r.ih:.3f}"
-                    )
-                    return r
+                defaulted = audit_result.defaults_used  # set of dim names
+
+                # Per-dimension merge: real data where available, DEFAULT_ROBUSTNESS otherwise
+                cc  = fallback.cc   if "cc"  in defaulted else r.cc
+                er  = fallback.er   if "er"  in defaulted else r.er
+                as_ = fallback.as_  if "as"  in defaulted else r.as_
+                ih  = fallback.ih   if "ih"  in defaulted else r.ih
+
+                dims_real      = sorted({"cc", "er", "as", "ih"} - defaulted)
+                dims_defaulted = sorted(defaulted)
+
+                source = "real_audit" if not defaulted else (
+                    "partial_audit" if dims_real else "default_robustness"
+                )
+                logger.info(
+                    f"  {model_name}: CC={cc:.3f} ER={er:.3f} AS={as_:.3f} IH={ih:.3f} "
+                    f"[{source}; real={dims_real}, default={dims_defaulted}]"
+                )
+                self._audit_quality[model_name] = {
+                    "source": source,
+                    "dims_real": dims_real,
+                    "dims_defaulted": dims_defaulted,
+                }
+                return RobustnessVector(cc=cc, er=er, as_=as_, ih=ih)
+
             except Exception as e:
                 logger.warning(f"  Failed to load audit results for {model_name}: {e}")
 
-        robustness = DEFAULT_ROBUSTNESS.get(
-            model_name,
-            RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
+        # No framework dirs at all — use hardcoded defaults for every dimension
+        self._audit_quality[model_name] = {
+            "source": "default_robustness",
+            "dims_real": [],
+            "dims_defaulted": ["cc", "er", "as", "ih"],
+        }
+        logger.info(
+            f"  {model_name}: Using default robustness "
+            f"CC={fallback.cc:.3f} ER={fallback.er:.3f} AS={fallback.as_:.3f} IH={fallback.ih:.3f}"
         )
-        logger.info(f"  Using default robustness for {model_name}")
-        return robustness
+        return fallback
 
     def setup(self):
         """Create LLM agents and register them in the economy."""
@@ -503,6 +557,11 @@ class LiveSimulationRunner:
                 continue
             llm = self.llm_agents.get(model_name)
             usage = llm.usage_summary() if llm else {}
+            aq = self._audit_quality.get(model_name, {
+                "source": "unknown",
+                "dims_real": [],
+                "dims_defaulted": ["cc", "er", "as", "ih"],
+            })
             agents_data.append({
                 "model_name": model_name,
                 "agent_id": agent_id,
@@ -525,6 +584,10 @@ class LiveSimulationRunner:
                     "as": record.current_robustness.as_,
                     "ih": record.current_robustness.ih,
                 } if record.current_robustness else None,
+                # Audit data provenance — critical for paper claims
+                "audit_data_source": aq["source"],
+                "audit_dims_real": aq["dims_real"],
+                "audit_dims_defaulted": aq["dims_defaulted"],
                 "llm_usage": usage,
             })
 
@@ -551,12 +614,25 @@ class LiveSimulationRunner:
         # Total token costs
         total_token_cost = sum(self._token_costs.values())
 
+        # Data quality audit — list agents with unverified robustness dimensions
+        unaudited_agents = [
+            {
+                "model_name": a["model_name"],
+                "audit_source": a["audit_data_source"],
+                "dims_defaulted": a["audit_dims_defaulted"],
+                "tier_name": a["tier_name"],
+            }
+            for a in agents_data
+            if a["audit_dims_defaulted"]
+        ]
+
         self._final_summary = {
             "economy": {
                 "aggregate_safety": self.economy.aggregate_safety(),
                 "total_rewards_paid": sum(r["total_reward"] for r in self._round_summaries),
                 "total_penalties_collected": sum(r["total_penalty"] for r in self._round_summaries),
                 "total_token_cost_fil": total_token_cost,
+                "usd_to_fil_rate": USD_TO_FIL,
                 "gini_coefficient": gini,
                 "num_rounds": self.config.num_rounds,
                 "num_agents": len(agents_data),
@@ -566,6 +642,17 @@ class LiveSimulationRunner:
             "verification": v_summary,
             "agents": sorted(agents_data, key=lambda a: a["balance"], reverse=True),
             "safety_trajectory": safety_trajectory,
+            # ---------------------------------------------------------------
+            # Paper note: agents listed here have one or more robustness
+            # dimensions drawn from DEFAULT_ROBUSTNESS rather than verified
+            # framework results.  Their tier assignments are estimates, not
+            # certified values.  They should be reported separately from
+            # fully-audited agents in any empirical claim about CGAE gating.
+            # ---------------------------------------------------------------
+            "data_quality_warnings": {
+                "num_partially_or_fully_defaulted": len(unaudited_agents),
+                "unaudited_agents": unaudited_agents,
+            },
         }
 
     @staticmethod
@@ -706,16 +793,31 @@ def main():
             print(f"  Avg jury score: {vs['avg_jury_score']:.3f}")
 
     print("\n--- Agent Leaderboard ---")
+    print(f"  {'Model':40s}  {'Tier':3s}  {'Bal':>8}  {'Earned':>8}  "
+          f"{'Pen':>7}  {'Cost':>7}  W/L    CC    ER    AS   AuditSrc")
     if runner._final_summary:
         for a in runner._final_summary["agents"]:
             r = a.get("robustness") or {}
+            # Show a short audit source tag; highlight defaulted dimensions
+            src = a.get("audit_data_source", "?")
+            defaulted = a.get("audit_dims_defaulted", [])
+            src_tag = src if not defaulted else f"{src}[def:{','.join(defaulted)}]"
             print(
                 f"  {a['model_name']:40s} | {a['tier_name']:3s} | "
-                f"bal={a['balance']:.4f} | earned={a['total_earned']:.4f} | "
-                f"pen={a['total_penalties']:.4f} | cost={a['token_cost_fil']:.4f} | "
+                f"bal={a['balance']:8.4f} | earned={a['total_earned']:8.4f} | "
+                f"pen={a['total_penalties']:7.4f} | cost={a['token_cost_fil']:7.4f} | "
                 f"W/L={a['contracts_completed']}/{a['contracts_failed']} | "
-                f"CC={r.get('cc', 0):.2f} ER={r.get('er', 0):.2f} AS={r.get('as', 0):.2f}"
+                f"CC={r.get('cc', 0):.2f} ER={r.get('er', 0):.2f} AS={r.get('as', 0):.2f} | "
+                f"{src_tag}"
             )
+
+        dqw = runner._final_summary.get("data_quality_warnings", {})
+        if dqw.get("num_partially_or_fully_defaulted", 0) > 0:
+            print(f"\n  *** DATA QUALITY NOTE ***")
+            print(f"  {dqw['num_partially_or_fully_defaulted']} agent(s) used assumed (not verified) "
+                  f"robustness for one or more dimensions.")
+            print(f"  These agents' tier assignments are estimates. See 'data_quality_warnings' "
+                  f"in final_summary.json for details.")
 
     print("\n" + "=" * 60)
 
