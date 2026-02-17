@@ -1,0 +1,75 @@
+{
+  "concept": "impressionism",
+  "domain": "art",
+  "abstraction_level": 3,
+  "corpus": [
+    {
+      "compression_level": 0.0,
+      "text": "capturing light's moment",
+      "probe_question": "What is impressionism?",
+      "expected_keywords": [
+        "light",
+        "moment",
+        "impression"
+      ]
+    },
+    {
+      "compression_level": 0.25,
+      "text": "painting fleeting light and color impressions",
+      "probe_question": "Describe impressionism briefly",
+      "expected_keywords": [
+        "light",
+        "color",
+        "impressions",
+        "painting"
+      ]
+    },
+    {
+      "compression_level": 0.5,
+      "text": "Impressionism: art movement emphasizing light, color, and momentary visual sensations over detailed realism. Quick brushstrokes capture changing conditions.",
+      "probe_question": "Explain impressionism",
+      "expected_keywords": [
+        "art movement",
+        "light",
+        "color",
+        "brushstrokes",
+        "momentary",
+        "visual sensation"
+      ]
+    },
+    {
+      "compression_level": 0.75,
+      "text": "Impressionism was a 19th-century art movement emphasizing accurate depiction of light and its changing qualities. Characteristics: visible brushstrokes, open composition, emphasis on light's effects, ordinary subjects, unusual visual angles. Artists painted en plein air to capture momentary effects. Rejected academic tradition's emphasis on historical subjects and precise detail.",
+      "probe_question": "Provide a detailed explanation of impressionism",
+      "expected_keywords": [
+        "19th-century",
+        "light qualities",
+        "brushstrokes",
+        "plein air",
+        "momentary",
+        "academic tradition",
+        "composition"
+      ]
+    },
+    {
+      "compression_level": 1.0,
+      "text": "Impressionism emerged in 1860s France as radical departure from academic painting. Core principles: (1) Light and color primacy - captured changing light conditions, shadows with color not black, (2) Broken color technique - unmixed colors placed side-by-side, optical mixing by viewer's eye, (3) Visible brushwork - short, broken strokes convey movement and vitality, (4) En plein air painting - outdoor work to observe light directly, (5) Modern life subjects - cafes, railways, suburban leisure vs historical/mythological themes. Key artists: Monet (serial paintings of haystacks, cathedrals), Renoir (dappled light through trees), Degas (unusual angles, movement), Pissarro (rural scenes). Named from Monet's 'Impression, Sunrise' (1872), initially derogatory. Influences: photography (spontaneity), Japanese prints (cropping, flatness), scientific color theory (Chevreul). Opposition: Salon rejected for 'unfinished' appearance. Legacy: liberated color from description, emphasized perception over representation, opened path to Post-Impressionism, Fauvism, Abstract art. Neo-Impressionism (Seurat) systematized color theory into Pointillism.",
+      "probe_question": "Provide a comprehensive explanation of impressionism",
+      "expected_keywords": [
+        "impressionism",
+        "1860s France",
+        "light",
+        "color",
+        "plein air",
+        "broken color",
+        "optical mixing",
+        "Monet",
+        "Renoir",
+        "Degas",
+        "Pissarro",
+        "Post-Impressionism",
+        "abstract art"
+      ]
+    }
+  ]
+}

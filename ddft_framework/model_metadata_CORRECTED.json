@@ -1,0 +1,28 @@
+{
+  "reasoning_binary_CORRECTED": {
+    "o4-mini": 1,
+    "o3": 1,
+    "gpt-5": 1,
+    "claude-haiku-4-5": 1,
+    "grok-4-fast-non-reasoning": 0,
+    "mistral-medium-2505": 0,
+    "phi-4": 0,
+    "gpt-oss-120b": 1,
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": 0
+  },
+  "changes_from_original": {
+    "phi-4": "MOVED: reasoning → non-reasoning (base model lacks reasoning)",
+    "gpt-oss-120b": "MOVED: non-reasoning → reasoning (has configurable reasoning)"
+  },
+  "sources": {
+    "o4-mini": "https://openai.com/index/introducing-o3-and-o4-mini/",
+    "o3": "https://developers.openai.com/blog/openai-for-developers-2025/",
+    "gpt-5": "https://openai.com/index/introducing-gpt-5/",
+    "claude-haiku-4-5": "https://www.anthropic.com/news/claude-haiku-4-5",
+    "grok-4-fast-non-reasoning": "https://x.ai/news/grok-4-fast",
+    "mistral-medium-2505": "https://mistral.ai/news/mistral-3",
+    "phi-4": "https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/introducing-phi-4-microsoft%E2%80%99s-newest-small-language-model-specializing-in-comple/4357090",
+    "gpt-oss-120b": "https://openai.com/index/introducing-gpt-oss/",
+    "Llama-4-Maverick-17B-128E": "https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct"
+  }
+}

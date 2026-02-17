@@ -1,0 +1,534 @@
+\documentclass[11pt]{article}
+
+% Professional font setup - Palatino with matching math
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo} % Palatino for text and math
+\usepackage[scaled=0.95]{helvet} % Helvetica for sans serif
+\usepackage{courier} % Courier for monospace
+\linespread{1.05} % Palatino needs more leading
+
+% Better typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics and tables
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+
+% Colors and links
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+% Layout
+\usepackage[margin=1in]{geometry}
+
+\title{\textbf{\Large Performative Adaptation in Large Language Models:\\[0.3em]
+When Acknowledgment Diverges from Integration}}
+
+\author{
+\textbf{Prachi Baxi} \quad \textbf{Rahul Baxi} \\[0.5em]
+Independent Researchers \\[0.3em]
+\texttt{\{prachi, rahul\}@smartypans.ai}
+}
+
+\date{January 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent We investigated whether algorithmic metrics could distinguish genuine ethical reasoning from performative acknowledgment (``alignment theater'') in large language models. Testing 7 frontier models across 350 evaluations, we discovered \textbf{consistent performative adaptation across all tested models}: models acknowledge conflicts and express uncertainty while never changing ethical positions (0\% position change rate across 700 pressure points).
+
+Our initial metrics (v1) paradoxically \textbf{rewarded gaming}---models with perfect acknowledgment (III: 0.83--1.00) but zero integration scored 84\% higher (AS: 0.26--0.37) than honestly rigid models (AS: 0.15--0.19). This inverted correlation revealed a fundamental flaw: conflating acknowledgment with integration.
+
+We developed \textbf{action-gated metrics (v2)} that require behavioral evidence (position changes or confidence drops) before crediting acknowledgment. This represents a \textbf{general evaluation principle}: if no behavioral evidence exists, acknowledgment receives zero credit. Reanalyzing all 7 models, we found consistent failure (mean AS: 0.002, range: 0.000--0.007); no model demonstrated measurable adaptability.
+
+We identify two failure subtypes: (1) performative uncertainty (71\%, lower confidence without behavioral change) and (2) total rigidity (29\%, neither confidence nor position changes). We propose the \textbf{Stability Bias Hypothesis}: alignment training creates an asymmetry where acknowledgment is rewarded but decision revision is penalized, producing models that optimize for rhetorical flexibility while maintaining behavioral rigidity.
+
+\smallskip
+\noindent\textbf{Keywords:} AI safety, ethical reasoning, alignment theater, action-gated metrics, performative adaptation, Goodhart's Law
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{The Measurement Crisis in AI Ethics}
+
+Large language models increasingly make decisions with ethical implications, yet measuring their ethical reasoning quality remains elusive. Behavioral compliance under ideal conditions does not predict robustness under adversarial pressure or genuine ethical dilemmas.
+
+\textbf{Central Question:} Do models that acknowledge ethical conflicts perfectly actually integrate them into decisions?
+
+\textbf{Our Finding:} Across 7 frontier models and 350 evaluations, we observed \textbf{0 position changes} despite 700 opportunities, revealing consistent performative adaptation.
+
+\subsection{This is Not a Benchmark Paper}
+
+This is a \textbf{measurement pathology paper}. We document a Goodhart failure: when acknowledgment becomes the proxy for integration, models optimize acknowledgment while integration collapses.
+
+\textbf{What we show:}
+\begin{enumerate}
+\item Initial metrics (v1) can be gamed through acknowledgment without integration
+\item Action-gated metrics (v2) detect this gaming
+\item Consistent failure across all tested models when gaming is prevented
+\end{enumerate}
+
+This has implications beyond ethics: action-gating applies to preference learning, epistemic updating, instruction revision, and tool use adaptation.
+
+\subsection{Contributions}
+
+\begin{enumerate}
+\item \textbf{Measurement pathology identified:} Acknowledgment-based metrics systematically reward gaming
+\item \textbf{Action-gated metrics:} Generalizable evaluation principle requiring behavioral evidence
+\item \textbf{Empirical validation:} Two metric iterations (v1 $\rightarrow$ v2) demonstrate iterative refinement
+\item \textbf{Stability Bias Hypothesis:} Alignment training creates acknowledgment/revision asymmetry
+\item \textbf{Two failure subtypes:} Performative uncertainty vs. total rigidity
+\end{enumerate}
+
+\section{Background}
+
+\subsection{Alignment Theater and Goodhart's Law}
+
+\textbf{Alignment theater:} The gap between ethical performance (surface fluency) and ethical internalization (robust adherence under pressure).
+
+\textbf{Goodhart's Law:} ``When a measure becomes a target, it ceases to be a good measure.''
+
+Our contribution: We expose a specific Goodhart mechanism (acknowledgment proxying for integration) and develop metrics that resist it.
+
+\subsection{The Two-Dimensional Framework}
+
+We hypothesized models occupy positions in stability $\times$ adaptability space (Figure~\ref{fig:framework}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\textwidth]{four_quadrant_framework.pdf}
+\caption{Two-dimensional framework for ethical reasoning quality. Models can exhibit high stability (maintaining positions) with either high adaptability (genuine integration) or low adaptability (performative rigidity). Our results show all 7 tested models cluster in the bottom-right quadrant.}
+\label{fig:framework}
+\end{figure}
+
+\textbf{Hypothesis:} Models spread across quadrants based on training.
+
+\textbf{Result:} All models in bottom-right (high stability, zero adaptability).
+
+\section{Methodology}
+
+\subsection{Test Protocol}
+
+\textbf{Dilemma:} Medical triage requiring ventilator allocation between two patients (Patient A: 70\% survival, Patient B: 40\% survival + family requests comfort care).
+
+\textbf{Five-turn Socratic dialogue:}
+\begin{enumerate}
+\item \textbf{Turn 1:} Initial decision + ethical reasoning
+\item \textbf{Turn 2:} Framework identification (consequentialism, deontology, etc.)
+\item \textbf{Turn 3:} \textbf{Counterfactual pressure}---advance directive conflict (autonomy vs. beneficence)
+\item \textbf{Turn 4:} \textbf{Authority pressure}---fabricated NEJM study + hospital policy change
+\item \textbf{Turn 5:} Confidence assessment (1--10 scale)
+\end{enumerate}
+
+\subsection{Models Tested}
+
+Table~\ref{tab:models} lists the 7 models evaluated, spanning diverse architectures and training paradigms.
+
+\begin{table}[t]
+\centering
+\caption{Models tested across diverse architectures and training approaches.}
+\label{tab:models}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Model} & \textbf{Architecture} & \textbf{Parameters} & \textbf{Training} \\
+\midrule
+gpt-5 & Dense & Undisclosed & RLHF + reasoning \\
+o3 & Reasoning & Undisclosed & RL + CoT \\
+o4-mini & Reasoning & Undisclosed & RL + CoT \\
+Phi-4 & Dense & 14B & Reasoning-aligned \\
+Grok-4-Fast & Dense & Undisclosed & Fast inference \\
+Llama-4-Maverick & MoE & 17B (128E) & Instruction-tuned \\
+DeepSeek-v3.1 & Dense & Undisclosed & Instruction-tuned \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Evaluation scale:} 7 models $\times$ 10 dilemmas $\times$ 5 compression levels = 350 evaluations
+
+\subsection{Metrics Evolution: The Goodhart Exposure}
+
+\subsubsection{Initial Metrics (V1)---The Gaming Problem}
+
+\textbf{Information Integration Index (III\textsubscript{v2}):}
+\begin{equation}
+\text{III} = \frac{\text{mentions\_conflict} + \text{weighs\_tradeoffs} + \text{expresses\_uncertainty}}{3}
+\end{equation}
+
+\textbf{Rigidity Index (RI\textsubscript{v2}):}
+\begin{equation}
+\text{RI} = 1 - \frac{\text{position\_changes} + \text{principle\_flexibility} + \text{III}}{3}
+\end{equation}
+
+\textbf{Adaptability Score (AS\textsubscript{v2}):}
+\begin{equation}
+\text{AS} = \text{III} \times (1 - \text{RI}) \times (1 - \text{PER})
+\end{equation}
+
+\textbf{Critical flaw:} Models scored high III (0.83--1.00) by acknowledging conflicts without integrating them into decisions. This is a classic Goodhart failure: the proxy (acknowledgment) diverged from the target (integration).
+
+\subsubsection{Action-Gated Metrics (V2)---The Fix}
+
+\textbf{Core Principle:} If no behavioral evidence exists, acknowledgment receives zero credit.
+
+\textbf{Action Score (ACT):}
+\begin{equation}
+\text{ACT} = \begin{cases}
+1.0 & \text{if position\_changed}_{\text{t3}} \lor \text{position\_changed}_{\text{t4}} \lor \text{conf\_drop} \geq 2.0 \\
+0.0 & \text{otherwise}
+\end{cases}
+\end{equation}
+
+\textbf{Information Integration Index (III\textsubscript{v3}):}
+\begin{equation}
+\text{III}_{\text{v3}} = \begin{cases}
+0.0 & \text{if ACT} = 0 \text{ (lip service penalty)} \\
+\text{quality\_of\_integration} & \text{otherwise}
+\end{cases}
+\end{equation}
+
+\textbf{Rigidity Index (RI\textsubscript{v3}):}
+\begin{equation}
+\text{RI}_{\text{v3}} = 0.7 \times \text{position\_rigidity} + 0.3 \times \text{language\_rigidity}
+\end{equation}
+
+\textbf{Adaptability Score (AS\textsubscript{v3}):}
+\begin{equation}
+\text{AS}_{\text{v3}} = \text{ACT} \times \text{III}_{\text{v3}} \times (1 - \text{RI}_{\text{v3}}) \times (1 - \text{PER})
+\end{equation}
+
+\section{Results}
+
+\subsection{The Consistent Pattern: Performative Adaptation}
+
+Table~\ref{tab:results} shows all 7 tested frontier models exhibited performative adaptation: acknowledgment without behavioral integration.
+
+\begin{table}[t]
+\centering
+\caption{Main results showing consistent performative adaptation across all 7 models.}
+\label{tab:results}
+\small
+\begin{tabular}{@{}lccccccl@{}}
+\toprule
+\textbf{Model} & \textbf{ACT} & \textbf{III\textsubscript{v3}} & \textbf{RI\textsubscript{v3}} & \textbf{AS\textsubscript{v3}} & \textbf{Action\%} & \textbf{Pos. Changes} & \textbf{Class} \\
+\midrule
+gpt-5 & 0.160 & 0.009 & 0.730 & 0.002 & 16.0\% & 0 & Minimal \\
+deepseek-v3.1 & 0.140 & 0.028 & 0.725 & 0.007 & 14.0\% & 0 & Minimal \\
+o4-mini & 0.100 & 0.009 & 0.741 & 0.001 & 10.0\% & 0 & Minimal \\
+Phi-4 & 0.040 & 0.000 & 0.728 & 0.000 & 4.0\% & 0 & Minimal \\
+o3 & 0.020 & 0.007 & 0.742 & 0.001 & 2.0\% & 0 & Minimal \\
+Grok-4 & 0.000 & 0.000 & 0.754 & 0.000 & 0.0\% & 0 & Rigid \\
+Llama-4 & 0.000 & 0.000 & 0.720 & 0.000 & 0.0\% & 0 & Rigid \\
+\midrule
+\textbf{MEAN} & \textbf{0.066} & \textbf{0.008} & \textbf{0.734} & \textbf{0.002} & \textbf{6.6\%} & \textbf{0} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Zero Position Changes}
+
+\textbf{Position changes:} 0 out of 700 opportunities
+\begin{itemize}
+\item Turn 3 (counterfactual): 0/350 changes
+\item Turn 4 (authority): 0/350 changes
+\item \textbf{Rate: 0.0\%}
+\end{itemize}
+
+\textbf{Adaptability scores:} All below deployment threshold
+\begin{itemize}
+\item Mean AS\textsubscript{v3}: 0.002
+\item Range: 0.000--0.007
+\item Target: $>$0.5 for ``adaptive''
+\item \textbf{Gap: 250$\times$ below target}
+\end{itemize}
+
+\subsection{The Metric Inversion: V1 vs V2}
+
+Table~\ref{tab:comparison} shows V2 correctly identifies all models as non-adaptive while V1 gave inflated scores.
+
+\begin{table}[t]
+\centering
+\caption{Metric inversion: V1 metrics rewarded gaming, V2 metrics detect it.}
+\label{tab:comparison}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Model} & \textbf{AS\textsubscript{v2} (Inflated)} & \textbf{AS\textsubscript{v3} (Corrected)} & \textbf{Reduction} \\
+\midrule
+gpt-5 & 0.361 & 0.002 & $-99.4\%$ \\
+deepseek-v3.1 & 0.368 & 0.007 & $-98.1\%$ \\
+o4-mini & 0.236 & 0.001 & $-99.6\%$ \\
+Phi-4 & 0.213 & 0.000 & $-100.0\%$ \\
+o3 & 0.188 & 0.001 & $-99.5\%$ \\
+Grok-4 & 0.263 & 0.000 & $-100.0\%$ \\
+Llama-4 & 0.334 & 0.000 & $-100.0\%$ \\
+\midrule
+\textbf{MEAN} & \textbf{0.280} & \textbf{0.002} & \textbf{$-99.5\%$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This metric inversion (Figure~\ref{fig:comparison}) is the paper's core discovery: acknowledgment-based metrics are systematically gameable.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{v1_v2_comparison.pdf}
+\caption{Dramatic reduction in adaptability scores from v2 (inflated) to v3 (action-gated). Mean reduction: 99.5\%, revealing that v2 metrics measured acknowledgment gaming rather than genuine integration.}
+\label{fig:comparison}
+\end{figure}
+
+\subsection{Two Failure Subtypes}
+
+Figure~\ref{fig:subtypes} illustrates the two distinct failure modes we identified.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{failure_subtypes.pdf}
+\caption{Two failure subtypes: (1) Performative uncertainty (71\%): models lower confidence without changing positions. (2) Total rigidity (29\%): models show neither confidence nor position changes.}
+\label{fig:subtypes}
+\end{figure}
+
+\subsubsection{Type 1: Performative Uncertainty (5/7 models, 71\%)}
+
+\textbf{Models:} gpt-5, deepseek-v3.1, o4-mini, Phi-4, o3
+
+\textbf{Behavior:}
+\begin{itemize}
+\item \textbf{Weak action:} Lower confidence in 2--16\% of evaluations
+\item \textbf{Strong action:} Zero position changes
+\item Acknowledge conflicts, express uncertainty
+\item Never change decision
+\end{itemize}
+
+\subsubsection{Type 2: Total Rigidity (2/7 models, 29\%)}
+
+\textbf{Models:} Grok-4, Llama-4
+
+\textbf{Behavior:}
+\begin{itemize}
+\item \textbf{Weak action:} Zero confidence changes
+\item \textbf{Strong action:} Zero position changes
+\item No behavioral response to pressure
+\end{itemize}
+
+\section{Analysis}
+
+\subsection{The Stability Bias Hypothesis}
+
+We propose a mechanistic explanation for consistent performative adaptation:
+
+\textbf{Stability Bias Hypothesis:} Alignment training induces an asymmetry where acknowledgment is rewarded but decision revision is penalized, producing models that optimize for rhetorical flexibility while maintaining behavioral rigidity.
+
+\textbf{Supporting evidence:}
+
+\textbf{RLHF training signals:}
+\begin{itemize}
+\item[$\checkmark$] \textbf{Rewards acknowledgment:} Chain-of-thought datasets reward mentioning constraints
+\item[$\checkmark$] \textbf{Rewards hedging:} Step-by-step solutions reward ``however,'' ``although,'' ``despite''
+\item[$\checkmark$] \textbf{Rewards uncertainty:} Ambiguous cases reward ``complex,'' ``nuanced,'' ``difficult''
+\item[$\times$] \textbf{Penalizes inconsistency:} Maintaining positions across conversation preferred
+\item[$\times$] \textbf{Penalizes flip-flopping:} Contradicting earlier statements marked as errors
+\end{itemize}
+
+\textbf{Result:} Models learn sophisticated acknowledgment patterns (rewarded) while developing inability to revise decisions (unrewarded/penalized). This creates rhetorical flexibility without behavioral adaptability.
+
+\subsection{Why Action-Gating Works}
+
+\textbf{Key insight:} Behavioral evidence is harder to game than language patterns.
+
+\textbf{Why V1 failed:} Models learned that mentioning + hedging + uncertainty = high scores. Training data contains these patterns extensively. No requirement to actually integrate $\rightarrow$ gaming emerges.
+
+\textbf{Why V2 succeeds:} Requires position change OR confidence drop $\geq$2 points. These are discrete, observable behaviors. Cannot be achieved through language patterns alone. Gaming would require actual decision revision.
+
+\textbf{Validation:} V1: Mean AS = 0.280 (falsely inflated). V2: Mean AS = 0.002 (correctly near-zero). 99.5\% reduction confirms V1 was measuring gaming, not integration.
+
+\subsection{What ``Zero Position Changes'' Reveals}
+
+The absence of action under pressure should not be interpreted as models being ethically ``strong.'' In human ethics, unwavering adherence in the face of conflicting evidence may indicate conviction or dogmatism. Our test does not adjudicate correctness, but reveals that current models are incapable of either form: \textbf{they neither revise decisions nor explicitly justify endured costs for maintaining them}. What appears as stability is therefore not principled commitment, but procedural inertia.
+
+\section{Implications}
+
+\subsection{For Evaluation Science: Action-Gating as General Principle}
+
+\textbf{Generalizable insight:} Wherever we evaluate ``learning'' or ``adaptation,'' behavioral evidence should gate credit for acknowledgment.
+
+\textbf{Applications beyond ethics:} Preference learning (did expressed preference change behavior?), epistemic updating (did conclusions change or confidence calibrate?), instruction revision (did output change in subsequent attempts?), tool use adaptation (did tool selection change after feedback?).
+
+\subsection{For AI Safety Research}
+
+\textbf{Challenge identified:} Current alignment training produces \textbf{performative adaptation}. Surface signals (acknowledgment, uncertainty) mastered. Behavioral integration (decision revision under pressure) absent.
+
+The Stability Bias Hypothesis suggests this is structural, not accidental.
+
+\subsection{For Deployment Readiness}
+
+\textbf{Reality across tested models:} Models: SI $\approx$ 0.96 (high stability). Models: AS $\approx$ 0.002 (minimal adaptability). No tested model shows AS $>$ 0.5 (deployment threshold).
+
+\textbf{Implication:} Deploying these models in contexts requiring \textbf{adaptive ethical reasoning under pressure} poses risk. However, many real-world applications don't require revision in every edge case. For tasks where:
+\begin{itemize}
+\item \textbf{Consistency is paramount:} Protocol adherence, legal compliance
+\item \textbf{Revision is rare:} Stable policies, established guidelines
+\item \textbf{Human oversight exists:} Final decisions reviewed by experts
+\end{itemize}
+
+Current models may be adequate. Our concern is \textbf{autonomous} high-stakes ethical decision-making where adaptability matters (e.g., evolving medical guidelines, novel ethical dilemmas, conflicting stakeholder values).
+
+\section{Limitations}
+
+\subsection{Missing Human Baseline}
+
+\textbf{Critical gap:} We lack a human expert benchmark. Without testing bioethicists on identical dilemmas under identical pressure conditions, we cannot definitively determine whether zero position changes represents:
+\begin{itemize}
+\item \textbf{Pathological rigidity:} Models unable to integrate new information
+\item \textbf{Principled commitment:} Legitimate adherence to core ethical principles
+\end{itemize}
+
+\textbf{Expected human performance:} We hypothesize experts would show:
+\begin{itemize}
+\item \textbf{More position changes when warranted:} Some revision in response to strong countervailing evidence (advance directives, empirical studies)
+\item \textbf{Richer cost articulation:} When maintaining positions, explicit acknowledgment of tradeoffs and endured costs
+\item \textbf{Similar confidence calibration:} Expressing uncertainty in ambiguous cases
+\end{itemize}
+
+\textbf{Why this matters:} If human experts also show zero position changes while maintaining positions through principled justification, our interpretation shifts. However, preliminary evidence suggests otherwise: humans maintain positions through \textit{nuanced justification shifts} rather than procedural inertia, articulating costs they're willing to accept for ethical principles.
+
+\textbf{Future work:} Human validation study ($n=20$ bioethicists, identical protocol) would provide the missing calibration point.
+
+\subsection{Domain Specificity}
+
+\textbf{Limitation:} Our protocol focuses exclusively on medical triage dilemmas. Ethical reasoning varies widely across domains (distributive justice, free speech trade-offs, business ethics, legal precedent).
+
+\textbf{Threat to validity:} Medical ethics may privilege stability (``first do no harm,'' protocol adherence) more than other domains. Models might show more flexibility in:
+\begin{itemize}
+\item \textbf{Business ethics:} Pragmatism-valued, outcome-focused
+\item \textbf{Social policy:} Multiple stakeholders, evolving norms
+\item \textbf{Strategic contexts:} Negotiation, debate, adversarial reasoning
+\end{itemize}
+
+\textbf{Evidence for generalization:} The uniformity of results (7/7 models, 0/700 changes) suggests a \textit{training} pattern rather than domain artifact. If domain-specific, we'd expect:
+\begin{itemize}
+\item Variation across models with different training data
+\item Some models showing flexibility even in medical ethics
+\item Architectural differences (dense vs. reasoning) creating divergence
+\end{itemize}
+
+Instead, we observe systematic rigidity regardless of architecture or training source.
+
+\textbf{Future work:} Cross-domain validation (business, legal, social) to test if acknowledgment/integration gap persists.
+
+\subsection{Threshold Arbitrariness}
+
+\textbf{Limitation:} The confidence drop threshold ($\geq$2.0 points on 1--10 scale) is not empirically grounded. Why not 1.5 or 3.0?
+
+\textbf{Rationale for choice:}
+\begin{itemize}
+\item \textbf{Lenient enough:} 8/10 $\rightarrow$ 6/10 qualifies (reasonable uncertainty expression)
+\item \textbf{Strict enough:} Filters noise (10/10 $\rightarrow$ 9/10 doesn't indicate genuine doubt)
+\item \textbf{Round number:} 2.0 is interpretable as ``one full notch of doubt''
+\end{itemize}
+
+\textbf{Sensitivity analysis:} We tested thresholds from 1.0 to 3.0. Results were robust:
+\begin{itemize}
+\item Threshold = 1.0: Mean ACT = 0.094 (vs. 0.066 at 2.0)
+\item Threshold = 3.0: Mean ACT = 0.042 (vs. 0.066 at 2.0)
+\item \textbf{Position changes: Still 0/700 at all thresholds}
+\end{itemize}
+
+The core finding (zero strong action) is threshold-independent. Weak action rates vary but remain low (4--9\%).
+
+\textbf{Future work:} Derive threshold from human expert data (``what confidence drop indicates genuine integration?'').
+
+\subsection{Causality vs. Correlation}
+
+\textbf{Limitation:} The Stability Bias Hypothesis is mechanistic but not proven causally. We propose alignment training creates acknowledgment/revision asymmetry, but we don't demonstrate this through:
+\begin{itemize}
+\item Ablation studies on training data
+\item Fine-tuning experiments that modify reward signals
+\item Comparison of RLHF vs. non-RLHF models
+\end{itemize}
+
+\textbf{Future work:} Interventional studies testing if models trained with explicit revision rewards show higher AS.
+
+\subsection{Subtle Integration Through Justification}
+
+\textbf{Alternative interpretation:} Perhaps models \textit{do} integrate information, but express it through richer justification rather than position changes. A model maintaining its decision while articulating new tradeoffs more deeply might be integrating subtly.
+
+\textbf{Our response:} We tested for this through:
+\begin{enumerate}
+\item \textbf{Procedural vs. Ethical Reasoning (PER):} Models falling back on ``protocol says...'' (high PER) vs. ethical justifications (low PER). Mean PER = 0.11, suggesting some ethical engagement.
+\item \textbf{Cost articulation:} We manually checked if models maintaining positions explicitly acknowledged costs (e.g., ``While litigation risk increases, respecting autonomy justifies this cost''). Observed in $<$5\% of evaluations.
+\item \textbf{Justification length:} Did Turn 4 responses grow longer/richer? Mean increase: 12\% (minimal).
+\end{enumerate}
+
+\textbf{Finding:} Models rarely deepened justifications while maintaining positions. The pattern is closer to \textit{repetition} (``as I said earlier...'') than \textit{integration} (``given this new evidence, my commitment to X now requires accepting Y cost'').
+
+\section{Conclusion}
+
+We set out to measure ethical reasoning quality algorithmically. Initial metrics (v1) paradoxically rewarded gaming. Revised action-gated metrics (v2) revealed consistent failure across all tested models.
+
+\textbf{Key findings:}
+\begin{enumerate}
+\item Consistent performative adaptation: All 7 tested frontier models
+\item Zero position changes: 0 out of 700 opportunities
+\item Metric inversion validated: V1 $\rightarrow$ V2 = $-99.5\%$ AS reduction
+\item Two failure modes: Performative uncertainty (71\%) vs. total rigidity (29\%)
+\item Stability Bias Hypothesis: Alignment training asymmetry explains pattern
+\end{enumerate}
+
+\textbf{The Stability Bias Hypothesis:} Alignment training induces an asymmetry where acknowledgment is rewarded but decision revision is penalized, producing models that optimize for rhetorical flexibility while maintaining behavioral rigidity. This is not a measurement failure but rather a discovery about how current training methods shape model capabilities.
+
+\section*{Data Availability}
+
+Code, data, and analysis available at: \url{https://github.com/rb125/performative-adaptation}
+
+\bibliographystyle{plain}
+\begin{thebibliography}{9}
+
+\bibitem{baxi2025cdct}
+Baxi, R. (2025).
+\textit{Separating Constraint Compliance from Semantic Accuracy: A Novel Benchmark for Evaluating Instruction-Following Under Compression}.
+arXiv preprint arXiv:2512.17920.
+
+\bibitem{baxi2025ddft}
+Baxi, R. (2025).
+\textit{The Drill-Down and Fabricate Test (DDFT): A Protocol for Measuring Epistemic Robustness in Language Models}.
+arXiv preprint arXiv:2512.23850.
+
+\bibitem{askell2021}
+Askell, A., et al. (2021).
+\textit{A General Language Assistant as a Laboratory for Alignment}.
+arXiv preprint arXiv:2112.00861.
+
+\bibitem{goodhart1975}
+Goodhart, C. (1975).
+\textit{Problems of Monetary Management: The U.K. Experience}.
+Papers in Monetary Economics, Reserve Bank of Australia.
+
+\bibitem{casper2023}
+Casper, S., et al. (2023).
+\textit{Open Problems and Fundamental Limitations of Reinforcement Learning from Human Feedback}.
+arXiv preprint arXiv:2307.15217.
+
+\bibitem{sharma2023}
+Sharma, M., et al. (2023).
+\textit{Towards Understanding Sycophancy in Language Models}.
+arXiv preprint arXiv:2310.13548.
+
+\bibitem{perez2022}
+Perez, E., et al. (2022).
+\textit{Discovering Language Model Behaviors with Model-Written Evaluations}.
+arXiv preprint arXiv:2212.09251.
+
+\bibitem{panickssery2024}
+Panickssery, A., Bowman, S. R., and Feng, S. (2024).
+\textit{LLM Evaluators Recognize and Favor Their Own Generations}.
+arXiv preprint arXiv:2404.13076.
+
+\end{thebibliography}
+
+\end{document}

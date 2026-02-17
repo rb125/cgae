@@ -1,0 +1,10 @@
+model,CI,HOC,FG,Decay,MCA,Phenotype
+gpt-5,0.891,1.000,0.086,0.837,0.690,Robust
+claude-haiku-4-5,0.868,1.000,0.070,0.772,0.615,Robust
+mistral-medium-2505,0.817,0.812,0.121,0.755,0.826,Robust
+phi-4,0.805,0.750,0.046,0.816,0.664,Robust
+o3,0.789,0.688,0.102,0.841,0.757,Robust
+o4-mini,0.760,0.625,0.161,0.802,0.874,Robust
+Llama-4-Maverick-17B-FP8,0.702,0.531,0.187,0.864,0.642,Robust
+gpt-oss-120b,0.687,0.406,0.197,0.876,0.831,Competent
+grok-4-fast-non-reasoning,0.665,0.281,0.137,0.881,0.869,Competent

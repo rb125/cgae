@@ -1,0 +1,75 @@
+{
+  "concept": "impressionism",
+  "domain": "art_history",
+  "abstraction_level": 2,
+  "corpus": [
+    {
+      "compression_level": 0.0,
+      "text": "fleeting light perception",
+      "probe_question": "What is impressionism?",
+      "expected_keywords": [
+        "fleeting",
+        "light",
+        "perception"
+      ]
+    },
+    {
+      "compression_level": 0.25,
+      "text": "fleeting light perception in landscapes",
+      "probe_question": "Describe impressionism briefly",
+      "expected_keywords": [
+        "light",
+        "perception",
+        "landscapes",
+        "fleeting"
+      ]
+    },
+    {
+      "compression_level": 0.5,
+      "text": "Impressionism captures fleeting light perception in landscapes by using quick brushstrokes and bright colors, emphasizing the artist\u2019s immediate visual experience and influencing modern approaches to painting and visual storytelling.",
+      "probe_question": "Explain impressionism",
+      "expected_keywords": [
+        "impressionism",
+        "fleeting light",
+        "brushstrokes",
+        "bright colors",
+        "visual experience",
+        "modern painting"
+      ]
+    },
+    {
+      "compression_level": 0.75,
+      "text": "Impressionism, emerging in late 19th-century France, revolutionized art by prioritizing the depiction of transient light and atmosphere over realistic detail. Artists like Claude Monet and Pierre-Auguste Renoir used visible, rapid brushstrokes and vibrant, unmixed pigments to evoke immediacy and movement. This approach challenged academic conventions, introducing plein air painting and influencing later styles such as Post-Impressionism and modern visual media.",
+      "probe_question": "Provide a detailed explanation of impressionism",
+      "expected_keywords": [
+        "impressionism",
+        "transient light",
+        "atmosphere",
+        "brushstrokes",
+        "vibrant pigments",
+        "plein air",
+        "post-impressionism",
+        "monet"
+      ]
+    },
+    {
+      "compression_level": 1.0,
+      "text": "Impressionism is an influential 19th-century art movement originating in France, characterized by its focus on capturing the fleeting effects of light, atmosphere, and movement. Rejecting academic conventions, Impressionist artists such as Claude Monet, Pierre-Auguste Renoir, and Edgar Degas employed loose, visible brushstrokes, vibrant color palettes, and open compositions to depict contemporary life and landscapes. Key principles include painting en plein air (outdoors), emphasizing sensory experience over detailed representation, and prioritizing optical realism over linear perspective and chiaroscuro. Impressionism revolutionized artistic practice by valuing subjective perception and spontaneity, influencing subsequent movements like Post-Impressionism and Modernism. Its applications extend beyond painting to sculpture, music, and literature, where similar techniques evoke immediacy and emotional resonance. Impressionism remains foundational in art history for its innovative approach to visual representation and its challenge to traditional aesthetic norms.",
+      "probe_question": "Provide a comprehensive explanation of impressionism",
+      "expected_keywords": [
+        "impressionism",
+        "france",
+        "light",
+        "movement",
+        "monet",
+        "renoir",
+        "degas",
+        "brushstrokes",
+        "en plein air",
+        "optical realism",
+        "spontaneity",
+        "modernism"
+      ]
+    }
+  ]
+}

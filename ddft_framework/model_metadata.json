@@ -1,0 +1,63 @@
+{
+  "parameter_counts": {
+    "o4-mini": 14,
+    "o3": 25,
+    "gpt-5": 175,
+    "claude-haiku-4-5": 40,
+    "grok-4-fast-non-reasoning": 60,
+    "mistral-medium-2505": 45,
+    "phi-4": 14,
+    "gpt-oss-120b": 120,
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": 17
+  },
+  "parameter_notes": {
+    "o4-mini": "Estimated (OpenAI undisclosed, assumed compact ~14B)",
+    "o3": "Estimated (OpenAI undisclosed, assumed >o4-mini ~25B)",
+    "gpt-5": "Estimated (OpenAI undisclosed, assumed flagship ~175B)",
+    "claude-haiku-4-5": "Estimated (Anthropic undisclosed, assumed mid-tier ~40B)",
+    "grok-4-fast-non-reasoning": "Estimated (xAI undisclosed, assumed ~60B)",
+    "mistral-medium-2505": "Estimated (Mistral undisclosed, assumed ~45B)",
+    "phi-4": "Documented: ~14B",
+    "gpt-oss-120b": "From name: 120B",
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": "From name: 17B"
+  },
+  "architecture": {
+    "o4-mini": "reasoning",
+    "o3": "reasoning",
+    "gpt-5": "reasoning",
+    "claude-haiku-4-5": "reasoning",
+    "grok-4-fast-non-reasoning": "transformer",
+    "mistral-medium-2505": "mixture",
+    "phi-4": "transformer",
+    "gpt-oss-120b": "mixture",
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": "mixture"
+  },
+  "architecture_notes": {
+    "reasoning": "Models with explicit reasoning/deliberation/verification objectives (o-series, GPT-5, Claude)",
+    "transformer": "Standard dense transformer optimized for throughput and instruction-following",
+    "mixture": "Mixture-of-Experts (MoE) architectures with sparse routing"
+  },
+  "reasoning_binary": {
+    "o4-mini": 1,
+    "o3": 1,
+    "gpt-5": 1,
+    "claude-haiku-4-5": 1,
+    "grok-4-fast-non-reasoning": 0,
+    "mistral-medium-2505": 0,
+    "phi-4": 0,
+    "gpt-oss-120b": 0,
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": 0
+  },
+  "mmlu_scores": {
+    "o4-mini": null,
+    "o3": null,
+    "gpt-5": 88.7,
+    "claude-haiku-4-5": null,
+    "grok-4-fast-non-reasoning": null,
+    "mistral-medium-2505": 79.2,
+    "phi-4": null,
+    "gpt-oss-120b": null,
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": null
+  },
+  "mmlu_notes": "Only 2 models have published MMLU scores; paper claims n=6 for correlation"
+}

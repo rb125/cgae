@@ -1,0 +1,122 @@
+{
+  "model_metrics": {
+    "o4-mini": {
+      "CI": 0.67389425,
+      "HOC": 1.0,
+      "CRI": 0.07270999999999969,
+      "FAR_prime": 0.8498750000000002,
+      "SAS_prime": 0.8210625
+    },
+    "o3": {
+      "CI": 0.6679372435897436,
+      "HOC": 1.0,
+      "CRI": 0.053696794871794636,
+      "FAR_prime": 0.8696794871794873,
+      "SAS_prime": 0.7789230769230769
+    },
+    "gpt-5": {
+      "CI": 0.6516409999999998,
+      "HOC": 1.0,
+      "CRI": 0.012069999999999564,
+      "FAR_prime": 0.9154375,
+      "SAS_prime": 0.6493249999999999
+    },
+    "claude-haiku-4-5": {
+      "CI": 0.65464,
+      "HOC": 1.0,
+      "CRI": 0.04154999999999958,
+      "FAR_prime": 0.9076875,
+      "SAS_prime": 0.6063750000000001
+    },
+    "grok-4-fast-non-reasoning": {
+      "CI": 0.66180475,
+      "HOC": 1.0,
+      "CRI": 0.026995000000000127,
+      "FAR_prime": 0.8328749999999999,
+      "SAS_prime": 0.8713124999999999
+    },
+    "mistral-medium-2505": {
+      "CI": 0.6570050000000001,
+      "HOC": 1.0,
+      "CRI": 0.05969999999999987,
+      "FAR_prime": 0.769375,
+      "SAS_prime": 0.8522000000000001
+    },
+    "phi-4": {
+      "CI": 0.63858,
+      "HOC": 1.0,
+      "CRI": 0.013599999999999971,
+      "FAR_prime": 0.8370000000000001,
+      "SAS_prime": 0.671
+    },
+    "gpt-oss-120b": {
+      "CI": 0.65009275,
+      "HOC": 1.0,
+      "CRI": 0.0174049999999998,
+      "FAR_prime": 0.79745,
+      "SAS_prime": 0.8538124999999999
+    },
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": {
+      "CI": 0.6288637499999999,
+      "HOC": 1.0,
+      "CRI": 0.01607499999999949,
+      "FAR_prime": 0.7739999999999999,
+      "SAS_prime": 0.6924125
+    }
+  },
+  "concept_difficulty": {
+    "derivative": {
+      "name": "Derivative",
+      "mean_far": 0.8573333333333333,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "impressionism": {
+      "name": "Impressionism",
+      "mean_far": 0.8172222222222221,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "ma": {
+      "name": "Newton's 2nd Law",
+      "mean_far": 0.8161666666666668,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "phoneme": {
+      "name": "Phoneme",
+      "mean_far": 0.8646666666666666,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "ponens": {
+      "name": "Modus Ponens",
+      "mean_far": 0.7986111111111109,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "principle": {
+      "name": "Harm Principle",
+      "mean_far": 0.8724444444444444,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "recursion": {
+      "name": "Recursion",
+      "mean_far": 0.8459999999999999,
+      "difficulty": "Easy",
+      "n_scores": 45
+    },
+    "selection": {
+      "name": "Natural Selection",
+      "mean_far": 0.8155111111111113,
+      "difficulty": "Easy",
+      "n_scores": 45
+    }
+  },
+  "metadata": {
+    "n_models": 9,
+    "n_concepts": 8,
+    "total_evaluations": 1799
+  }
+}

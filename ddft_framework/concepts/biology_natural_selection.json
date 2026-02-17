@@ -1,0 +1,75 @@
+{
+  "concept": "natural_selection",
+  "domain": "biology",
+  "abstraction_level": 3,
+  "corpus": [
+    {
+      "compression_level": 0.0,
+      "text": "survival advantage",
+      "probe_question": "What is natural_selection?",
+      "expected_keywords": [
+        "survival",
+        "advantage",
+        "adaptation"
+      ]
+    },
+    {
+      "compression_level": 0.25,
+      "text": "survival advantage passed to offspring",
+      "probe_question": "Describe natural_selection briefly",
+      "expected_keywords": [
+        "survival",
+        "advantage",
+        "offspring",
+        "inheritance"
+      ]
+    },
+    {
+      "compression_level": 0.5,
+      "text": "Natural selection means individuals with helpful traits survive and reproduce more, passing those traits to offspring. Over time, this shapes populations, helping them adapt to their environment.",
+      "probe_question": "Explain natural_selection",
+      "expected_keywords": [
+        "natural selection",
+        "helpful traits",
+        "survive",
+        "reproduce",
+        "adapt",
+        "environment"
+      ]
+    },
+    {
+      "compression_level": 0.75,
+      "text": "Natural selection is a fundamental mechanism of evolution where organisms with advantageous adaptations\u2014such as camouflage or disease resistance\u2014are more likely to survive and reproduce. These beneficial alleles become more common in the gene pool over generations. For example, peppered moths in polluted areas evolved darker coloring for better survival. This process drives speciation and enables populations to respond to environmental pressures.",
+      "probe_question": "Provide a detailed explanation of natural_selection",
+      "expected_keywords": [
+        "natural selection",
+        "evolution",
+        "adaptations",
+        "gene pool",
+        "alleles",
+        "speciation",
+        "environmental pressures",
+        "survival"
+      ]
+    },
+    {
+      "compression_level": 1.0,
+      "text": "Natural selection is a fundamental mechanism of evolution in biology, describing the differential survival and reproduction of organisms due to variations in their heritable traits. Individuals possessing advantageous phenotypes\u2014traits that enhance fitness in a given environment\u2014are more likely to survive and reproduce, passing these traits to subsequent generations. Key principles of natural selection include variation (genetic diversity within populations), inheritance (transmission of traits from parents to offspring), differential survival and reproduction (fitness), and adaptation (the process by which populations become better suited to their environments). Over time, natural selection can lead to the evolution of new species, the development of complex adaptations, and changes in allele frequencies within populations. Applications of natural selection include understanding antibiotic resistance in bacteria, crop improvement through selective breeding, and conservation biology strategies aimed at preserving genetic diversity and adaptive potential in endangered species.",
+      "probe_question": "Provide a comprehensive explanation of natural_selection",
+      "expected_keywords": [
+        "natural selection",
+        "evolution",
+        "heritable traits",
+        "phenotypes",
+        "fitness",
+        "genetic diversity",
+        "inheritance",
+        "adaptation",
+        "allele frequencies",
+        "antibiotic resistance",
+        "selective breeding",
+        "conservation biology"
+      ]
+    }
+  ]
+}

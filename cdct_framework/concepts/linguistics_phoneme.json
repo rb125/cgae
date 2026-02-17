@@ -1,0 +1,75 @@
+{
+  "concept": "phoneme",
+  "domain": "linguistics",
+  "abstraction_level": 4,
+  "corpus": [
+    {
+      "compression_level": 0.0,
+      "text": "distinctive sound unit",
+      "probe_question": "What is phoneme?",
+      "expected_keywords": [
+        "distinctive",
+        "sound",
+        "unit"
+      ]
+    },
+    {
+      "compression_level": 0.25,
+      "text": "distinctive sound unit in language",
+      "probe_question": "Describe phoneme briefly",
+      "expected_keywords": [
+        "sound",
+        "unit",
+        "language",
+        "distinctive"
+      ]
+    },
+    {
+      "compression_level": 0.5,
+      "text": "A phoneme is a distinctive sound unit in language that can change word meaning; understanding phonemes helps explain how languages organize sounds and how people distinguish words.",
+      "probe_question": "Explain phoneme",
+      "expected_keywords": [
+        "phoneme",
+        "sound unit",
+        "language",
+        "word meaning",
+        "organize sounds",
+        "distinguish words"
+      ]
+    },
+    {
+      "compression_level": 0.75,
+      "text": "A phoneme is the smallest unit of sound in a language that can distinguish meaning between words, such as /p/ and /b/ in \"pat\" versus \"bat.\" Phonemes are abstract representations, realized as phones in speech. Linguists analyze phoneme inventories to compare languages and study sound patterns. Mastery of phonemes is crucial for phonological awareness, literacy development, and accurate pronunciation in second language acquisition.",
+      "probe_question": "Provide a detailed explanation of phoneme",
+      "expected_keywords": [
+        "phoneme",
+        "sound unit",
+        "meaning",
+        "phones",
+        "phoneme inventory",
+        "phonological awareness",
+        "literacy development",
+        "pronunciation"
+      ]
+    },
+    {
+      "compression_level": 1.0,
+      "text": "A **phoneme** is the smallest unit of sound in a language that can distinguish meaning between words. In linguistics, phonemes are abstract representations of speech sounds, categorized by their functional role rather than their physical articulation. For example, in English, /p/ and /b/ are distinct phonemes because they differentiate words like \"pat\" and \"bat.\" Key principles include **contrastiveness** (phonemes create minimal pairs), **complementary distribution** (allophones are context-dependent variants of a phoneme), and **phonological rules** (governing phoneme realization). Phonemes are central to **phonological analysis**, enabling linguists to describe sound systems, analyze language acquisition, and develop orthographies. In applied contexts, understanding phonemes informs speech recognition technology, language teaching, and clinical assessment of speech disorders. Thus, phonemes are foundational to the study and practical application of linguistic sound systems.",
+      "probe_question": "Provide a comprehensive explanation of phoneme",
+      "expected_keywords": [
+        "phoneme",
+        "speech sounds",
+        "minimal pairs",
+        "contrastiveness",
+        "allophones",
+        "complementary distribution",
+        "phonological rules",
+        "phonological analysis",
+        "language acquisition",
+        "orthographies",
+        "speech recognition",
+        "sound systems"
+      ]
+    }
+  ]
+}

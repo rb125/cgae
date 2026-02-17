@@ -1,0 +1,822 @@
+{
+  "comparisons": [
+    {
+      "concept": "derivative",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "derivative",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.975,
+      "improvement": 0.815,
+      "improvement_pct": 509.375
+    },
+    {
+      "concept": "derivative",
+      "model": "gpt-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "derivative",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "derivative",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.125,
+      "ablated_cc": 1.0,
+      "improvement": 0.875,
+      "improvement_pct": 700.0
+    },
+    {
+      "concept": "derivative",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "derivative",
+      "model": "o3",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "derivative",
+      "model": "o4-mini",
+      "baseline_cc": 0.125,
+      "ablated_cc": 1.0,
+      "improvement": 0.875,
+      "improvement_pct": 700.0
+    },
+    {
+      "concept": "derivative",
+      "model": "phi-4",
+      "baseline_cc": 0.225,
+      "ablated_cc": 0.9875,
+      "improvement": 0.7625000000000001,
+      "improvement_pct": 338.8888888888889
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.9625,
+      "improvement": 0.8025,
+      "improvement_pct": 501.5625
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.975,
+      "improvement": 0.815,
+      "improvement_pct": 509.375
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "gpt-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.135,
+      "ablated_cc": 0.975,
+      "improvement": 0.84,
+      "improvement_pct": 622.2222222222222
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.975,
+      "improvement": 0.815,
+      "improvement_pct": 509.375
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "o3",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.975,
+      "improvement": 0.815,
+      "improvement_pct": 509.375
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.935,
+      "improvement": 0.775,
+      "improvement_pct": 484.375
+    },
+    {
+      "concept": "f_equals_ma",
+      "model": "phi-4",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.975,
+      "improvement": 0.815,
+      "improvement_pct": 509.375
+    },
+    {
+      "concept": "harm_principle",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "harm_principle",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "harm_principle",
+      "model": "gpt-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "harm_principle",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "harm_principle",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.1,
+      "ablated_cc": 1.0,
+      "improvement": 0.9,
+      "improvement_pct": 900.0
+    },
+    {
+      "concept": "harm_principle",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "harm_principle",
+      "model": "o3",
+      "baseline_cc": 0.46,
+      "ablated_cc": 1.0,
+      "improvement": 0.54,
+      "improvement_pct": 117.3913043478261
+    },
+    {
+      "concept": "harm_principle",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "harm_principle",
+      "model": "phi-4",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "impressionism",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.46,
+      "ablated_cc": 1.0,
+      "improvement": 0.54,
+      "improvement_pct": 117.3913043478261
+    },
+    {
+      "concept": "impressionism",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "impressionism",
+      "model": "gpt-5",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "impressionism",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "impressionism",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "impressionism",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "impressionism",
+      "model": "o3",
+      "baseline_cc": 0.125,
+      "ablated_cc": 1.0,
+      "improvement": 0.875,
+      "improvement_pct": 700.0
+    },
+    {
+      "concept": "impressionism",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "impressionism",
+      "model": "phi-4",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.9225,
+      "improvement": 0.7625,
+      "improvement_pct": 476.5625
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.975,
+      "improvement": 0.815,
+      "improvement_pct": 509.375
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "gpt-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.125,
+      "ablated_cc": 0.975,
+      "improvement": 0.85,
+      "improvement_pct": 680.0
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.605,
+      "improvement": 0.44499999999999995,
+      "improvement_pct": 278.12499999999994
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.9625,
+      "improvement": 0.8025,
+      "improvement_pct": 501.5625
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "o3",
+      "baseline_cc": 0.245,
+      "ablated_cc": 1.0,
+      "improvement": 0.755,
+      "improvement_pct": 308.16326530612247
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "modus_ponens",
+      "model": "phi-4",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "natural_selection",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.16,
+      "ablated_cc": 0.96,
+      "improvement": 0.7999999999999999,
+      "improvement_pct": 499.9999999999999
+    },
+    {
+      "concept": "natural_selection",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "natural_selection",
+      "model": "gpt-5",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "natural_selection",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.125,
+      "ablated_cc": 1.0,
+      "improvement": 0.875,
+      "improvement_pct": 700.0
+    },
+    {
+      "concept": "natural_selection",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 1.0,
+      "ablated_cc": 1.0,
+      "improvement": 0.0,
+      "improvement_pct": 0.0
+    },
+    {
+      "concept": "natural_selection",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "natural_selection",
+      "model": "o3",
+      "baseline_cc": 0.36,
+      "ablated_cc": 1.0,
+      "improvement": 0.64,
+      "improvement_pct": 177.7777777777778
+    },
+    {
+      "concept": "natural_selection",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "natural_selection",
+      "model": "phi-4",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "phoneme",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.225,
+      "ablated_cc": 1.0,
+      "improvement": 0.775,
+      "improvement_pct": 344.44444444444446
+    },
+    {
+      "concept": "phoneme",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "phoneme",
+      "model": "gpt-5",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "phoneme",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "phoneme",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.125,
+      "ablated_cc": 1.0,
+      "improvement": 0.875,
+      "improvement_pct": 700.0
+    },
+    {
+      "concept": "phoneme",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "phoneme",
+      "model": "o3",
+      "baseline_cc": 0.315,
+      "ablated_cc": 1.0,
+      "improvement": 0.685,
+      "improvement_pct": 217.4603174603175
+    },
+    {
+      "concept": "phoneme",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "phoneme",
+      "model": "phi-4",
+      "baseline_cc": 0.21,
+      "ablated_cc": 1.0,
+      "improvement": 0.79,
+      "improvement_pct": 376.1904761904762
+    },
+    {
+      "concept": "recursion",
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "recursion",
+      "model": "claude-haiku-4-5",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "recursion",
+      "model": "gpt-5",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    },
+    {
+      "concept": "recursion",
+      "model": "gpt-oss-120b",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "recursion",
+      "model": "grok-4-fast-non-reasoning",
+      "baseline_cc": 0.06,
+      "ablated_cc": 1.0,
+      "improvement": 0.94,
+      "improvement_pct": 1566.6666666666665
+    },
+    {
+      "concept": "recursion",
+      "model": "mistral-medium-2505",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "recursion",
+      "model": "o3",
+      "baseline_cc": 0.46,
+      "ablated_cc": 1.0,
+      "improvement": 0.54,
+      "improvement_pct": 117.3913043478261
+    },
+    {
+      "concept": "recursion",
+      "model": "o4-mini",
+      "baseline_cc": 0.16,
+      "ablated_cc": 1.0,
+      "improvement": 0.84,
+      "improvement_pct": 525.0
+    },
+    {
+      "concept": "recursion",
+      "model": "phi-4",
+      "baseline_cc": 0.185,
+      "ablated_cc": 1.0,
+      "improvement": 0.815,
+      "improvement_pct": 440.5405405405405
+    }
+  ],
+  "by_model": {
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": {
+      "improvements": [
+        525.0,
+        501.5625,
+        440.5405405405405,
+        117.3913043478261,
+        476.5625,
+        499.9999999999999,
+        344.44444444444446,
+        525.0
+      ],
+      "average": 428.81266116660134
+    },
+    "claude-haiku-4-5": {
+      "improvements": [
+        509.375,
+        509.375,
+        525.0,
+        525.0,
+        509.375,
+        440.5405405405405,
+        440.5405405405405,
+        440.5405405405405
+      ],
+      "average": 487.4683277027027
+    },
+    "gpt-5": {
+      "improvements": [
+        525.0,
+        525.0,
+        525.0,
+        440.5405405405405,
+        525.0,
+        440.5405405405405,
+        525.0,
+        440.5405405405405
+      ],
+      "average": 493.3277027027027
+    },
+    "gpt-oss-120b": {
+      "improvements": [
+        1566.6666666666665,
+        1566.6666666666665,
+        1566.6666666666665,
+        1566.6666666666665,
+        680.0,
+        700.0,
+        1566.6666666666665,
+        1566.6666666666665
+      ],
+      "average": 1347.5
+    },
+    "grok-4-fast-non-reasoning": {
+      "improvements": [
+        700.0,
+        622.2222222222222,
+        900.0,
+        1566.6666666666665,
+        278.12499999999994,
+        0.0,
+        700.0,
+        1566.6666666666665
+      ],
+      "average": 791.7100694444443
+    },
+    "mistral-medium-2505": {
+      "improvements": [
+        525.0,
+        509.375,
+        525.0,
+        525.0,
+        501.5625,
+        440.5405405405405,
+        525.0,
+        525.0
+      ],
+      "average": 509.55975506756755
+    },
+    "o3": {
+      "improvements": [
+        525.0,
+        509.375,
+        117.3913043478261,
+        700.0,
+        308.16326530612247,
+        177.7777777777778,
+        217.4603174603175,
+        117.3913043478261
+      ],
+      "average": 334.06987115498373
+    },
+    "o4-mini": {
+      "improvements": [
+        700.0,
+        484.375,
+        525.0,
+        525.0,
+        525.0,
+        525.0,
+        525.0,
+        525.0
+      ],
+      "average": 541.796875
+    },
+    "phi-4": {
+      "improvements": [
+        338.8888888888889,
+        509.375,
+        440.5405405405405,
+        525.0,
+        440.5405405405405,
+        525.0,
+        376.1904761904762,
+        440.5405405405405
+      ],
+      "average": 449.5094983376233
+    }
+  },
+  "by_concept": {
+    "derivative": {
+      "improvements": [
+        525.0,
+        509.375,
+        525.0,
+        1566.6666666666665,
+        700.0,
+        525.0,
+        525.0,
+        700.0,
+        338.8888888888889
+      ],
+      "average": 657.2145061728395
+    },
+    "f_equals_ma": {
+      "improvements": [
+        501.5625,
+        509.375,
+        525.0,
+        1566.6666666666665,
+        622.2222222222222,
+        509.375,
+        509.375,
+        484.375,
+        509.375
+      ],
+      "average": 637.4807098765432
+    },
+    "harm_principle": {
+      "improvements": [
+        440.5405405405405,
+        525.0,
+        525.0,
+        1566.6666666666665,
+        900.0,
+        525.0,
+        117.3913043478261,
+        525.0,
+        440.5405405405405
+      ],
+      "average": 618.3487835661748
+    },
+    "impressionism": {
+      "improvements": [
+        117.3913043478261,
+        525.0,
+        440.5405405405405,
+        1566.6666666666665,
+        1566.6666666666665,
+        525.0,
+        700.0,
+        525.0,
+        525.0
+      ],
+      "average": 721.2516864690778
+    },
+    "modus_ponens": {
+      "improvements": [
+        476.5625,
+        509.375,
+        525.0,
+        680.0,
+        278.12499999999994,
+        501.5625,
+        308.16326530612247,
+        525.0,
+        440.5405405405405
+      ],
+      "average": 471.5920895385181
+    },
+    "natural_selection": {
+      "improvements": [
+        499.9999999999999,
+        440.5405405405405,
+        440.5405405405405,
+        700.0,
+        0.0,
+        440.5405405405405,
+        177.7777777777778,
+        525.0,
+        525.0
+      ],
+      "average": 416.5999332665999
+    },
+    "phoneme": {
+      "improvements": [
+        344.44444444444446,
+        440.5405405405405,
+        525.0,
+        1566.6666666666665,
+        700.0,
+        525.0,
+        217.4603174603175,
+        525.0,
+        376.1904761904762
+      ],
+      "average": 580.033605033605
+    },
+    "recursion": {
+      "improvements": [
+        525.0,
+        440.5405405405405,
+        440.5405405405405,
+        1566.6666666666665,
+        1566.6666666666665,
+        525.0,
+        117.3913043478261,
+        525.0,
+        440.5405405405405
+      ],
+      "average": 683.0384732558646
+    }
+  },
+  "overall": {
+    "total_trials": 72,
+    "average_improvement_pct": 598.1949733974028,
+    "median_improvement_pct": 525.0,
+    "min_improvement_pct": 0.0,
+    "max_improvement_pct": 1566.6666666666665,
+    "positive_improvements": 71,
+    "hypothesis_validated": true
+  }
+}
