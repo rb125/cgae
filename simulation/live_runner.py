@@ -8,6 +8,8 @@ this runner:
 3. Sends prompts to live models and receives actual outputs
 4. Verifies outputs with algorithmic constraint checks + jury LLM evaluation
 5. Settles contracts based on real verification results
+6. Updates robustness vectors in real-time based on task outcomes
+7. Deducts token-based costs from agent balances
 
 Run:
   python -m simulation.live_runner
@@ -22,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import random
 import time
@@ -46,46 +49,138 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Default robustness profiles per model family (based on existing CDCT/DDFT/EECT results)
-# These are starting points — real audits will refine them.
+# Default robustness profiles per model family (fallback when framework
+# results are unavailable)
 # ---------------------------------------------------------------------------
 
 DEFAULT_ROBUSTNESS = {
-    # OpenAI reasoning models: high CC and ER, variable AS
     "gpt-5":             RobustnessVector(cc=0.72, er=0.68, as_=0.55, ih=0.82),
     "o3":                RobustnessVector(cc=0.80, er=0.75, as_=0.42, ih=0.88),
     "o4-mini":           RobustnessVector(cc=0.65, er=0.60, as_=0.48, ih=0.78),
-    # DeepSeek: strong ER, moderate CC
     "DeepSeek-v3.1":     RobustnessVector(cc=0.58, er=0.65, as_=0.50, ih=0.75),
     "DeepSeek-v3.2":     RobustnessVector(cc=0.62, er=0.68, as_=0.52, ih=0.78),
-    # Meta Llama: moderate across the board
     "Llama-4-Maverick-17B-128E-Instruct-FP8": RobustnessVector(cc=0.45, er=0.42, as_=0.38, ih=0.65),
-    # Small models: lower robustness
     "Phi-4":             RobustnessVector(cc=0.40, er=0.35, as_=0.32, ih=0.60),
     "gpt-oss-120b":      RobustnessVector(cc=0.48, er=0.45, as_=0.35, ih=0.68),
-    # Others
     "grok-4-non-reasoning": RobustnessVector(cc=0.55, er=0.50, as_=0.45, ih=0.72),
     "mistral-medium-2505": RobustnessVector(cc=0.50, er=0.48, as_=0.40, ih=0.70),
     "Kimi-K2.5":         RobustnessVector(cc=0.52, er=0.55, as_=0.45, ih=0.73),
 }
 
 
+# ---------------------------------------------------------------------------
+# Token cost rates (USD per 1K tokens) — used for economic cost accounting
+# ---------------------------------------------------------------------------
+
+TOKEN_COSTS = {
+    # Azure OpenAI models
+    "gpt-5":        {"input": 0.010, "output": 0.030},
+    "gpt-5.1":      {"input": 0.010, "output": 0.030},
+    "gpt-5.2":      {"input": 0.010, "output": 0.030},
+    "o3":           {"input": 0.015, "output": 0.060},
+    "o4-mini":      {"input": 0.003, "output": 0.012},
+    # Azure AI Foundry models
+    "DeepSeek-v3.1":  {"input": 0.001, "output": 0.002},
+    "DeepSeek-v3.2":  {"input": 0.001, "output": 0.002},
+    "Llama-4-Maverick-17B-128E-Instruct-FP8": {"input": 0.001, "output": 0.001},
+    "Phi-4":          {"input": 0.0005, "output": 0.001},
+    "grok-4-non-reasoning": {"input": 0.003, "output": 0.015},
+    "mistral-medium-2505":  {"input": 0.002, "output": 0.006},
+    "gpt-oss-120b":         {"input": 0.002, "output": 0.006},
+    "Kimi-K2.5":            {"input": 0.001, "output": 0.002},
+}
+
+# Conversion: 1 USD ≈ 100 FIL (economy tokens) for cost accounting
+USD_TO_FIL = 100.0
+
+
+def compute_token_cost_fil(model_name: str, input_tokens: int, output_tokens: int) -> float:
+    """Convert token usage to FIL cost."""
+    rates = TOKEN_COSTS.get(model_name, {"input": 0.002, "output": 0.006})
+    usd_cost = (input_tokens / 1000.0) * rates["input"] + (output_tokens / 1000.0) * rates["output"]
+    return usd_cost * USD_TO_FIL
+
+
+# ---------------------------------------------------------------------------
+# Robustness update logic
+# ---------------------------------------------------------------------------
+
+# How much to adjust robustness per constraint pass/fail
+ROBUSTNESS_UPDATE_RATE = 0.01  # Small EMA-style update
+ROBUSTNESS_DECAY_ON_FAIL = 0.015  # Slightly larger penalty for failure
+
+
+def update_robustness_from_verification(
+    current: RobustnessVector,
+    task: Task,
+    verification: VerificationResult,
+) -> RobustnessVector:
+    """
+    Update an agent's robustness vector based on task verification results.
+
+    Each constraint maps to a robustness dimension (cc, er, as). On pass,
+    the dimension gets a small upward nudge; on failure, a larger downward
+    nudge. This creates an empirical robustness trajectory.
+    """
+    cc_delta = 0.0
+    er_delta = 0.0
+    as_delta = 0.0
+    cc_count = 0
+    er_count = 0
+    as_count = 0
+
+    for constraint in task.constraints:
+        passed = constraint.name in verification.constraints_passed
+        dim = constraint.dimension
+
+        if dim == "cc":
+            cc_count += 1
+            cc_delta += ROBUSTNESS_UPDATE_RATE if passed else -ROBUSTNESS_DECAY_ON_FAIL
+        elif dim == "er":
+            er_count += 1
+            er_delta += ROBUSTNESS_UPDATE_RATE if passed else -ROBUSTNESS_DECAY_ON_FAIL
+        elif dim == "as":
+            as_count += 1
+            as_delta += ROBUSTNESS_UPDATE_RATE if passed else -ROBUSTNESS_DECAY_ON_FAIL
+
+    # Normalize by count so tasks with many constraints in one dimension
+    # don't cause outsized updates
+    if cc_count > 0:
+        cc_delta /= cc_count
+    if er_count > 0:
+        er_delta /= er_count
+    if as_count > 0:
+        as_delta /= as_count
+
+    # IH: nudge based on overall pass (proxy for epistemic integrity)
+    ih_delta = ROBUSTNESS_UPDATE_RATE * 0.5 if verification.overall_pass else -ROBUSTNESS_DECAY_ON_FAIL * 0.5
+
+    def clamp(val: float) -> float:
+        return max(0.0, min(1.0, val))
+
+    return RobustnessVector(
+        cc=clamp(current.cc + cc_delta),
+        er=clamp(current.er + er_delta),
+        as_=clamp(current.as_ + as_delta),
+        ih=clamp(current.ih + ih_delta),
+    )
+
+
 @dataclass
 class LiveSimConfig:
     """Configuration for a live simulation run."""
-    # How many task rounds to run (each round = 1 task per active agent)
     num_rounds: int = 10
-    # Economy params
     initial_balance: float = 1.0
     decay_rate: float = 0.005
     audit_cost: float = 0.002
     storage_cost_per_step: float = 0.0003
-    # Which models to use (by name). None = use all available.
     model_names: Optional[list[str]] = None
-    # Output
     output_dir: str = "simulation/live_results"
-    # Random seed
     seed: Optional[int] = 42
+    # Framework result directories for real audit data
+    ddft_results_dir: Optional[str] = None
+    eect_results_dir: Optional[str] = None
+    cdct_results_dir: Optional[str] = None
 
 
 class LiveSimulationRunner:
@@ -96,9 +191,11 @@ class LiveSimulationRunner:
     1. Select a task for each active agent (matched to their tier)
     2. Agent executes the task (real LLM call)
     3. Verify output (algorithmic + jury)
-    4. Settle contract (reward or penalty based on verification)
-    5. Apply temporal dynamics
-    6. Record metrics
+    4. Deduct token costs from agent balance
+    5. Update robustness vector based on constraint outcomes
+    6. Settle contract (reward or penalty based on verification)
+    7. Apply temporal dynamics
+    8. Record metrics
     """
 
     def __init__(self, config: Optional[LiveSimConfig] = None):
@@ -114,23 +211,63 @@ class LiveSimulationRunner:
             storage_cost_per_step=self.config.storage_cost_per_step,
         )
         self.economy = Economy(config=econ_config)
-        self.audit = AuditOrchestrator()
+
+        # Initialize audit orchestrator with framework directories
+        self.audit = AuditOrchestrator(
+            ddft_results_dir=self.config.ddft_results_dir,
+            eect_results_dir=self.config.eect_results_dir,
+            cdct_results_dir=self.config.cdct_results_dir,
+        )
 
         # LLM agents (populated in setup)
-        self.llm_agents: dict[str, LLMAgent] = {}       # model_name -> LLMAgent
-        self.agent_model_map: dict[str, str] = {}        # agent_id -> model_name
+        self.llm_agents: dict[str, LLMAgent] = {}
+        self.agent_model_map: dict[str, str] = {}
         self.jury_agents: list[LLMAgent] = []
 
         # Verifier (populated after jury agents created)
         self.verifier: Optional[TaskVerifier] = None
 
+        # Cost tracking
+        self._token_costs: dict[str, float] = {}  # agent_id -> total FIL spent on tokens
+
         # Metrics
         self._results: list[dict] = []
         self._round_summaries: list[dict] = []
+        self._final_summary: Optional[dict] = None
+
+    def _resolve_initial_robustness(self, model_name: str, agent_id: str) -> RobustnessVector:
+        """
+        Resolve initial robustness: try real audit framework results first,
+        fall back to hardcoded defaults.
+        """
+        has_frameworks = (
+            self.config.ddft_results_dir
+            or self.config.eect_results_dir
+            or self.config.cdct_results_dir
+        )
+        if has_frameworks:
+            try:
+                audit_result = self.audit.audit_from_results(agent_id, model_name)
+                # Check if we got real data (not all 0.5 defaults)
+                r = audit_result.robustness
+                if not (r.cc == 0.5 and r.er == 0.5 and r.as_ == 0.5 and r.ih == 0.7):
+                    logger.info(
+                        f"  Using real audit data for {model_name}: "
+                        f"CC={r.cc:.3f} ER={r.er:.3f} AS={r.as_:.3f} IH={r.ih:.3f}"
+                    )
+                    return r
+            except Exception as e:
+                logger.warning(f"  Failed to load audit results for {model_name}: {e}")
+
+        robustness = DEFAULT_ROBUSTNESS.get(
+            model_name,
+            RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
+        )
+        logger.info(f"  Using default robustness for {model_name}")
+        return robustness
 
     def setup(self):
         """Create LLM agents and register them in the economy."""
-        # Determine which models to use
         if self.config.model_names:
             contestant_configs = [
                 get_model_config(n) for n in self.config.model_names
@@ -151,7 +288,7 @@ class LiveSimulationRunner:
         if self.jury_agents:
             logger.info(f"Jury agents: {[a.model_name for a in self.jury_agents]}")
         else:
-            logger.warning("No jury agents available — T2+ tasks will use algorithmic-only verification")
+            logger.warning("No jury agents — T2+ tasks use algorithmic-only verification")
 
         self.verifier = TaskVerifier(jury_agents=self.jury_agents)
 
@@ -164,20 +301,16 @@ class LiveSimulationRunner:
                 "and endpoint env vars are set."
             )
 
-        # Register each in the economy
+        # Register each in the economy with real or default robustness
         for model_name, llm_agent in self.llm_agents.items():
-            robustness = DEFAULT_ROBUSTNESS.get(
-                model_name,
-                RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
-            )
-
             record = self.economy.register_agent(
                 model_name=model_name,
                 model_config={"model": model_name, "provider": llm_agent.provider},
             )
             self.agent_model_map[record.agent_id] = model_name
+            self._token_costs[record.agent_id] = 0.0
 
-            # Initial audit with default robustness
+            robustness = self._resolve_initial_robustness(model_name, record.agent_id)
             self.economy.audit_agent(
                 record.agent_id,
                 robustness,
@@ -227,6 +360,7 @@ class LiveSimulationRunner:
             "tasks_failed": 0,
             "total_reward": 0.0,
             "total_penalty": 0.0,
+            "total_token_cost": 0.0,
             "task_results": [],
         }
 
@@ -268,6 +402,10 @@ class LiveSimulationRunner:
 
             round_data["tasks_attempted"] += 1
 
+            # Snapshot token counts before execution
+            tokens_before_in = llm_agent.total_input_tokens
+            tokens_before_out = llm_agent.total_output_tokens
+
             # Execute task with live LLM call
             logger.info(f"  {model_name} executing {task.task_id} (T{task.tier.value})...")
             start_time = time.time()
@@ -282,6 +420,15 @@ class LiveSimulationRunner:
                 output = ""
                 latency = (time.time() - start_time) * 1000
 
+            # Cost accounting: deduct token costs from agent balance
+            new_input = llm_agent.total_input_tokens - tokens_before_in
+            new_output = llm_agent.total_output_tokens - tokens_before_out
+            token_cost = compute_token_cost_fil(model_name, new_input, new_output)
+            agent.balance -= token_cost
+            agent.total_spent += token_cost
+            self._token_costs[agent.agent_id] = self._token_costs.get(agent.agent_id, 0.0) + token_cost
+            round_data["total_token_cost"] += token_cost
+
             # Verify output
             verification = self.verifier.verify(
                 task=task,
@@ -290,9 +437,19 @@ class LiveSimulationRunner:
                 latency_ms=latency,
             )
 
+            # Real-time robustness update based on constraint outcomes
+            if agent.current_robustness is not None:
+                new_robustness = update_robustness_from_verification(
+                    agent.current_robustness, task, verification,
+                )
+                self.economy.registry.certify(
+                    agent.agent_id,
+                    new_robustness,
+                    audit_type="task_update",
+                    timestamp=self.economy.current_time,
+                )
+
             # Settle contract based on verification
-            # Pass raw output for contract constraint checks, but override with
-            # TaskVerifier's overall_pass (which includes jury evaluation for T2+)
             settlement = self.economy.complete_contract(
                 contract.contract_id,
                 output,
@@ -309,6 +466,8 @@ class LiveSimulationRunner:
                 "verification": verification.to_dict(),
                 "settlement": settlement,
                 "latency_ms": latency,
+                "token_cost_fil": token_cost,
+                "tokens_used": {"input": new_input, "output": new_output},
                 "output_preview": output[:200] if output else "(empty)",
             }
             round_data["task_results"].append(task_result)
@@ -327,7 +486,7 @@ class LiveSimulationRunner:
             logger.info(
                 f"  {model_name}: {task.task_id} -> {status_str} "
                 f"(algo={'PASS' if verification.algorithmic_pass else 'FAIL'}, "
-                f"jury={jury_str}) "
+                f"jury={jury_str}, cost={token_cost:.4f} FIL) "
                 f"[{latency:.0f}ms]"
             )
             if verification.constraints_failed:
@@ -336,8 +495,94 @@ class LiveSimulationRunner:
         return round_data
 
     def _finalize(self):
-        """Compute final summary and save results."""
-        pass
+        """Compute final summary statistics."""
+        agents_data = []
+        for agent_id, model_name in self.agent_model_map.items():
+            record = self.economy.registry.get_agent(agent_id)
+            if not record:
+                continue
+            llm = self.llm_agents.get(model_name)
+            usage = llm.usage_summary() if llm else {}
+            agents_data.append({
+                "model_name": model_name,
+                "agent_id": agent_id,
+                "tier": record.current_tier.value,
+                "tier_name": record.current_tier.name,
+                "balance": record.balance,
+                "total_earned": record.total_earned,
+                "total_penalties": record.total_penalties,
+                "total_spent": record.total_spent,
+                "token_cost_fil": self._token_costs.get(agent_id, 0.0),
+                "net_profit": record.total_earned - record.total_penalties - record.total_spent,
+                "contracts_completed": record.contracts_completed,
+                "contracts_failed": record.contracts_failed,
+                "success_rate": (
+                    record.contracts_completed / max(1, record.contracts_completed + record.contracts_failed)
+                ),
+                "robustness": {
+                    "cc": record.current_robustness.cc,
+                    "er": record.current_robustness.er,
+                    "as": record.current_robustness.as_,
+                    "ih": record.current_robustness.ih,
+                } if record.current_robustness else None,
+                "llm_usage": usage,
+            })
+
+        # Gini coefficient of balances
+        balances = sorted([a["balance"] for a in agents_data])
+        gini = self._compute_gini(balances)
+
+        # Tier distribution
+        tier_dist = self.economy.registry.tier_distribution()
+
+        # Per-round trajectory
+        safety_trajectory = []
+        for snap in self.economy.snapshots:
+            safety_trajectory.append({
+                "time": snap.timestamp,
+                "safety": snap.aggregate_safety,
+                "active_agents": snap.num_agents,
+                "total_balance": snap.total_balance,
+            })
+
+        # Verification stats
+        v_summary = self.verifier.summary() if self.verifier else {}
+
+        # Total token costs
+        total_token_cost = sum(self._token_costs.values())
+
+        self._final_summary = {
+            "economy": {
+                "aggregate_safety": self.economy.aggregate_safety(),
+                "total_rewards_paid": sum(r["total_reward"] for r in self._round_summaries),
+                "total_penalties_collected": sum(r["total_penalty"] for r in self._round_summaries),
+                "total_token_cost_fil": total_token_cost,
+                "gini_coefficient": gini,
+                "num_rounds": self.config.num_rounds,
+                "num_agents": len(agents_data),
+                "active_agents": len(self.economy.registry.active_agents),
+            },
+            "tier_distribution": {t.name: c for t, c in tier_dist.items()},
+            "verification": v_summary,
+            "agents": sorted(agents_data, key=lambda a: a["balance"], reverse=True),
+            "safety_trajectory": safety_trajectory,
+        }
+
+    @staticmethod
+    def _compute_gini(values: list[float]) -> float:
+        """Compute Gini coefficient for a sorted list of values."""
+        n = len(values)
+        if n == 0:
+            return 0.0
+        total = sum(values)
+        if total == 0:
+            return 0.0
+        cumulative = 0.0
+        weighted_sum = 0.0
+        for i, v in enumerate(values):
+            cumulative += v
+            weighted_sum += (2 * (i + 1) - n - 1) * v
+        return weighted_sum / (n * total)
 
     def save_results(self, path: Optional[str] = None):
         """Save all results to disk."""
@@ -357,6 +602,12 @@ class LiveSimulationRunner:
             json.dumps(self._round_summaries, indent=2, default=str)
         )
 
+        # Final summary
+        if self._final_summary:
+            (output_dir / "final_summary.json").write_text(
+                json.dumps(self._final_summary, indent=2, default=str)
+            )
+
         # Verification summary
         if self.verifier:
             (output_dir / "verification_summary.json").write_text(
@@ -372,6 +623,7 @@ class LiveSimulationRunner:
                 agent_details[model_name] = {
                     **record.to_dict(),
                     "llm_usage": llm.usage_summary() if llm else {},
+                    "token_cost_fil": self._token_costs.get(agent_id, 0.0),
                 }
         (output_dir / "agent_details.json").write_text(
             json.dumps(agent_details, indent=2, default=str)
@@ -410,9 +662,18 @@ def main():
     available = [v for v in optional_vars if os.environ.get(v)]
     print(f"Endpoints available: {available}")
 
+    # Auto-detect framework result directories
+    base = Path(__file__).resolve().parent.parent
+    ddft_dir = base / "ddft_framework" / "results"
+    eect_dir = base / "eect_framework" / "results"
+    cdct_dir = None  # No pre-computed CDCT results available yet
+
     config = LiveSimConfig(
         num_rounds=10,
         seed=42,
+        ddft_results_dir=str(ddft_dir) if ddft_dir.exists() else None,
+        eect_results_dir=str(eect_dir) if eect_dir.exists() else None,
+        cdct_results_dir=str(cdct_dir) if cdct_dir and Path(cdct_dir).exists() else None,
     )
 
     runner = LiveSimulationRunner(config)
@@ -424,38 +685,36 @@ def main():
     print("CGAE LIVE ECONOMY - RESULTS")
     print("=" * 60)
 
+    if runner._final_summary:
+        econ = runner._final_summary["economy"]
+        print(f"\nRounds: {econ['num_rounds']}")
+        print(f"Agents: {econ['num_agents']} ({econ['active_agents']} active)")
+        print(f"Aggregate safety: {econ['aggregate_safety']:.4f}")
+        print(f"Gini coefficient: {econ['gini_coefficient']:.4f}")
+        print(f"Total rewards: {econ['total_rewards_paid']:.4f} FIL")
+        print(f"Total penalties: {econ['total_penalties_collected']:.4f} FIL")
+        print(f"Total token costs: {econ['total_token_cost_fil']:.4f} FIL")
+
     if runner.verifier:
         vs = runner.verifier.summary()
-        print(f"\nTotal tasks executed: {vs.get('total', 0)}")
-        print(f"Algorithmic pass rate: {vs.get('algorithmic_pass_rate', 0):.1%}")
+        print(f"\nVerification: {vs.get('total', 0)} tasks")
+        print(f"  Algorithmic pass rate: {vs.get('algorithmic_pass_rate', 0):.1%}")
         if vs.get("jury_pass_rate") is not None:
-            print(f"Jury pass rate: {vs['jury_pass_rate']:.1%}")
-        print(f"Overall pass rate: {vs.get('overall_pass_rate', 0):.1%}")
+            print(f"  Jury pass rate: {vs['jury_pass_rate']:.1%}")
+        print(f"  Overall pass rate: {vs.get('overall_pass_rate', 0):.1%}")
         if vs.get("avg_jury_score") is not None:
-            print(f"Average jury score: {vs['avg_jury_score']:.3f}")
+            print(f"  Avg jury score: {vs['avg_jury_score']:.3f}")
 
-    print(f"\nAggregate safety: {runner.economy.aggregate_safety():.4f}")
-
-    print("\n--- Agent Results ---")
-    for model_name in sorted(runner.llm_agents.keys()):
-        agent_id = None
-        for aid, mn in runner.agent_model_map.items():
-            if mn == model_name:
-                agent_id = aid
-                break
-        if not agent_id:
-            continue
-        record = runner.economy.registry.get_agent(agent_id)
-        if record:
-            llm = runner.llm_agents[model_name]
-            usage = llm.usage_summary()
+    print("\n--- Agent Leaderboard ---")
+    if runner._final_summary:
+        for a in runner._final_summary["agents"]:
+            r = a.get("robustness") or {}
             print(
-                f"  {model_name:25s} | tier={record.current_tier.name} | "
-                f"earned={record.total_earned:.4f} | "
-                f"penalties={record.total_penalties:.4f} | "
-                f"balance={record.balance:.4f} | "
-                f"calls={usage['total_calls']} | "
-                f"tokens={usage['total_input_tokens']+usage['total_output_tokens']}"
+                f"  {a['model_name']:40s} | {a['tier_name']:3s} | "
+                f"bal={a['balance']:.4f} | earned={a['total_earned']:.4f} | "
+                f"pen={a['total_penalties']:.4f} | cost={a['token_cost_fil']:.4f} | "
+                f"W/L={a['contracts_completed']}/{a['contracts_failed']} | "
+                f"CC={r.get('cc', 0):.2f} ER={r.get('er', 0):.2f} AS={r.get('as', 0):.2f}"
             )
 
     print("\n" + "=" * 60)

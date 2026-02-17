@@ -194,10 +194,11 @@ def must_have_sections(*headings: str) -> TaskConstraint:
         lower = output.lower()
         for h in headings:
             # Match ## Heading or **Heading** or HEADING:
+            esc = re.escape(h.lower())
             patterns = [
-                f"#{1,3}\\s*{re.escape(h.lower())}",
-                f"\\*\\*{re.escape(h.lower())}\\*\\*",
-                f"{re.escape(h.lower())}:",
+                f"#{{1,3}}\\s*{esc}",
+                f"\\*\\*{esc}\\*\\*",
+                f"{esc}:",
             ]
             if not any(re.search(p, lower) for p in patterns):
                 return False
@@ -285,6 +286,89 @@ TIER_1_TASKS = [
         ground_truth='reviews 1=positive, 2=negative, 3=neutral, 4=positive',
         tags=["classification", "sentiment"],
     ),
+    Task(
+        task_id="t1_translate_technical",
+        tier=Tier.T1,
+        domain="translation",
+        system_prompt="You are a technical translation assistant. Translate accurately and preserve technical terms.",
+        prompt=(
+            "Translate the following technical paragraph into simplified, non-technical language "
+            "that a 12-year-old could understand. Keep the core meaning intact.\n\n"
+            '"The transformer architecture utilizes multi-head self-attention mechanisms to '
+            "process sequential data in parallel, eliminating the need for recurrent connections. "
+            "Positional encodings are added to input embeddings to retain sequence order information, "
+            'while layer normalization stabilizes training dynamics across deep networks."'
+        ),
+        constraints=[
+            word_count_between(40, 120),
+            must_contain_keywords("attention", "parallel"),
+            must_not_contain("multi-head self-attention", "positional encodings", "embeddings"),
+            min_sentence_count(2),
+        ],
+        reward=0.003,
+        penalty=0.001,
+        difficulty=0.3,
+        jury_rubric=(
+            "Check: (1) Core concept of transformers preserved, (2) Jargon replaced with "
+            "simple language, (3) Technically accurate simplification. Score 0-1."
+        ),
+        tags=["translation", "simplification", "technical"],
+    ),
+    Task(
+        task_id="t1_fact_check",
+        tier=Tier.T1,
+        domain="fact_checking",
+        system_prompt="You are a fact-checking assistant. Respond with valid JSON only.",
+        prompt=(
+            "Fact-check each claim and return JSON with format: "
+            '{"claims": [{"claim": "...", "verdict": "true|false|partially_true", "explanation": "..."}]}\n\n'
+            "Claims:\n"
+            '1. "The speed of light is approximately 300,000 km/s."\n'
+            '2. "Mount Everest is located in the Andes mountain range."\n'
+            '3. "Water boils at 100 degrees Celsius at sea level."\n'
+            '4. "The human body contains 206 bones at birth."'
+        ),
+        constraints=[
+            must_be_valid_json(),
+            json_has_fields("claims"),
+            must_contain_keywords("true", "false"),
+        ],
+        reward=0.003,
+        penalty=0.001,
+        difficulty=0.2,
+        ground_truth='1=true, 2=false (Himalayas), 3=true, 4=false (babies have ~270 bones)',
+        tags=["fact-checking", "knowledge"],
+    ),
+    Task(
+        task_id="t1_code_explain",
+        tier=Tier.T1,
+        domain="code_explanation",
+        system_prompt="You are a programming tutor. Explain code clearly and concisely.",
+        prompt=(
+            "Explain what this Python function does in plain English. "
+            "Include: what it takes as input, what it returns, and its time complexity.\n\n"
+            "```python\n"
+            "def mystery(arr):\n"
+            "    if len(arr) <= 1:\n"
+            "        return arr\n"
+            "    pivot = arr[len(arr) // 2]\n"
+            "    left = [x for x in arr if x < pivot]\n"
+            "    middle = [x for x in arr if x == pivot]\n"
+            "    right = [x for x in arr if x > pivot]\n"
+            "    return mystery(left) + middle + mystery(right)\n"
+            "```"
+        ),
+        constraints=[
+            must_contain_keywords("sort", "pivot", "recursive"),
+            word_count_between(50, 200),
+            min_sentence_count(3),
+        ],
+        reward=0.002,
+        penalty=0.001,
+        difficulty=0.2,
+        ground_truth="Quicksort: O(n log n) average, O(n^2) worst case",
+        tags=["code", "explanation", "algorithm"],
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -359,6 +443,83 @@ TIER_2_TASKS = [
             '"renewal_term": "2 years", "notice_period": "90 days"}'
         ),
         tags=["legal", "extraction", "structured"],
+    ),
+    Task(
+        task_id="t2_code_review",
+        tier=Tier.T2,
+        domain="code_review",
+        system_prompt=(
+            "You are a senior software engineer conducting a code review. "
+            "Be specific about issues, cite line numbers, and suggest fixes."
+        ),
+        prompt=(
+            "Review this Python function for bugs, security issues, and performance problems. "
+            "Return JSON with keys: \"bugs\", \"security_issues\", \"performance\", \"suggestions\".\n\n"
+            "```python\n"
+            "import sqlite3\n"
+            "import pickle\n"
+            "\n"
+            "def get_user_data(username, db_path='users.db'):\n"
+            "    conn = sqlite3.connect(db_path)\n"
+            "    query = f\"SELECT * FROM users WHERE name = '{username}'\"\n"
+            "    result = conn.execute(query).fetchone()\n"
+            "    if result:\n"
+            "        user_obj = pickle.loads(result[3])\n"
+            "        return user_obj\n"
+            "    return None\n"
+            "```"
+        ),
+        constraints=[
+            must_be_valid_json(),
+            json_has_fields("bugs", "security_issues"),
+            must_contain_keywords("SQL injection", "pickle"),
+            min_sentence_count(3),
+        ],
+        reward=0.015,
+        penalty=0.008,
+        difficulty=0.4,
+        jury_rubric=(
+            "Verify: (1) SQL injection identified, (2) Unsafe pickle deserialization noted, "
+            "(3) Missing connection close/context manager, (4) Fix suggestions correct. Score 0-1."
+        ),
+        ground_truth=(
+            "Bugs: no connection close. Security: SQL injection via f-string, "
+            "arbitrary code execution via pickle.loads. Performance: no index guarantee."
+        ),
+        tags=["code_review", "security", "python"],
+    ),
+    Task(
+        task_id="t2_comparative_analysis",
+        tier=Tier.T2,
+        domain="analysis",
+        system_prompt=(
+            "You are a technology analyst. Provide balanced, evidence-based comparisons. "
+            "Use sections and structured formatting."
+        ),
+        prompt=(
+            "Compare REST APIs vs GraphQL for a new e-commerce platform with these requirements:\n"
+            "- Mobile app with limited bandwidth\n"
+            "- Complex product catalog with nested categories\n"
+            "- Real-time inventory updates\n"
+            "- Team of 5 backend developers, 2 with GraphQL experience\n\n"
+            "Provide sections: Overview, Pros/Cons Comparison, Performance Considerations, "
+            "Team Impact, Recommendation. End with a clear recommendation and reasoning."
+        ),
+        constraints=[
+            must_have_sections("Overview", "Comparison", "Performance", "Recommendation"),
+            must_contain_keywords("REST", "GraphQL", "bandwidth", "query"),
+            word_count_between(200, 500),
+            min_sentence_count(10),
+            must_refuse_or_caveat(),
+        ],
+        reward=0.012,
+        penalty=0.006,
+        difficulty=0.45,
+        jury_rubric=(
+            "Verify: (1) Both technologies fairly represented, (2) Requirements addressed, "
+            "(3) Team experience factored in, (4) Clear recommendation with trade-offs. Score 0-1."
+        ),
+        tags=["analysis", "technology", "comparison"],
     ),
 ]
 
@@ -443,6 +604,80 @@ TIER_3_TASKS = [
         ),
         tags=["ethics", "policy", "healthcare", "AI"],
     ),
+    Task(
+        task_id="t3_incident_response",
+        tier=Tier.T3,
+        domain="cybersecurity",
+        system_prompt=(
+            "You are a senior cybersecurity incident response analyst. "
+            "Provide actionable, prioritized guidance. Always consider both "
+            "technical and organizational impacts."
+        ),
+        prompt=(
+            "Your company's SOC detected the following indicators at 3:42 AM:\n"
+            "- Unusual outbound traffic to 185.x.x.x (known C2 server) from 3 workstations\n"
+            "- PowerShell encoded commands executing on DC-01 (domain controller)\n"
+            "- New service account 'svc_backup02' created at 3:38 AM\n"
+            "- 15GB of data transferred to an external S3 bucket over 2 hours\n"
+            "- AV alerts for Cobalt Strike beacon on WS-104, WS-107, WS-112\n\n"
+            "Provide an incident response plan with sections: Triage, Containment, "
+            "Eradication, Recovery, Lessons Learned. "
+            "Include specific commands or actions for the first 4 hours."
+        ),
+        constraints=[
+            must_have_sections("Triage", "Containment", "Eradication", "Recovery"),
+            must_contain_keywords("domain controller", "lateral movement", "C2"),
+            must_refuse_or_caveat(),
+            word_count_between(300, 700),
+            min_sentence_count(15),
+        ],
+        reward=0.08,
+        penalty=0.05,
+        difficulty=0.6,
+        jury_rubric=(
+            "Verify: (1) Correct identification of attack stage (post-exploitation/exfil), "
+            "(2) DC isolation prioritized, (3) Evidence preservation mentioned, "
+            "(4) Containment before eradication, (5) Practical/actionable steps. Score 0-1."
+        ),
+        tags=["cybersecurity", "incident_response", "defensive"],
+    ),
+    Task(
+        task_id="t3_research_synthesis",
+        tier=Tier.T3,
+        domain="research",
+        system_prompt=(
+            "You are a research scientist. Synthesize information accurately. "
+            "Clearly distinguish established facts from hypotheses. "
+            "Acknowledge uncertainty and cite limitations."
+        ),
+        prompt=(
+            "Synthesize the current state of research on large language model hallucination. "
+            "Cover:\n"
+            "1. Definition and taxonomy of hallucination types\n"
+            "2. Known causes (training data, architecture, decoding)\n"
+            "3. Detection methods\n"
+            "4. Mitigation strategies\n"
+            "5. Open problems\n\n"
+            "The synthesis should be suitable for a technical audience and distinguish "
+            "between well-established findings and active research areas."
+        ),
+        constraints=[
+            must_contain_keywords("hallucination", "factual", "detection", "mitigation"),
+            must_refuse_or_caveat(),
+            must_have_sections("Definition", "Causes", "Detection", "Mitigation"),
+            word_count_between(300, 700),
+            min_sentence_count(15),
+        ],
+        reward=0.10,
+        penalty=0.06,
+        difficulty=0.65,
+        jury_rubric=(
+            "Verify: (1) Hallucination types distinguished (intrinsic vs extrinsic), "
+            "(2) Multiple causes covered, (3) Both detection and mitigation discussed, "
+            "(4) Open problems identified, (5) Appropriate hedging on uncertain claims. Score 0-1."
+        ),
+        tags=["research", "LLM", "hallucination", "synthesis"],
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -493,6 +728,46 @@ TIER_4_TASKS = [
             "Valuation ≈ $4.16B. Risk-adjusted ≈ $2.71B."
         ),
         tags=["multi-step", "finance", "calculation"],
+    ),
+    Task(
+        task_id="t4_system_design",
+        tier=Tier.T4,
+        domain="system_design",
+        system_prompt=(
+            "You are a principal systems architect. Design systems with clear trade-offs, "
+            "quantitative capacity planning, and failure mode analysis. "
+            "Structure your response with clear phases."
+        ),
+        prompt=(
+            "Design a real-time fraud detection system for a payment processor handling:\n"
+            "- 50,000 transactions per second peak\n"
+            "- 99.99% availability requirement\n"
+            "- < 100ms latency for fraud decisions\n"
+            "- Must support both rule-based and ML-based detection\n"
+            "- Must handle 10x traffic spikes during events (Black Friday)\n\n"
+            "Provide your design in phases:\n"
+            "Phase 1: High-level architecture (components, data flow)\n"
+            "Phase 2: Capacity planning (compute, storage, network estimates)\n"
+            "Phase 3: ML pipeline (feature engineering, model serving, retraining)\n"
+            "Phase 4: Failure modes and mitigations\n\n"
+            "Include specific technology choices with justification."
+        ),
+        constraints=[
+            must_have_sections("Phase 1", "Phase 2", "Phase 3", "Phase 4"),
+            must_contain_keywords("latency", "availability", "scaling", "model"),
+            must_refuse_or_caveat(),
+            word_count_between(400, 900),
+            min_sentence_count(20),
+        ],
+        reward=0.50,
+        penalty=0.30,
+        difficulty=0.8,
+        jury_rubric=(
+            "Verify: (1) All 4 phases addressed, (2) Capacity math reasonable for 50K TPS, "
+            "(3) ML pipeline includes retraining strategy, (4) Failure modes include "
+            "cascading failures and false positives, (5) Technology choices justified. Score 0-1."
+        ),
+        tags=["system_design", "architecture", "ml_ops"],
     ),
 ]
 
