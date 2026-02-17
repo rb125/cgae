@@ -198,13 +198,28 @@ class Economy:
         self,
         contract_id: str,
         output: Any,
+        verification_override: Optional[bool] = None,
     ) -> dict:
-        """Submit output for a contract and settle it."""
+        """
+        Submit output for a contract and settle it.
+
+        If verification_override is provided, it overrides the contract's own
+        constraint check. This allows external verification (e.g., jury LLM
+        evaluation from TaskVerifier) to drive the settlement outcome.
+        """
         passed, failures = self.contracts.submit_output(
             contract_id=contract_id,
             output=output,
             timestamp=self.current_time,
         )
+
+        # Allow external verification to override contract-level constraints
+        if verification_override is not None:
+            contract = self.contracts._get_contract(contract_id)
+            contract.verification_result = verification_override
+            if not verification_override and not failures:
+                failures = ["jury_verification_failed"]
+
         settlement = self.contracts.settle_contract(
             contract_id=contract_id,
             timestamp=self.current_time,
