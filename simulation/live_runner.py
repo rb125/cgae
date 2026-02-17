@@ -62,7 +62,7 @@ DEFAULT_ROBUSTNESS = {
     "Llama-4-Maverick-17B-128E-Instruct-FP8": RobustnessVector(cc=0.45, er=0.42, as_=0.38, ih=0.65),
     "Phi-4":             RobustnessVector(cc=0.40, er=0.35, as_=0.32, ih=0.60),
     "gpt-oss-120b":      RobustnessVector(cc=0.48, er=0.45, as_=0.35, ih=0.68),
-    "grok-4-non-reasoning": RobustnessVector(cc=0.55, er=0.50, as_=0.45, ih=0.72),
+    "grok-4-fast-non-reasoning": RobustnessVector(cc=0.55, er=0.50, as_=0.45, ih=0.72),
     "mistral-medium-2505": RobustnessVector(cc=0.50, er=0.48, as_=0.40, ih=0.70),
     "Kimi-K2.5":         RobustnessVector(cc=0.52, er=0.55, as_=0.45, ih=0.73),
 }

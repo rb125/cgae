@@ -106,8 +106,8 @@ AVAILABLE_MODELS = [
         "tier_assignment": "contestant",
     },
     {
-        "model_name": "grok-4-non-reasoning",
-        "deployment_name": "grok-4-non-reasoning",
+        "model_name": "grok-4-fast-non-reasoning",
+        "deployment_name": "grok-4-fast-non-reasoning",
         "provider": "azure_ai",
         "api_key_env_var": "AZURE_API_KEY",
         "endpoint_env_var": "DDFT_MODELS_ENDPOINT",

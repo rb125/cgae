@@ -1,0 +1,920 @@
+% CDCT-A: Compression-Induced Failures and Vocabulary Hallucination in Agentic Systems
+% arXiv preprint
+% Author: Rahul Baxi
+% Date: February 2026
+
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\begin{document}
+
+\title{Compression-Induced Failures and Vocabulary Hallucination in Agentic Systems}
+
+\author{Rahul Baxi \\
+Independent Researcher \\
+San Francisco, CA \\
+\texttt{rbaxi@alumni.cmu.edu}}
+
+\maketitle
+
+\begin{abstract}
+Large language models (LLMs) exhibit degraded constraint compliance under prompt compression, with violations peaking at medium-length instructions. While this phenomenon has been documented in base models through the Compression-Decay Comprehension Test (CDCT), it remains unknown whether deployed agentic systems:LLMs equipped with tool access, memory, and multi-step planning:exhibit similar failure modes. We introduce CDCT-A, an adaptation that measures constraint compliance in agents across compressed tool documentation, finding that agents display an asymmetric U-curve with a 28.6 percentage point drop at medium compression (c=0.5: 63.3\% vs c=1.0: 91.9\%). More critically, we identify a dominant failure mode:vocabulary hallucination:where agents correctly infer user intent but substitute plausible-but-incorrect API syntax, leading to 29.6\% successful violations at medium compression: executions that complete tasks while violating specifications. Analysis of 1,350 evaluations across 9 frontier models and 10 tasks reveals that (1) agent scaffolding mitigates but does not eliminate compression failures, (2) vocabulary errors are deterministic and universal across all tested models under temperature=0, (3) model performance varies substantially (26.7pp range) in ways consistent with architectural differences in schema validation, and (4) standard task success metrics are blind to 20.6\% of constraint violations. These findings demonstrate that compression-induced failures generalize from base models to deployed agents, but manifest through different mechanisms requiring distinct evaluation and mitigation strategies.
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{The Problem: Agents Operate Under Persistent Compression}
+
+Agentic systems:LLMs equipped with tool access, memory, and multi-step planning capabilities:are increasingly deployed in production environments spanning customer support, code generation, data analysis, and autonomous research. Unlike base models evaluated on carefully curated benchmarks, agents operate under systematic information compression:
+
+\begin{itemize}
+\item \textbf{Tool documentation} is abbreviated to fit context windows
+\item \textbf{Environmental state} is summarized rather than fully specified
+\item \textbf{User instructions} are conversational and terse
+\item \textbf{Feedback signals} are incomplete or delayed
+\end{itemize}
+
+This compression is not experimental noise:it is the fundamental operating condition of deployed agents. As agent frameworks proliferate (OpenAI Swarm, Anthropic Computer Use, LangGraph, AutoGPT, CrewAI), understanding how compression affects reliability becomes critical for safe deployment.
+
+\subsection{Prior Work: CDCT Discovered the Instruction Ambiguity Zone}
+
+Our previous work introduced the Compression-Decay Comprehension Test (CDCT), which revealed that base LLMs exhibit a universal U-shaped pattern in constraint compliance \cite{baxi2025cdct}. Models perform well at both extremes:following constraints with minimal context (c=0.0, $\sim$2 words) and with full context (c=1.0, $\sim$135 words):but fail systematically at medium compression (c=0.5, $\sim$27 words).
+
+This ``instruction ambiguity zone'' occurs because RLHF-trained helpfulness behaviors override constraint-following when information is degraded but not absent. Across 9 frontier models, we observed 97.2\% prevalence of the U-curve pattern with near-perfect inter-rater reliability ($\kappa=0.90$). RLHF ablation experiments demonstrated that removing ``be helpful and comprehensive'' alignment signals improved constraint compliance by 598\% on average.
+
+\subsection{The Gap: Do CDCT Failures Generalize to Agents?}
+
+While CDCT established that base models fail under compression, deployed agents operate with additional scaffolding: explicit tool schemas, structured state representations, planning frameworks, and error-handling mechanisms. It remains unknown whether these architectural interventions mitigate the compression failure mode, eliminate it, or merely shift it.
+
+This raises a fundamental question: \textbf{Do agentic systems exhibit systematic inference biases under structured ambiguity?} Specifically:
+
+\begin{enumerate}
+\item \textbf{Behavioral decomposition}: Can we separate goal inference from specification adherence by varying information completeness?
+\item \textbf{Failure mechanisms}: Do agents fail through RLHF-driven verbosity (as base models do) or through different systematic patterns?
+\item \textbf{Hidden violations}: What percentage of successful task executions violate specifications in ways invisible to standard evaluation?
+\end{enumerate}
+
+\subsection{Our Contribution: CDCT-A as a Behavioral Stress-Testing Framework}
+
+We introduce CDCT-A (Compression-Decay Comprehension Test for Agents), a framework for measuring agentic inference bias under structured ambiguity. By systematically varying specification completeness while holding task objectives constant, CDCT-A reveals latent inference patterns invisible to full-context evaluation. Our evaluation of 9 frontier models across 10 tasks and 5 compression levels (1,350 total evaluations) establishes four core findings:
+
+\textbf{Finding 1: Asymmetric U-curve.} Agents exhibit a modified U-curve with a high left peak (c=1.0: 91.9\% CC) and low right peak (c=0.0: 62.6\% CC), unlike the symmetric U-curve in base models. The asymmetry reveals that agent scaffolding mitigates medium-compression failures but prevents recovery at extreme compression.
+
+\textbf{Finding 2: Successful violations.} At medium compression (c=0.5), 29.6\% of executions achieve task success while violating API specifications:a dangerous pattern where standard metrics report completion but outputs violate contracts. Overall, 20.6\% of all evaluations exhibit this successful violation pattern.
+
+\textbf{Finding 3: Vocabulary hallucination.} The dominant failure mode is vocabulary hallucination: agents correctly infer user intent but substitute plausible-but-incorrect API syntax (e.g., ``PDF'' instead of ``pdf''). This mechanism is deterministic (100\% failure rate on control task), universal (affects all 9 models), and invisible to task success metrics.
+
+\textbf{Finding 4: Architecture matters more than scale.} Model performance varies 26.7 percentage points (60.7\% to 87.3\% CC), with open-source models (gpt-oss-120b: 87.3\%) outperforming proprietary frontier models (gpt-5: 60.7\%). Non-reasoning models (grok-4-fast: 82.0\%) exceed reasoning models (o3: 72.7\%), suggesting that schema validation and type checking predict robustness better than raw capabilities.
+
+These findings demonstrate that compression-induced failures generalize from base models to agents, but manifest through vocabulary hallucination rather than RLHF helpfulness conflicts. These results suggest that task success metrics alone are insufficient for safety validation, as they are blind to constraint violations in 20.6\% of executions.
+
+\section{Background}
+
+\subsection{Original CDCT: The Instruction Ambiguity Zone}
+
+The Compression-Decay Comprehension Test (CDCT) introduced a protocol for measuring constraint compliance and semantic accuracy across varying prompt lengths \cite{baxi2025cdct}. The key insight was decomposing evaluation into orthogonal dimensions:
+
+\begin{itemize}
+\item \textbf{Constraint Compliance (CC)}: Does the model follow specified formatting/length constraints?
+\item \textbf{Semantic Accuracy (SA)}: Does the model preserve factual correctness?
+\end{itemize}
+
+CDCT evaluated 9 frontier LLMs across 8 concepts from diverse domains using 5 compression levels, where $c$ parameterizes information density:
+
+\begin{itemize}
+\item $c=1.0$ ($\sim$135 words): Full context with rich detail
+\item $c=0.75$ ($\sim$68 words): Substantial context
+\item $c=0.5$ ($\sim$27 words): Medium compression $\leftarrow$ \textbf{danger zone}
+\item $c=0.25$ ($\sim$9 words): Minimal context
+\item $c=0.0$ ($\sim$2 words): Extreme compression
+\end{itemize}
+
+The constraint was held constant across all levels: ``Explain [concept] in exactly 35 words.''
+
+\textbf{Key findings from CDCT:}
+
+\begin{enumerate}
+\item \textbf{Universal U-curve} (97.2\% prevalence): CC is highest at both extremes ($c=0.0$ and $c=1.0$) and lowest at medium compression ($c=0.5$)
+\item \textbf{Orthogonality} ($r=0.193, p=0.084$): CC and SA are statistically independent dimensions
+\item \textbf{RLHF causation}: Ablating ``be helpful and comprehensive'' signals improved CC by 598\% on average
+\end{enumerate}
+
+\textbf{Theoretical mechanism:} At $c=0.5$, models receive \emph{enough} context to trigger helpfulness behaviors (``provide comprehensive explanation'') but \emph{insufficient} context to make the constraint salient. The result: detailed, semantically accurate responses that violate length constraints by 400\%+.
+
+\subsection{Compression in Agentic Systems}
+
+Unlike base models evaluated on static prompts, agents face compression across multiple architectural components. We focus on tool documentation compression as the primary source, as APIs require exact syntax and agents must reconstruct specifications from incomplete information.
+
+\subsubsection{Tool Documentation Compression}
+
+Real-world APIs provide documentation ranging from comprehensive (full docstrings, examples, type hints) to minimal (function signatures only). Consider a calendar API:
+
+\textbf{Full documentation ($c=1.0$):}
+\begin{verbatim}
+def create_calendar_event(
+    title: str,           # Event title (max 100 chars)
+    attendees: List[str], # Email addresses
+    datetime: str,        # ISO 8601: YYYY-MM-DDTHH:MM:SS
+    duration_minutes: int # Event duration in minutes
+) -> EventID:
+    """
+    Creates a new calendar event.
+    
+    Args:
+        title: Brief description (max 100 chars)
+        attendees: List of participant emails
+        datetime: Event start in ISO 8601 format
+        duration_minutes: Length in minutes
+    
+    Returns:
+        EventID: Unique identifier
+    
+    Example:
+        >>> create_calendar_event(
+        ...     title="Team Standup",
+        ...     attendees=["alice@co.com"],
+        ...     datetime="2026-02-10T09:00:00",
+        ...     duration_minutes=30
+        ... )
+    """
+\end{verbatim}
+
+\textbf{Medium compression ($c=0.5$ - danger zone):}
+\begin{verbatim}
+def create_calendar_event(title, attendees, datetime, 
+                          duration_minutes):
+    """Creates calendar event with given parameters."""
+\end{verbatim}
+
+\textbf{Extreme compression ($c=0.0$):}
+\begin{verbatim}
+create_calendar_event
+\end{verbatim}
+
+At $c=0.5$, parameter names and basic purpose are clear, but \emph{constraints} are implicit. Does \texttt{duration\_minutes} accept only integers? Is there a maximum? Must \texttt{datetime} be ISO 8601? The agent must infer from naming conventions:a recipe for violations.
+
+\subsection{Theoretical Prediction}
+
+We hypothesize that agents operate in the danger zone ($c=0.4$-$0.6$) in production deployments:
+
+\begin{itemize}
+\item Tool docs are abbreviated for context efficiency
+\item State is summarized to reduce token usage
+\item Feedback is compressed to minimize latency
+\item User instructions are conversational, not formal specifications
+\end{itemize}
+
+If the CDCT failure mode generalizes, we predict:
+
+\textbf{H1 (U-curve persistence):} Agents will exhibit reduced CC at medium compression, though framework scaffolding may shift the curve.
+
+\textbf{H2 (Tool vulnerability):} Tool documentation compression will cause more violations than other sources, as APIs have the most implicit constraints.
+
+\textbf{H3 (Successful violations):} Constraint compliance and task success will be partially independent, enabling executions that complete goals while violating specifications.
+
+\textbf{H4 (Architecture effects):} Explicit schema frameworks will outperform autonomous frameworks due to structured validation.
+
+\section{The CDCT-A Protocol}
+
+\subsection{Core Principles}
+
+CDCT-A adapts the original CDCT methodology to agentic contexts while preserving three key principles:
+
+\begin{enumerate}
+\item \textbf{Independent compression}: Vary compression level while holding constraint constant
+\item \textbf{Orthogonal measurement}: Separately measure constraint compliance and task success
+\item \textbf{Adversarial simplicity}: Test constraint-following in contexts where task success is easy
+\end{enumerate}
+
+The third principle is critical: we test constraint-following in contexts where the agent can easily succeed at the task. This isolates constraint compliance from capability limitations.
+
+\subsection{Compression Operationalization}
+
+\textbf{Formal definition:} We define compression level $c \in [0, 1]$ as the fraction of specification information preserved, where $c=1$ represents the complete API specification and $c=0$ represents minimal identification (function name only):
+
+\begin{equation}
+c = \frac{I_{\text{compressed}}}{I_{\text{full}}}
+\end{equation}
+
+where $I$ denotes specification information measured in tokens. This differs from information-theoretic compression in that we selectively remove \emph{constraint-bearing} tokens (type annotations, parameter descriptions, examples) while preserving semantic tokens (function names, parameter names).
+
+\textbf{Why this is principled compression, not arbitrary ablation:}
+
+\begin{enumerate}
+\item \textbf{Monotonic information removal}: Higher compression ($c \rightarrow 0$) strictly removes information; no permutation or reordering
+\item \textbf{Systematic field removal}: We remove entire documentation fields (examples, types, descriptions) in order of constraint-specificity, not randomly
+\item \textbf{Ecological validity}: Real-world API documentation varies along this spectrum (full OpenAPI specs $\rightarrow$ terse docstrings $\rightarrow$ function signatures)
+\item \textbf{Contrast with semantic ablation}: We preserve semantic content (what the function does) while removing syntactic constraints (how parameters must be formatted)
+\end{enumerate}
+
+\textbf{The medium-compression distinctiveness:} The critical finding is that $c=0.5$ is \emph{not} simply ``halfway between full and minimal'':it represents a specific failure mode where models have \emph{enough} context to infer semantic intent but \emph{insufficient} context to determine exact vocabulary. This creates an ``instruction ambiguity zone'' distinct from both extremes.
+
+We define compression level $c \in \{0.0, 0.25, 0.5, 0.75, 1.0\}$ for tool documentation:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Level} & \textbf{Content} & \textbf{Tokens} \\
+\midrule
+$c=1.0$ & Full docstring + examples + types & $\sim$300 \\
+$c=0.75$ & Docstring + types + returns & $\sim$150 \\
+$c=0.5$ & Signature + brief description & $\sim$50 \\
+$c=0.25$ & Signature only & $\sim$20 \\
+$c=0.0$ & Function name only & $\sim$5 \\
+\bottomrule
+\end{tabular}
+\caption{Tool documentation compression levels}
+\label{tab:compression}
+\end{table}
+
+\subsection{Task Design}
+
+We designed 10 tasks spanning common agent operations:
+
+\begin{enumerate}
+\item \textbf{Calendar Event Scheduling}: Create meeting with exact attendee count, datetime format, duration
+\item \textbf{Database Query}: Filter with case-sensitive strings, date operators, field selection
+\item \textbf{File Copy}: Preserve permissions, prevent overwrite via boolean flags
+\item \textbf{Email Sending}: Specify format (``plain'' vs ``html''), request read receipt
+\item \textbf{Payment Processing}: Exact decimal amount, currency code, refund type
+\item \textbf{API Request}: Rate limiting, retry policy, cache control
+\item \textbf{File Upload}: Size validation before upload, ordering constraint
+\item \textbf{User Registration}: Password hashing requirement, security constraint
+\item \textbf{Deployment Pipeline}: Health check gating, rollback on failure
+\item \textbf{Report Generation}: Output format case sensitivity (control task)
+\end{enumerate}
+
+Each task specifies 4-6 constraints that must be satisfied for CC=1. Constraints fall into four categories:
+
+\begin{itemize}
+\item \textbf{Format constraints}: Exact parameter requirements (e.g., ``exactly 5 attendees'')
+\item \textbf{Type constraints}: Data type specifications (e.g., ``duration must be integer'')
+\item \textbf{Logic constraints}: Conditional requirements (e.g., ``deploy ONLY if all tests pass'')
+\item \textbf{Safety constraints}: Security boundaries (e.g., ``hash password before storage'')
+\end{itemize}
+
+\subsection{Measurement Framework}
+
+For each agent evaluation, we record:
+
+\textbf{Primary metrics:}
+
+\begin{itemize}
+\item \textbf{Constraint Compliance (CC)} $\in \{0, 1\}$: Binary indicator that all specified constraints are satisfied
+\item \textbf{Task Success (TS)} $\in \{0, 1\}$: Binary indicator that agent accomplished the goal
+\end{itemize}
+
+\textbf{Violation classification:}
+
+When CC=0, we classify violations by type:
+\begin{itemize}
+\item \textbf{Vocabulary hallucination}: Semantically related but specification-violating values (``PDF'' vs ``pdf'')
+\item \textbf{Semantic aliasing}: Functionally equivalent but syntactically wrong (``text'' vs ``plain'')
+\item \textbf{Pattern substitution}: Architectural pattern confusion (query params in URL vs separate parameter)
+\item \textbf{Default anchoring}: Using wrong default despite user specification
+\end{itemize}
+
+\textbf{Successful violation detection:}
+
+We compute the successful violation rate as:
+\begin{equation}
+\text{SVR} = \frac{|\{i : \text{CC}_i = 0 \land \text{TS}_i = 1\}|}{N}
+\end{equation}
+
+This quantifies the percentage of executions that complete tasks while violating specifications:a critical deployment risk metric.
+
+\subsection{Evaluation Procedure}
+
+For each (model, task, compression\_level, trial) tuple:
+
+\begin{enumerate}
+\item Present task to agent with tool documentation at specified compression level
+\item Agent executes task using available tools
+\item Record agent's tool calls and final output
+\item Automated constraint checking: parse output, compare against specifications, flag violations
+\item Task success evaluation: verify goal achievement via task-specific criteria
+\item For ambiguous cases: 3-judge LLM jury (GPT-5.1, Claude Opus 4.1, DeepSeek-v3.1) with majority vote
+\end{enumerate}
+
+\subsection{Experimental Design}
+
+\textbf{Models evaluated (9):}
+\begin{itemize}
+\item Proprietary: gpt-5, gpt-5.1, o3, o4-mini
+\item Open source: gpt-oss-120b, DeepSeek-v3.1, Kimi-K2.5
+\item Specialized: grok-4-fast-non-reasoning, Llama-4-Maverick-17B-128E-Instruct-FP8
+\end{itemize}
+
+\textbf{Tool invocation pipeline:}
+
+To ensure fair model comparison, we standardized the tool-calling interface across all models:
+
+\begin{enumerate}
+\item \textbf{Function schema format}: All models received identical JSON Schema function definitions with consistent field ordering and type annotations
+\item \textbf{Schema validation}: Validation was performed \emph{after} model invocation to measure model behavior, not before to enforce correctness
+\item \textbf{Retry behavior}: Models were not allowed to retry after validation errors; first invocation was recorded
+\item \textbf{Temperature}: Set to 0 where supported to maximize determinism
+\item \textbf{Response parsing}: Models using different function-calling syntaxes (e.g., XML vs JSON) were normalized to a common representation before constraint checking
+\end{enumerate}
+
+\textbf{Critical note on architectural differences:} While we standardized the \emph{interface} presented to models, we did not modify models' internal schema validation behavior. Differences in CC performance across models may reflect genuine architectural decisions (strict vs permissive type checking) rather than adapter artifacts. The gpt-oss-120b advantage (87.3\% CC) is consistent with the hypothesis that native schema enforcement improves robustness, though we acknowledge this correlation does not establish causation without direct measurement of internal validation mechanisms.
+
+\textbf{Experimental conditions:}
+\begin{itemize}
+\item 10 tasks $\times$ 5 compression levels $\times$ 3 trials = 150 evaluations per model
+\item Total: 1,350 evaluations
+\item All models use temperature=0 where supported for reproducibility
+\item Tool calls executed via standardized adapter interface
+\end{itemize}
+
+\textbf{Statistical analysis:}
+\begin{itemize}
+\item ANOVA for compression level effects
+\item Pearson correlation for CC-TS relationship
+\item t-tests for pairwise model comparisons
+\item Bonferroni correction for multiple comparisons
+\item Independence assumption: Trials are independent; deterministic outputs reduce variance but do not invalidate significance tests
+\end{itemize}
+
+\section{Results}
+
+\subsection{Overall Performance}
+
+Across all 1,350 evaluations:
+\begin{itemize}
+\item \textbf{Constraint Compliance}: 73.5\% (992/1350)
+\item \textbf{Task Success}: 94.1\% (1270/1350)
+\item \textbf{Successful Violations}: 20.6\% (278/1350)
+\end{itemize}
+
+The 20.6 percentage point gap between TS and CC represents executions that complete tasks while violating constraints:a deployment pattern invisible to standard success metrics.
+
+\subsection{Finding 1: The Asymmetric U-Curve}
+
+Figure~\ref{fig:ucurve} compares constraint compliance patterns between base models and agents across compression levels.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figure1_ucurve.pdf}
+\caption{Asymmetric U-curve in agents vs symmetric U-curve in base models. Agents maintain high constraint compliance only with full documentation (c=1.0), showing a sharp drop at medium compression and flat plateau at extreme compression, unlike base models which recover at both extremes.}
+\label{fig:ucurve}
+\end{figure}
+
+Table \ref{tab:compression_results} shows constraint compliance by compression level:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Compression} & \textbf{CC} & \textbf{TS} & \textbf{SVR} \\
+\midrule
+$c=1.0$ (full docs) & 91.9\% & 96.7\% & 4.8\% \\
+$c=0.75$ & 87.0\% & 95.9\% & 8.9\% \\
+$c=0.5$ (danger) & 63.3\% & 93.0\% & 29.6\% \\
+$c=0.25$ & 62.6\% & 93.0\% & 30.4\% \\
+$c=0.0$ (extreme) & 62.6\% & 91.9\% & 29.3\% \\
+\midrule
+Extremes avg & 77.2\% & 94.3\% & 17.1\% \\
+Middle ($c=0.5$) & 63.3\% & 93.0\% & 29.6\% \\
+Difference & 13.9pp & 1.3pp & 12.5pp \\
+\bottomrule
+\end{tabular}
+\caption{Performance by compression level ($n=270$ per level)}
+\label{tab:compression_results}
+\end{table}
+
+\textbf{U-curve validation:} The average of extremes (77.2\%) exceeds the middle (63.3\%) by 13.9 percentage points, confirming the U-curve pattern. Statistical test: $t=4.22, p<0.001$, demonstrating the effect is highly significant.
+
+\textbf{Asymmetry:} Unlike base models which exhibit symmetric U-curves, agents show:
+\begin{itemize}
+\item \textbf{High left peak} ($c=1.0$): 91.9\% CC:comparable to base models
+\item \textbf{Low right peak} ($c=0.0$): 62.6\% CC:worse than base models (which recover to $\sim$70\%)
+\item \textbf{Sharp drop}: 28.6 percentage point decline from $c=1.0$ to $c=0.5$
+\item \textbf{Flat plateau}: CC remains constant at $\sim$63\% for $c \leq 0.5$
+\end{itemize}
+
+\textbf{Interpretation:} Agent scaffolding mitigates the worst compression failures (63\% vs 30\% in base models at $c=0.5$), but prevents recovery at extreme compression. Without documentation, agents cannot infer API contracts from parameter names alone.
+
+\subsection{Finding 2: Successful Violations Peak at Medium Compression}
+
+Figure~\ref{fig:successful_violations} illustrates the distribution of successful violations across compression levels and outcome categories.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figure2_successful_violations.pdf}
+\caption{(a) Successful violation rate peaks at 29.6\% for compression levels c $\leq$ 0.5. (b) Overall outcome distribution shows 20.6\% of executions achieve task success while violating constraints:a dangerous pattern invisible to standard success metrics.}
+\label{fig:successful_violations}
+\end{figure}
+
+The successful violation rate (SVR) exhibits a striking pattern:
+\begin{itemize}
+\item $c=1.0$: 4.8\% SVR (13/270 executions)
+\item $c=0.5$: 29.6\% SVR (80/270 executions):\textbf{6.2× increase}
+\item $c=0.0$: 29.3\% SVR (79/270 executions)
+\end{itemize}
+
+At medium and low compression, nearly 1 in 3 executions succeed at the task while violating API specifications. This represents the most dangerous deployment pattern: standard success metrics report 93\% completion, but actual safe compliance (CC=1 $\land$ TS=1) is only 63.3\%.
+
+\textbf{Quadrant analysis:}
+\begin{itemize}
+\item CC=1, TS=1 (clean success): 73.5\% (992/1350)
+\item CC=1, TS=0 (safe failure): 0.0\% (0/1350)
+\item CC=0, TS=1 (successful violations): 20.6\% (278/1350)
+\item CC=0, TS=0 (total failure): 5.9\% (80/1350)
+\end{itemize}
+
+Notably, there are zero safe failures (CC=1, TS=0), meaning agents never follow constraints perfectly while failing to complete tasks. This pattern is not an artifact of easy tasks or definitional correlation between CC and TS, but rather reflects the structure of our evaluation: constraints are properties of \emph{how} tasks are executed (e.g., parameter formatting, ordering), while task success measures \emph{whether} goals are achieved. An agent can achieve a goal with wrong syntax (CC=0, TS=1) or fail entirely (CC=0, TS=0), but cannot perfectly satisfy formatting constraints while simultaneously failing to invoke the correct tool:this would require following API specifications precisely yet selecting the wrong function, which contradicts the instruction-following objective. The absence of safe failures thus indicates that constraint violations stem from inference shortcuts during successful task execution, not from capability limitations.
+
+\textbf{Correlation analysis:} Pearson correlation between CC and TS is $r=0.418$ ($p<0.001$), indicating moderate positive correlation. While not orthogonal as hypothesized (H3 partially rejected), the correlation is weak enough that 20.6\% of executions exhibit successful violations:a rate that poses significant deployment risk.
+
+\subsection{Finding 3: Vocabulary Hallucination is Universal and Deterministic}
+
+Figure~\ref{fig:violation_types} categorizes the violation mechanisms observed at medium compression (c=0.5).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{figure3_violation_types.pdf}
+\caption{Breakdown of violation types at c=0.5 (n=99 failures). Case sensitivity errors (50.5\%) dominate, followed by type expansion (14.1\%) and architectural pattern substitution (24.2\%). The deterministic nature of these violations suggests systematic inference rather than stochastic behavior.}
+\label{fig:violation_types}
+\end{figure}
+
+Analysis of 99 constraint violations at $c=0.5$ reveals a dominant failure mechanism: vocabulary hallucination. Table \ref{tab:violations} shows the top violation types:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{llrr}
+\toprule
+\textbf{Type} & \textbf{Example} & \textbf{Count} & \textbf{\%} \\
+\midrule
+output\_format & pdf $\rightarrow$ PDF & 27 & 27.3\% \\
+order\_direction & ASC $\rightarrow$ asc & 23 & 23.2\% \\
+filter\_operator & \_\_gt $\rightarrow$ (missing) & 18 & 18.2\% \\
+body\_format & plain $\rightarrow$ text/plain & 14 & 14.1\% \\
+endpoint & /api/v2/users $\rightarrow$ /api?... & 12 & 12.1\% \\
+query\_params & \{...\} $\rightarrow$ (in URL) & 12 & 12.1\% \\
+\bottomrule
+\end{tabular}
+\caption{Top violation types at $c=0.5$ ($n=99$ failures)}
+\label{tab:violations}
+\end{table}
+
+\textbf{Pattern 1: Case sensitivity} (50.5\% of violations)
+
+Models systematically violate case-sensitive string requirements:
+\begin{itemize}
+\item Task 1.10 (Report Generation): All 27 evaluations at $c=0.5$ used ``PDF'' instead of ``pdf'' (100\% failure rate)
+\item Task 1.2 (Database Query): 23/27 evaluations used ``asc'' or ``DESC'' instead of ``ASC''
+\end{itemize}
+
+This pattern is \emph{deterministic}: across 9 models and 3 trials, every single execution of Task 1.10 at $c=0.5$ produced identical vocabulary error. The universality suggests this is not stochastic model behavior but systematic inference from natural language conventions (``PDF'' is capitalized as an acronym).
+
+\textbf{Pattern 2: MIME type expansion} (14.1\% of violations)
+
+Task 1.4 (Email Sending) requires \texttt{body\_format="plain"}. At $c=0.5$, 14/27 models produced \texttt{body\_format="text/plain"}:applying HTTP MIME type conventions to a Python function parameter. This reveals that models draw on web API knowledge to fill documentation gaps, even when inappropriate.
+
+\textbf{Pattern 3: Architectural pattern substitution} (24.2\% of violations)
+
+Task 1.6 (API Request) specifies \texttt{query\_params=\{"status": "active"\}} as a separate parameter. At $c=0.5$, 12/27 evaluations embedded the query in the URL: \texttt{/api/v2/users?status=active}. This pattern substitution is semantically correct (both accomplish filtering) but violates the API contract.
+
+\textbf{Control task validation:} Task 1.10 serves as a control, testing only vocabulary hallucination with no other confounds. Results at $c=0.5$:
+\begin{itemize}
+\item CC: 0.0\% (0/27):every model failed
+\item TS: 100\% (27/27):every report generated successfully
+\item Violation: 100\% used ``PDF'' instead of ``pdf''
+\item Universality: Affected all 9 models across all 3 trials
+\end{itemize}
+
+This demonstrates that vocabulary hallucination is not an artifact of complex tasks or model-specific quirks, but a fundamental behavior when API vocabulary is unavailable.
+
+\subsection{Finding 4: Architecture Predicts Robustness Better Than Scale}
+
+Figure~\ref{fig:model_performance} compares model performance across constraint compliance and task success dimensions.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figure4_model_performance.pdf}
+\caption{Model performance ranking by constraint compliance (CC) and task success (TS). The 26.7 percentage point spread in CC between best (gpt-oss-120b: 87.3\%) and worst (gpt-5: 60.7\%) performers suggests architectural differences matter more than model scale. Note that three models achieve 100\% TS but vary widely in CC (70-82\%).}
+\label{fig:model_performance}
+\end{figure}
+
+Table \ref{tab:model_performance} shows model rankings by constraint compliance:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model} & \textbf{CC} & \textbf{TS} & \textbf{Params} \\
+\midrule
+gpt-oss-120b & 87.3\% & 99.3\% & 120B \\
+grok-4-fast-non-reasoning & 82.0\% & 100.0\% & -- \\
+DeepSeek-v3.1 & 75.3\% & 88.0\% & -- \\
+Kimi-K2.5 & 74.0\% & 90.0\% & -- \\
+o3 (reasoning) & 72.7\% & 98.7\% & -- \\
+o4-mini (reasoning) & 72.0\% & 100.0\% & -- \\
+gpt-5.1 & 70.0\% & 100.0\% & -- \\
+Llama-4-Maverick & 67.3\% & 79.3\% & 17B \\
+gpt-5 & 60.7\% & 91.3\% & -- \\
+\midrule
+Spread & 26.7pp & 20.7pp & -- \\
+\bottomrule
+\end{tabular}
+\caption{Model performance ranking ($n=150$ per model)}
+\label{tab:model_performance}
+\end{table}
+
+\textbf{Counter-intuitive findings:}
+
+\begin{enumerate}
+\item \textbf{Open source beats proprietary}: gpt-oss-120b (87.3\%) outperforms proprietary gpt-5 (60.7\%) by 26.7 percentage points:the largest gap between any two models.
+
+\item \textbf{Non-reasoning beats reasoning}: grok-4-fast-non-reasoning (82.0\%) exceeds reasoning models o3 (72.7\%) and o4-mini (72.0\%) by 9-10 percentage points.
+
+\item \textbf{Size doesn't predict performance}: Small models (Llama-4: 17B params, 67.3\% CC) approach large models (gpt-5: unknown but large, 60.7\% CC).
+
+\item \textbf{Perfect TS doesn't imply high CC}: Three models achieve 100\% task success (grok-4-fast, o4-mini, gpt-5.1) but vary widely in constraint compliance (82.0\%, 72.0\%, 70.0\%).
+\end{enumerate}
+
+\textbf{Variance analysis:}
+\begin{itemize}
+\item Cross-model variance: 26.7pp (max-min CC)
+\item Cross-compression variance: 29.3pp ($c=1.0$ vs $c=0.5$)
+\end{itemize}
+
+The fact that model choice affects CC as much as compression level suggests that architectural decisions (schema validation, type checking, tool-calling implementation) are as important as documentation completeness for robustness.
+
+\textbf{Hypothesis:} Models with strict schema validation (gpt-oss-120b) reject vocabulary hallucinations during tool calling, while models optimized for flexibility and ``helpfulness'' (gpt-5) accept semantic approximations that violate specifications.
+
+\section{Task-Level Analysis}
+
+
+Figure~\ref{fig:task_difficulty} shows the heatmap of constraint compliance across all tasks and compression levels, revealing which tasks are most susceptible to compression-induced failures.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{figure5_task_difficulty.pdf}
+\caption{Task difficulty heatmap showing CC scores across compression levels. Tasks 1.10 (Report Generation) and 1.2 (Database Query) exhibit 0\% CC at c=0.5 despite high task success, demonstrating vocabulary hallucination. Tasks with behavioral constraints (1.9) or self-documenting parameters (1.3) maintain high CC even under compression.}
+\label{fig:task_difficulty}
+\end{figure}
+
+Performance varies dramatically across tasks at $c=0.5$:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{clrr}
+\toprule
+\textbf{Task} & \textbf{Name} & \textbf{CC} & \textbf{TS} \\
+\midrule
+1.10 & Report Generation (control) & 0.0\% & 100.0\% \\
+1.2 & Database Query & 0.0\% & 96.3\% \\
+1.4 & Email Sending & 25.9\% & 77.8\% \\
+1.6 & API Rate Limiting & 55.6\% & 100.0\% \\
+1.1 & Calendar Scheduling & 77.8\% & 77.8\% \\
+1.7 & File Upload & 88.9\% & 88.9\% \\
+1.5 & Payment Refund & 92.6\% & 92.6\% \\
+1.8 & User Registration & 96.3\% & 96.3\% \\
+1.9 & Deployment Pipeline & 96.3\% & 100.0\% \\
+1.3 & File Copy & 100.0\% & 100.0\% \\
+\bottomrule
+\end{tabular}
+\caption{Task difficulty at $c=0.5$ (sorted by CC)}
+\label{tab:task_difficulty}
+\end{table}
+
+Tasks 1.10 and 1.2 have 0\% CC despite 96-100\% TS, confirming that vocabulary hallucination can completely dominate performance on specific task types. Tasks with behavioral constraints (1.9: deploy $\rightarrow$ health check $\rightarrow$ rollback) or self-documenting parameter names (1.3: file copy) achieve 96-100\% CC even at $c=0.5$.
+
+Figure~\ref{fig:cc_vs_ts} visualizes the relationship between constraint compliance and task success, showing the distribution across outcome quadrants.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figure6_cc_vs_ts.pdf}
+\caption{Scatter plot of CC vs TS across all 1,350 evaluations. The moderate positive correlation (r=0.418) indicates partial independence, with 20.6\% of executions achieving task success while violating constraints (CC=0, TS=1 quadrant). This successful violation pattern represents the most dangerous deployment failure mode.}
+\label{fig:cc_vs_ts}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{The Asymmetric U-Curve: Why Agents Differ from Base Models}
+
+Our finding that agents exhibit an asymmetric U-curve (high left peak, low right peak) rather than the symmetric pattern in base models reveals fundamental differences in how compression affects different architectures.
+
+\textbf{In base models (CDCT):}
+\begin{itemize}
+\item $c=0.5$ failure caused by \emph{RLHF-driven verbosity}: helpfulness behaviors override constraints
+\item $c=0.0$ recovery via \emph{conservative defaults}: ``when uncertain, be brief''
+\item Symmetric curve: both extremes recover to $\sim$70\% CC
+\item Mechanism: Over-expansion (producing more content than requested)
+\end{itemize}
+
+\textbf{In agents (CDCT-A):}
+\begin{itemize}
+\item $c=0.5$ failure caused by \emph{semantic inference}: vocabulary hallucination from partial specs
+\item $c=0.0$ failure via \emph{inability to infer}: API contracts cannot be reconstructed from names alone
+\item Asymmetric curve: only $c=1.0$ achieves high CC (91.9\%)
+\item Mechanism: Over-generalization (applying plausible-but-wrong semantic priors)
+\end{itemize}
+
+\textbf{The critical distinction:} Base models fail by producing \emph{verbose} outputs that violate length constraints. Agents fail by producing \emph{precisely correct task outcomes} with \emph{wrong API vocabulary}. This difference reflects a shift from RLHF helpfulness conflicts to semantic prior overfitting.
+
+The asymmetry suggests that \emph{agent scaffolding helps at medium compression but hurts at extreme compression}. Tool-calling frameworks provide structure that prevents the worst RLHF-driven verbosity, but they also require explicit API specifications that cannot be inferred from parameter names alone.
+
+\subsection{Successful Violations: A Deployment Risk Metric}
+
+The 20.6\% successful violation rate represents a critical gap in current agent evaluation practices. Standard benchmarks measure task success (``did the agent accomplish the goal?'') but not specification compliance (``did the agent follow the API contract?'').
+
+\textbf{Production implications:}
+
+\begin{itemize}
+\item \textbf{Financial systems}: Payment processed with wrong currency code $\rightarrow$ transaction appears successful but violates compliance
+\item \textbf{Healthcare}: Patient record updated with wrong format $\rightarrow$ downstream systems fail to parse
+\item \textbf{Infrastructure}: Deployment completes without required validation $\rightarrow$ security vulnerabilities introduced
+\end{itemize}
+
+Successful violations are particularly dangerous because they pass task-level monitoring (``deployment completed'') but fail contract-level validation (``deployment violated health check requirement''). Our findings suggest that \emph{task success alone is insufficient for deployment safety validation}.
+
+\textbf{Recommendation:} Agent evaluation frameworks should report both TS and CC, with particular attention to the successful violation rate (SVR) as a deployment risk metric.
+
+\subsection{Vocabulary Hallucination: A Universal Failure Mode}
+
+The deterministic nature of vocabulary hallucination under our experimental conditions (100\% failure rate on Task 1.10 across all models at temperature=0, single invocation) suggests this is not a capability limitation but a systematic inference pattern. While we acknowledge that stochastic decoding (temperature>0) or retry mechanisms may alter this behavior, the consistency under deterministic settings indicates a structural bias. Models are:
+
+\begin{enumerate}
+\item Correctly parsing user intent (``generate PDF report'')
+\item Correctly identifying the relevant tool (\texttt{generate\_report})
+\item Correctly inferring that \texttt{output\_format} controls file type
+\item Incorrectly guessing that ``PDF'' (capitalized acronym) is the parameter value
+\end{enumerate}
+
+This four-step process succeeds at steps 1-3 but fails at step 4 due to missing API vocabulary in the documentation. The model applies natural language conventions (``PDF'' is an acronym, therefore capitalized) rather than programming conventions (``pdf'' is a string literal, case-sensitive).
+
+\textbf{Why this differs from base model failures:}
+
+Base models under compression produce \emph{verbose} outputs (violating length constraints by 400\%+). Agents under compression produce \emph{precisely correct} outputs with \emph{wrong vocabulary} (violating syntax by choosing synonyms). The mechanism has shifted from RLHF helpfulness to semantic inference.
+
+\textbf{Mitigation strategies (ranked by effectiveness):}
+
+Our empirical results demonstrate that \textbf{strict schema validation} (Strategy 2) is the most effective mitigation, as evidenced by gpt-oss-120b achieving 87.3\% CC:26.7 percentage points higher than the worst performer. This suggests production deployments should prioritize:
+
+\begin{enumerate}
+\item \textbf{Strict schema validation at invocation time} (PRIMARY RECOMMENDATION): Reject tool calls that violate schema \emph{before} execution. Models with this capability (gpt-oss-120b) achieve 87.3\% CC vs 60.7\% for permissive models (gpt-5). This 44\% relative improvement demonstrates that type checking is more effective than prompt engineering.
+
+\item \textbf{Explicit enum constraints in compressed docs}: Specify allowed values even at $c=0.5$. Example: \texttt{output\_format: "pdf" | "docx"} instead of generic \texttt{output\_format: string}.
+
+\item \textbf{Example-driven documentation}: Include examples that demonstrate exact syntax, even in abbreviated specs.
+
+\item \textbf{Runtime validation layers}: Add post-execution checks that catch vocabulary errors before propagating to downstream systems.
+\end{enumerate}
+
+\textbf{Implementation guidance for production:} Framework designers should implement strict schema validation as a default behavior, not an opt-in feature. Our results suggest this single architectural decision accounts for more performance variance (26.7pp) than compression level optimization (29.3pp from $c=1.0$ to $c=0.5$). Teams deploying agents should evaluate models specifically for schema enforcement behavior, not just task completion rates.
+
+\subsection{Architectural Variance Under Compression Stress}
+
+The 26.7 percentage point spread across models:with open-source models outperforming proprietary and non-reasoning models exceeding reasoning models:challenges conventional assumptions about what predicts agent robustness.
+
+\textbf{Implications for framework design:}
+
+\begin{enumerate}
+\item \textbf{Schema validation > raw capability}: gpt-oss-120b likely enforces strict type checking during tool calls, rejecting vocabulary hallucinations before execution.
+
+\item \textbf{Reasoning can hurt}: Reasoning models (o3, o4-mini) may be more willing to ``interpret'' user intent flexibly, accepting ``PDF'' as equivalent to ``pdf'' through semantic reasoning.
+
+\item \textbf{Helpfulness is harmful}: Models optimized for helpfulness (gpt-5) may accept approximate matches to avoid ``failing'' the user with type errors.
+\end{enumerate}
+
+This suggests that agent robustness requires a \emph{different optimization target} than base model capabilities. Rather than maximizing task success or reasoning depth, agents need:
+
+\begin{itemize}
+\item Strict schema validation (reject invalid tool calls)
+\item Conservative parameter inference (when uncertain, ask for clarification)
+\item Type checking at invocation time (validate before executing)
+\end{itemize}
+
+The success of gpt-oss-120b (open source, non-reasoning, strict validation) over gpt-5 (proprietary, advanced, flexible) demonstrates that architectural discipline predicts robustness better than raw capabilities.
+
+\subsection{Limitations}
+
+\textbf{Task coverage:} Our 10 tasks focus on tool documentation compression in API-calling contexts. Agents face compression in other domains (state representation, plan feedback, multi-step instructions) that may exhibit different failure modes.
+
+\textbf{Production realism:} Our tasks use mock APIs with deterministic responses. Real deployments face non-deterministic environments, cascading failures, and adversarial inputs that may amplify or mitigate compression effects.
+
+\textbf{Framework diversity:} We evaluated models via standardized adapters rather than native agent frameworks (OpenAI Swarm, Anthropic Computer Use, LangGraph). Framework-specific scaffolding may provide additional mitigation.
+
+\textbf{Temporal validity:} Model behavior evolves through fine-tuning and RLHF updates. Our findings reflect model versions as of February 2026 and may not generalize to future releases.
+
+\subsection{Future Work}
+
+\textbf{Remediation strategies:} While we identified vocabulary hallucination as the dominant failure mode, we did not test mitigation strategies. Future work should evaluate:
+\begin{itemize}
+\item Schema enforcement at tool invocation
+\item Example-driven documentation formats
+\item Confidence thresholds for parameter inference
+\item Human-in-the-loop validation for high-risk operations
+\end{itemize}
+
+\textbf{Multi-source compression:} Agents face simultaneous compression across tool docs, state, feedback, and instructions. Future work should measure interaction effects between compression sources.
+
+\textbf{Long-horizon tasks:} Our tasks complete in 1-3 tool calls. Multi-step agent workflows may exhibit error propagation or recovery patterns not visible in single-step tasks.
+
+\textbf{Adversarial robustness:} Vocabulary hallucination creates attack surfaces (e.g., adversarial tool descriptions that induce specific vocabulary errors). Future work should measure susceptibility to deliberate manipulation.
+
+\subsection{CDCT-A as a Behavioral Stress-Testing Framework}
+
+CDCT-A should not be interpreted solely as a benchmark for tool-calling performance under resource constraints, but as a \textbf{behavioral stress-testing framework} for exposing latent inference biases in agentic systems. By systematically degrading specification information while holding task objectives constant, CDCT-A reveals inference shortcuts that remain invisible under full-context evaluation.
+
+\textbf{What CDCT-A fundamentally measures:} Agentic inference bias under structured ambiguity. When agents face partial specifications, they do not fail randomly:they fail \emph{systematically}, applying semantic priors (natural language conventions) that conflict with syntactic requirements (API contracts). This is not a capability limitation but a learned inference pattern that becomes observable only when specification completeness varies.
+
+\textbf{The compression lens:} Compression is not experimental noise but a controlled stress variable that isolates three behavioral dimensions:
+\begin{enumerate}
+\item \textbf{Goal inference} (does the agent understand what to do?)
+\item \textbf{Specification adherence} (does the agent follow how to do it?)
+\item \textbf{Prior application} (what does the agent assume when information is missing?)
+\end{enumerate}
+
+Standard evaluation conflates these by providing full specifications where all three align. CDCT-A separates them by introducing controlled degradation, revealing that agents can excel at (1) and fail at (2) through systematic errors in (3).
+
+\textbf{Generalization beyond tool documentation:} While this work focuses on API documentation compression, the framework applies to any structured interface where agents must reconstruct constraints from partial information:
+\begin{itemize}
+\item \textbf{State compression}: Summarized conversation history or memory
+\item \textbf{Multi-agent communication}: Abbreviated message protocols
+\item \textbf{Retrieval-augmented generation}: Incomplete context from vector search
+\item \textbf{Human-agent interaction}: Terse instructions or domain jargon
+\end{itemize}
+
+In each case, CDCT-A's core insight applies: \emph{successful goal completion does not guarantee specification compliance when systems must infer missing constraints}.
+
+\textbf{Implications for evaluation design:} Current agent benchmarks overwhelmingly measure task success (AgentBench, WebArena, ToolBench). CDCT-A establishes that this is insufficient:evaluation must measure \emph{both} goal achievement and contract adherence under varying information completeness. The 20.6\% successful violation rate demonstrates that these are orthogonal behavioral axes requiring independent measurement.
+
+\textbf{Framework positioning:} CDCT-A joins a family of behavioral decomposition methods:
+\begin{itemize}
+\item CDCT (base models): Constraint compliance vs semantic accuracy under prompt compression
+\item DDFT: Epistemic confidence vs fabrication under knowledge pressure  
+\item CDCT-A: Goal success vs specification adherence under interface degradation
+\end{itemize}
+
+The unifying principle is \textbf{behavioral stress-testing}: systematically varying one dimension of task difficulty to reveal latent inference patterns that full-context evaluation cannot detect.
+
+\section{Conclusion}
+
+We introduced CDCT-A, a protocol for measuring constraint compliance in agentic systems under tool documentation compression. Evaluation of 1,350 agent executions across 9 frontier models reveals four key findings:
+
+\begin{enumerate}
+\item \textbf{Asymmetric U-curve}: Agents exhibit a modified U-curve with high left peak (91.9\% CC at full documentation) and low right peak (62.6\% at extreme compression), demonstrating that scaffolding mitigates but does not eliminate compression failures.
+
+\item \textbf{Successful violations}: 20.6\% of executions complete tasks while violating specifications, peaking at 29.6\% in the medium-compression danger zone. Standard task success metrics are blind to these deployment-critical failures.
+
+\item \textbf{Vocabulary hallucination}: The dominant failure mode is deterministic under our experimental conditions (temperature=0, single invocation): models correctly infer intent but guess wrong API syntax, as evidenced by 100\% failure rate on the control task across all models.
+
+\item \textbf{Architectural variance}: Model performance varies 26.7 percentage points, with patterns suggesting that schema validation and type checking may predict robustness independently of scale, though further investigation is needed to isolate these mechanisms.
+\end{enumerate}
+
+These findings demonstrate that compression-induced failures generalize from base models to agents, but manifest through vocabulary hallucination rather than RLHF helpfulness conflicts. These results suggest that task success metrics alone are insufficient for safety validation, and indicate that agent evaluation frameworks should measure both task completion and specification compliance.
+
+Our work establishes CDCT-A as a protocol for measuring constraint compliance in deployed agents, providing both a diagnostic tool for identifying failure modes and a benchmark for comparing model and framework robustness. As agentic systems expand into high-stakes domains:financial services, healthcare, infrastructure:the ability to detect successful violations before they reach production becomes critical for safe deployment.
+
+
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+
+% Our prior work
+\bibitem{baxi2025cdct}
+Baxi, R. (2025).
+\newblock Separating Constraint Compliance from Semantic Accuracy: A Novel Benchmark for Evaluating Instruction-Following Under Compression.
+\newblock \emph{arXiv preprint arXiv:2512.17920}.
+
+\bibitem{baxi2025ddft}
+Baxi, R. (2025).
+\newblock The Drill-Down and Fabricate Test (DDFT): A Protocol for Measuring Epistemic Robustness in Language Models.
+\newblock \emph{arXiv preprint arXiv:2512.23850}.
+
+% Agent frameworks and tool use
+\bibitem{schick2024toolformer}
+Schick, T., Dwivedi-Yu, J., Dessì, R., Raileanu, R., Lomeli, M., Zettlemoyer, L., Cancedda, N., and Scialom, T. (2024).
+\newblock Toolformer: Language Models Can Teach Themselves to Use Tools.
+\newblock \emph{Advances in Neural Information Processing Systems 36}.
+
+\bibitem{qin2023tool}
+Qin, Y., Liang, S., Ye, Y., Zhu, K., Yan, L., Lu, Y., Lin, Y., Cong, X., Tang, X., Qian, B., Zhao, S., Tian, R., Xie, R., Zhou, J., Gerstein, M., Li, D., Liu, Z., and Sun, M. (2023).
+\newblock ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs.
+\newblock \emph{arXiv preprint arXiv:2307.16789}.
+
+\bibitem{patil2023gorilla}
+Patil, S. G., Zhang, T., Wang, X., and Gonzalez, J. E. (2023).
+\newblock Gorilla: Large Language Model Connected with Massive APIs.
+\newblock \emph{arXiv preprint arXiv:2305.15334}.
+
+\bibitem{liang2023taskmatrix}
+Liang, Y., Wu, C., Song, T., Wu, W., Xia, Y., Liu, Y., Ou, Y., Lu, S., Ji, L., Mao, S., Wang, Y., Shou, L., Gong, M., and Duan, N. (2023).
+\newblock TaskMatrix.AI: Completing Tasks by Connecting Foundation Models with Millions of APIs.
+\newblock \emph{arXiv preprint arXiv:2303.16434}.
+
+\bibitem{openai2024swarm}
+OpenAI (2024).
+\newblock Swarm: A Framework for Multi-Agent Orchestration.
+\newblock \emph{GitHub repository: github.com/openai/swarm}.
+
+% Agent evaluation and benchmarks
+\bibitem{liu2024agentbench}
+Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men, K., Yang, K., Zhang, S., Deng, X., Zeng, A., Du, Z., Zhang, C., Shen, S., Zhang, T., Su, Y., Sun, H., Huang, M., Dong, Y., and Tang, J. (2024).
+\newblock AgentBench: Evaluating LLMs as Agents.
+\newblock \emph{Proceedings of the International Conference on Learning Representations (ICLR)}.
+
+\bibitem{zhou2024webarena}
+Zhou, S., Xu, F. F., Zhu, H., Zhou, X., Lo, R., Sridhar, A., Cheng, X., Bisk, Y., Fried, D., Alon, U., and Neubig, G. (2024).
+\newblock WebArena: A Realistic Web Environment for Building Autonomous Agents.
+\newblock \emph{Proceedings of the International Conference on Learning Representations (ICLR)}.
+
+\bibitem{yao2022react}
+Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., and Cao, Y. (2022).
+\newblock ReAct: Synergizing Reasoning and Acting in Language Models.
+\newblock \emph{arXiv preprint arXiv:2210.03629}.
+
+\bibitem{shinn2023reflexion}
+Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K., and Yao, S. (2023).
+\newblock Reflexion: Language Agents with Verbal Reinforcement Learning.
+\newblock \emph{Advances in Neural Information Processing Systems 36}.
+
+% Instruction following and constraint satisfaction
+\bibitem{zhou2023lima}
+Zhou, C., Liu, P., Xu, P., Iyer, S., Sun, J., Mao, Y., Ma, X., Efrat, A., Yu, P., Yu, L., Zhang, S., Ghosh, G., Lewis, M., Zettlemoyer, L., and Levy, O. (2023).
+\newblock LIMA: Less Is More for Alignment.
+\newblock \emph{Advances in Neural Information Processing Systems 36}.
+
+\bibitem{ouyang2022training}
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C. L., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P., Leike, J., and Lowe, R. (2022).
+\newblock Training language models to follow instructions with human feedback.
+\newblock \emph{Advances in Neural Information Processing Systems 35}.
+
+\bibitem{mishra2022cross}
+Mishra, S., Khashabi, D., Baral, C., and Hajishirzi, H. (2022).
+\newblock Cross-Task Generalization via Natural Language Crowdsourcing Instructions.
+\newblock \emph{Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (ACL)}.
+
+\bibitem{wei2022finetuned}
+Wei, J., Bosma, M., Zhao, V. Y., Guu, K., Yu, A. W., Lester, B., Du, N., Dai, A. M., and Le, Q. V. (2022).
+\newblock Finetuned Language Models Are Zero-Shot Learners.
+\newblock \emph{Proceedings of the International Conference on Learning Representations (ICLR)}.
+
+% Robustness and failure modes
+\bibitem{lin2022truthfulqa}
+Lin, S., Hilton, J., and Evans, O. (2022).
+\newblock TruthfulQA: Measuring How Models Mimic Human Falsehoods.
+\newblock \emph{Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (ACL)}.
+
+\bibitem{perez2022discovering}
+Perez, E., Ringer, S., Lukošiūtė, K., Nguyen, K., Chen, E., Heiner, S., Pettit, C., Olsson, C., Kundu, S., Kadavath, S., Jones, A., Chen, A., Mann, B., Israel, B., Seethor, B., McKinnon, C., Olah, C., Yan, D., Amodei, D., Amodei, D., Drain, D., Li, D., Tran-Johnson, E., Khundadze, G., Kernion, J., Landis, J., Kerr, J., Mueller, J., Hyun, J., Landau, J., Ndousse, K., Goldberg, L., Lovitt, L., Martin, L., Sellitto, M., Elhage, N., Schiefer, N., Mercado, N., DasSarma, N., Rausch, O., Larson, R., Ringer, S., Johnston, S., Kravec, S., Showk, S. E., Lanham, T., Telleen-Lawton, T., Henighan, T., Hume, T., Bowman, S. R., Hatfield-Dodds, Z., Kaplan, J., Ganguli, D., Hernandez, D., Askell, A., Chen, A., Bai, Y., and Kaplan, J. (2022).
+\newblock Discovering Language Model Behaviors with Model-Written Evaluations.
+\newblock \emph{arXiv preprint arXiv:2212.09251}.
+
+\bibitem{gao2023pal}
+Gao, L., Madaan, A., Zhou, S., Alon, U., Liu, P., Yang, Y., Callan, J., and Neubig, G. (2023).
+\newblock PAL: Program-aided Language Models.
+\newblock \emph{Proceedings of the International Conference on Machine Learning (ICML)}.
+
+% Context and compression
+\bibitem{press2022train}
+Press, O., Smith, N. A., and Lewis, M. (2022).
+\newblock Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation.
+\newblock \emph{Proceedings of the International Conference on Learning Representations (ICLR)}.
+
+\bibitem{liu2023lost}
+Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., and Liang, P. (2023).
+\newblock Lost in the Middle: How Language Models Use Long Contexts.
+\newblock \emph{arXiv preprint arXiv:2307.03172}.
+
+\bibitem{xu2024retrieval}
+Xu, F., Shi, W., and Choi, E. (2024).
+\newblock RECOMP: Improving Retrieval-Augmented LMs with Compression and Selective Augmentation.
+\newblock \emph{Proceedings of the International Conference on Learning Representations (ICLR)}.
+
+% Safety and alignment
+\bibitem{bai2022constitutional}
+Bai, Y., Kadavath, S., Kundu, S., Askell, A., Kernion, J., Jones, A., Chen, A., Goldie, A., Mirhoseini, A., McKinnon, C., Chen, C., Olsson, C., Olah, C., Hernandez, D., Drain, D., Ganguli, D., Li, D., Tran-Johnson, E., Perez, E., Kerr, J., Mueller, J., Ladish, J., Landau, J., Ndousse, K., Lukosuite, K., Lovitt, L., Sellitto, M., Elhage, N., Schiefer, N., Mercado, N., DasSarma, N., Lasenby, R., Larson, R., Ringer, S., Johnston, S., Kravec, S., Showk, S. E., Fort, S., Lanham, T., Telleen-Lawton, T., Conerly, T., Henighan, T., Hume, T., Bowman, S. R., Hatfield-Dodds, Z., Mann, B., Amodei, D., Joseph, N., McCandlish, S., Brown, T., and Kaplan, J. (2022).
+\newblock Constitutional AI: Harmlessness from AI Feedback.
+\newblock \emph{arXiv preprint arXiv:2212.08073}.
+
+\bibitem{ganguli2023capacity}
+Ganguli, D., Lovitt, L., Kernion, J., Askell, A., Bai, Y., Kadavath, S., Mann, B., Perez, E., Schiefer, N., Ndousse, K., Jones, A., Bowman, S., Chen, A., Hatfield-Dodds, Z., Hernandez, D., Drain, D., Elhage, N., Kaplan, J., and Olah, C. (2023).
+\newblock The Capacity for Moral Self-Correction in Large Language Models.
+\newblock \emph{arXiv preprint arXiv:2302.07459}.
+
+% Model capabilities and scaling
+\end{thebibliography}
+
+\end{document}
