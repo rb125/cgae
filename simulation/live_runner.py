@@ -32,6 +32,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+# Load .env file before any env var reads (no-op if python-dotenv not installed)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from cgae_engine.gate import GateFunction, RobustnessVector, Tier
 from cgae_engine.registry import AgentRegistry, AgentStatus
 from cgae_engine.contracts import ContractManager, ContractStatus, Constraint

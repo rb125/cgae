@@ -44,6 +44,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+# Load .env automatically so FILECOIN_PRIVATE_KEY is available
+# even when the user hasn't manually exported it in the shell.
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
