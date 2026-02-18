@@ -1,0 +1,18 @@
+{
+  "name": "cgae-filecoin-storage",
+  "version": "1.0.0",
+  "description": "Synapse SDK uploader for CGAE audit certificates",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "upload": "node upload_to_synapse.mjs",
+    "check": "node -e \"import('@filoz/synapse-sdk').then(m => console.log('SDK ok:', Object.keys(m))).catch(e => console.error('SDK missing:', e.message))\""
+  },
+  "dependencies": {
+    "@filoz/synapse-sdk": "^0.24.0",
+    "ethers": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

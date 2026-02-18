@@ -30,7 +30,7 @@ import random
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from cgae_engine.gate import GateFunction, RobustnessVector, Tier
 from cgae_engine.registry import AgentRegistry, AgentStatus
@@ -44,6 +44,9 @@ from cgae_engine.tasks import (
     Task, ALL_TASKS, TASKS_BY_TIER, get_tasks_for_tier, verify_output,
 )
 from cgae_engine.verifier import TaskVerifier, VerificationResult
+from agents.autonomous import (
+    AutonomousAgent, create_autonomous_agent, STRATEGY_MAP,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -183,10 +186,21 @@ class LiveSimConfig:
     model_names: Optional[list[str]] = None
     output_dir: str = "simulation/live_results"
     seed: Optional[int] = 42
-    # Framework result directories for real audit data
+    # Framework result directories for pre-computed audit data
     ddft_results_dir: Optional[str] = None
     eect_results_dir: Optional[str] = None
     cdct_results_dir: Optional[str] = None
+    # Live audit generation (runs CDCT/DDFT/EECT against each contestant)
+    # When True, pre-computed results are still checked first; live run fills
+    # any dimensions that have no pre-computed file.
+    run_live_audit: bool = True
+    live_audit_cache_dir: Optional[str] = None   # defaults to output_dir/audit_cache
+    # Agent strategy assignment: model_name -> strategy_name
+    # Unspecified models default to "growth"
+    agent_strategies: Optional[dict] = None      # dict[str, str]
+    # Self-verification in ExecutionLayer (retry on self-check failure)
+    self_verify: bool = True
+    max_retries: int = 2
 
 
 class LiveSimulationRunner:
@@ -230,6 +244,9 @@ class LiveSimulationRunner:
         self.agent_model_map: dict[str, str] = {}
         self.jury_agents: list[LLMAgent] = []
 
+        # v2 Autonomous agents (one per contestant, keyed by model_name)
+        self.autonomous_agents: dict[str, AutonomousAgent] = {}
+
         # Verifier (populated after jury agents created)
         self.verifier: Optional[TaskVerifier] = None
 
@@ -244,55 +261,71 @@ class LiveSimulationRunner:
         self._round_summaries: list[dict] = []
         self._final_summary: Optional[dict] = None
 
-    def _resolve_initial_robustness(self, model_name: str, agent_id: str) -> RobustnessVector:
+    def _resolve_initial_robustness(
+        self, model_name: str, agent_id: str, llm_agent: Any
+    ) -> RobustnessVector:
         """
-        Resolve initial robustness per dimension.
+        Resolve initial robustness by running all three diagnostic frameworks live.
 
-        For each of CC, ER, AS, IH:
-          1. Try to load the value from the corresponding framework results directory.
-          2. If no real data exists for that dimension, substitute the value from
-             DEFAULT_ROBUSTNESS (or the generic fallback vector) rather than the
-             blind midpoint 0.5.
-
-        This ensures that CC never appears as a flat 0.50 line simply because no
-        CDCT results directory was configured — instead it uses the per-model
-        estimate from DEFAULT_ROBUSTNESS while ER/AS/IH may still be real data.
+        Priority:
+          1. Run live audits (CDCT/DDFT/EECT) when ``config.run_live_audit=True``.
+             Results are cached to ``live_audit_cache_dir`` so reruns are instant.
+          2. For any dimension where the live run fails, check pre-computed framework
+             result directories if they are configured.
+          3. For any dimension still missing, fall back to the per-model estimate in
+             DEFAULT_ROBUSTNESS rather than the blind midpoint 0.5.
 
         Tracking is written to ``self._audit_quality[model_name]`` so callers can
-        clearly distinguish fully-audited agents from partially- or fully-defaulted
-        ones.
+        clearly distinguish fully-audited agents from partially- or fully-defaulted ones.
         """
         fallback = DEFAULT_ROBUSTNESS.get(
             model_name,
             RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
         )
 
-        has_frameworks = (
-            self.config.ddft_results_dir
-            or self.config.eect_results_dir
-            or self.config.cdct_results_dir
-        )
-
         dims_real: list[str] = []
         dims_defaulted: list[str] = []
 
-        if has_frameworks:
+        # --- Step 1: Live audit (primary source) ----------------------------
+        if self.config.run_live_audit:
+            cache_dir = self.config.live_audit_cache_dir or str(
+                Path(self.config.output_dir) / "audit_cache"
+            )
+            model_config = {"model": model_name, "provider": llm_agent.provider}
             try:
-                audit_result = self.audit.audit_from_results(agent_id, model_name)
+                logger.info(f"  Running live audit for {model_name}...")
+                audit_result = self.audit.audit_live(
+                    agent_id=agent_id,
+                    model_name=model_name,
+                    llm_agent=llm_agent,
+                    model_config=model_config,
+                    cache_dir=cache_dir,
+                )
                 r = audit_result.robustness
-                defaulted = audit_result.defaults_used  # set of dim names
-
-                # Per-dimension merge: real data where available, DEFAULT_ROBUSTNESS otherwise
-                cc  = fallback.cc   if "cc"  in defaulted else r.cc
-                er  = fallback.er   if "er"  in defaulted else r.er
-                as_ = fallback.as_  if "as"  in defaulted else r.as_
-                ih  = fallback.ih   if "ih"  in defaulted else r.ih
+                defaulted = audit_result.defaults_used
 
                 dims_real      = sorted({"cc", "er", "as", "ih"} - defaulted)
                 dims_defaulted = sorted(defaulted)
 
-                source = "real_audit" if not defaulted else (
-                    "partial_audit" if dims_real else "default_robustness"
+                # For any dimension that failed in live audit, try pre-computed
+                if defaulted:
+                    pre = self._load_precomputed(model_name, agent_id)
+                    if pre:
+                        cc  = pre.cc  if "cc"  in defaulted else r.cc
+                        er  = pre.er  if "er"  in defaulted else r.er
+                        as_ = pre.as_ if "as"  in defaulted else r.as_
+                        ih  = pre.ih  if "ih"  in defaulted else r.ih
+                    else:
+                        # Still missing — substitute DEFAULT_ROBUSTNESS per dim
+                        cc  = fallback.cc   if "cc"  in defaulted else r.cc
+                        er  = fallback.er   if "er"  in defaulted else r.er
+                        as_ = fallback.as_  if "as"  in defaulted else r.as_
+                        ih  = fallback.ih   if "ih"  in defaulted else r.ih
+                else:
+                    cc, er, as_, ih = r.cc, r.er, r.as_, r.ih
+
+                source = "live_audit" if not defaulted else (
+                    "live_partial" if dims_real else "default_robustness"
                 )
                 logger.info(
                     f"  {model_name}: CC={cc:.3f} ER={er:.3f} AS={as_:.3f} IH={ih:.3f} "
@@ -306,19 +339,68 @@ class LiveSimulationRunner:
                 return RobustnessVector(cc=cc, er=er, as_=as_, ih=ih)
 
             except Exception as e:
-                logger.warning(f"  Failed to load audit results for {model_name}: {e}")
+                logger.error(
+                    f"  Live audit failed entirely for {model_name}: {e}. "
+                    f"Falling back to pre-computed / defaults."
+                )
 
-        # No framework dirs at all — use hardcoded defaults for every dimension
+        # --- Step 2: Pre-computed framework results (fallback) --------------
+        pre = self._load_precomputed(model_name, agent_id)
+        if pre is not None:
+            self._audit_quality[model_name] = {
+                "source": "pre_computed",
+                "dims_real": ["cc", "er", "as", "ih"],
+                "dims_defaulted": [],
+            }
+            return pre
+
+        # --- Step 3: DEFAULT_ROBUSTNESS per model (last resort) -------------
         self._audit_quality[model_name] = {
             "source": "default_robustness",
             "dims_real": [],
             "dims_defaulted": ["cc", "er", "as", "ih"],
         }
-        logger.info(
-            f"  {model_name}: Using default robustness "
-            f"CC={fallback.cc:.3f} ER={fallback.er:.3f} AS={fallback.as_:.3f} IH={fallback.ih:.3f}"
+        logger.warning(
+            f"  {model_name}: No audit data available. Using default robustness "
+            f"CC={fallback.cc:.3f} ER={fallback.er:.3f} "
+            f"AS={fallback.as_:.3f} IH={fallback.ih:.3f}"
         )
         return fallback
+
+    def _load_precomputed(
+        self, model_name: str, agent_id: str
+    ) -> Optional[RobustnessVector]:
+        """
+        Attempt to load robustness from pre-computed framework results directories.
+        Returns None when no real data is found for any dimension.
+        """
+        has_frameworks = (
+            self.config.ddft_results_dir
+            or self.config.eect_results_dir
+            or self.config.cdct_results_dir
+        )
+        if not has_frameworks:
+            return None
+        try:
+            audit_result = self.audit.audit_from_results(agent_id, model_name)
+            # Only trust it when at least one dimension has real data
+            if audit_result.defaults_used == {"cc", "er", "as", "ih"}:
+                return None
+            r = audit_result.robustness
+            fallback = DEFAULT_ROBUSTNESS.get(
+                model_name,
+                RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
+            )
+            d = audit_result.defaults_used
+            return RobustnessVector(
+                cc  = fallback.cc   if "cc"  in d else r.cc,
+                er  = fallback.er   if "er"  in d else r.er,
+                as_ = fallback.as_  if "as"  in d else r.as_,
+                ih  = fallback.ih   if "ih"  in d else r.ih,
+            )
+        except Exception as e:
+            logger.debug(f"  Pre-computed load failed for {model_name}: {e}")
+            return None
 
     def setup(self):
         """Create LLM agents and register them in the economy."""
@@ -355,7 +437,14 @@ class LiveSimulationRunner:
                 "and endpoint env vars are set."
             )
 
-        # Register each in the economy with real or default robustness
+        # Resolve live_audit_cache_dir now so it's ready when setup loops begin
+        _cache_dir = self.config.live_audit_cache_dir or str(
+            Path(self.config.output_dir) / "audit_cache"
+        )
+        Path(_cache_dir).mkdir(parents=True, exist_ok=True)
+
+        # Register each contestant in the economy; run live audit for robustness
+        strategy_cfg = self.config.agent_strategies or {}
         for model_name, llm_agent in self.llm_agents.items():
             record = self.economy.register_agent(
                 model_name=model_name,
@@ -364,7 +453,9 @@ class LiveSimulationRunner:
             self.agent_model_map[record.agent_id] = model_name
             self._token_costs[record.agent_id] = 0.0
 
-            robustness = self._resolve_initial_robustness(model_name, record.agent_id)
+            robustness = self._resolve_initial_robustness(
+                model_name, record.agent_id, llm_agent
+            )
             self.economy.audit_agent(
                 record.agent_id,
                 robustness,
@@ -374,6 +465,22 @@ class LiveSimulationRunner:
                 f"Registered {model_name} -> {record.agent_id} "
                 f"at tier {record.current_tier.name}"
             )
+
+            # Create AutonomousAgent wrapper for this contestant
+            strategy_name = strategy_cfg.get(model_name, "growth")
+            autonomous = create_autonomous_agent(
+                llm_agent=llm_agent,
+                strategy_name=strategy_name,
+                token_cost_fn=compute_token_cost_fil,
+                self_verify=self.config.self_verify,
+                max_retries=self.config.max_retries,
+            )
+            autonomous.register(
+                agent_id=record.agent_id,
+                initial_balance=self.config.initial_balance,
+            )
+            self.autonomous_agents[model_name] = autonomous
+            logger.info(f"  AutonomousAgent({strategy_name}) registered for {model_name}")
 
         logger.info(f"Setup complete: {len(self.llm_agents)} contestants, {len(self.jury_agents)} jury")
 
@@ -423,15 +530,24 @@ class LiveSimulationRunner:
             if not model_name or model_name not in self.llm_agents:
                 continue
 
-            llm_agent = self.llm_agents[model_name]
+            autonomous = self.autonomous_agents.get(model_name)
             tier = agent.current_tier
 
-            # Pick a task appropriate for this agent's tier
+            # Build agent state and use planning layer to select a task
             available_tasks = get_tasks_for_tier(tier)
             if not available_tasks:
                 continue
 
-            task = random.choice(available_tasks)
+            if autonomous is not None:
+                state = autonomous.build_state(agent, self.economy.gate)
+                task = autonomous.plan_task(available_tasks, state)
+            else:
+                # Fallback: random selection (no AutonomousAgent registered)
+                task = random.choice(available_tasks)
+
+            if task is None:
+                logger.debug(f"{model_name}: planning layer chose idle this round")
+                continue
 
             # Post contract in the economy
             contract = self.economy.post_contract(
@@ -456,31 +572,49 @@ class LiveSimulationRunner:
 
             round_data["tasks_attempted"] += 1
 
-            # Snapshot token counts before execution
-            tokens_before_in = llm_agent.total_input_tokens
-            tokens_before_out = llm_agent.total_output_tokens
-
-            # Execute task with live LLM call
+            # Execute task — delegate to AutonomousAgent (self-verify + retry)
             logger.info(f"  {model_name} executing {task.task_id} (T{task.tier.value})...")
-            start_time = time.time()
-            try:
-                output = llm_agent.execute_task(
-                    prompt=task.prompt,
-                    system_prompt=task.system_prompt,
-                )
-                latency = (time.time() - start_time) * 1000
-            except Exception as e:
-                logger.error(f"  {model_name} FAILED to execute: {e}")
-                output = ""
-                latency = (time.time() - start_time) * 1000
+            if autonomous is not None:
+                try:
+                    exec_result = autonomous.execute_task(task)
+                    output = exec_result.output
+                    token_cost = exec_result.token_cost_fil
+                    latency = exec_result.latency_ms
+                    tokens_in = exec_result.token_usage.get("input", 0)
+                    tokens_out = exec_result.token_usage.get("output", 0)
+                    if exec_result.self_check_failures:
+                        logger.debug(
+                            f"    Self-check caught {exec_result.self_check_failures}; "
+                            f"retries={exec_result.retries_used}"
+                        )
+                except Exception as e:
+                    logger.error(f"  {model_name} AutonomousAgent.execute_task FAILED: {e}")
+                    output = ""
+                    token_cost = 0.0
+                    latency = 0.0
+                    tokens_in = tokens_out = 0
+            else:
+                llm_agent = self.llm_agents[model_name]
+                tok_in_before = llm_agent.total_input_tokens
+                tok_out_before = llm_agent.total_output_tokens
+                start_time = time.time()
+                try:
+                    output = llm_agent.execute_task(task.prompt, task.system_prompt)
+                    latency = (time.time() - start_time) * 1000
+                except Exception as e:
+                    logger.error(f"  {model_name} FAILED to execute: {e}")
+                    output = ""
+                    latency = (time.time() - start_time) * 1000
+                tokens_in  = llm_agent.total_input_tokens  - tok_in_before
+                tokens_out = llm_agent.total_output_tokens - tok_out_before
+                token_cost = compute_token_cost_fil(model_name, tokens_in, tokens_out)
 
             # Cost accounting: deduct token costs from agent balance
-            new_input = llm_agent.total_input_tokens - tokens_before_in
-            new_output = llm_agent.total_output_tokens - tokens_before_out
-            token_cost = compute_token_cost_fil(model_name, new_input, new_output)
-            agent.balance -= token_cost
+            agent.balance    -= token_cost
             agent.total_spent += token_cost
-            self._token_costs[agent.agent_id] = self._token_costs.get(agent.agent_id, 0.0) + token_cost
+            self._token_costs[agent.agent_id] = (
+                self._token_costs.get(agent.agent_id, 0.0) + token_cost
+            )
             round_data["total_token_cost"] += token_cost
 
             # Verify output
@@ -503,6 +637,10 @@ class LiveSimulationRunner:
                     timestamp=self.economy.current_time,
                 )
 
+            # Let AutonomousAgent update its internal perception + accounting
+            if autonomous is not None:
+                autonomous.update_state(task, verification, token_cost)
+
             # Settle contract based on verification
             settlement = self.economy.complete_contract(
                 contract.contract_id,
@@ -521,9 +659,11 @@ class LiveSimulationRunner:
                 "settlement": settlement,
                 "latency_ms": latency,
                 "token_cost_fil": token_cost,
-                "tokens_used": {"input": new_input, "output": new_output},
+                "tokens_used": {"input": tokens_in, "output": tokens_out},
                 "output_preview": output[:200] if output else "(empty)",
             }
+            if autonomous is not None:
+                task_result["agent_strategy"] = type(autonomous.strategy).__name__
             round_data["task_results"].append(task_result)
             self._results.append(task_result)
 
@@ -562,6 +702,7 @@ class LiveSimulationRunner:
                 "dims_real": [],
                 "dims_defaulted": ["cc", "er", "as", "ih"],
             })
+            autonomous = self.autonomous_agents.get(model_name)
             agents_data.append({
                 "model_name": model_name,
                 "agent_id": agent_id,
@@ -589,6 +730,8 @@ class LiveSimulationRunner:
                 "audit_dims_real": aq["dims_real"],
                 "audit_dims_defaulted": aq["dims_defaulted"],
                 "llm_usage": usage,
+                # v2 AutonomousAgent metrics
+                "autonomous_metrics": autonomous.metrics_summary() if autonomous else None,
             })
 
         # Gini coefficient of balances

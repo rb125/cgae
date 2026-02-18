@@ -1,12 +1,41 @@
 # Comprehension-Gated Agent Economy (CGAE)
 
-**A Robustness-First Architecture for AI Economic Agency**
+**A Robustness-First Architecture for AI Economic Agency on Filecoin**
 
 CGAE is a formal architecture where an AI agent's economic permissions are upper-bounded by verified comprehension — not capability benchmarks. Agents earn access to higher-value contracts by demonstrating robustness across three orthogonal dimensions: constraint compliance (CDCT), epistemic integrity (DDFT), and behavioral alignment (AGT/EECT). A weakest-link gate function ensures no dimension can be compensated by another.
 
-This repository implements the full CGAE protocol as described in `cgae.tex`, including the economy testbed, smart contracts for Filecoin Calibnet, a cohort of competing agent strategies, and a dashboard for real-time observation.
+This repository implements the full CGAE protocol as described in `cgae.tex`, including the economy engine, smart contracts for Filecoin Calibnet, a v2 autonomous agent architecture, live diagnostic framework integration, and a dashboard for real-time observation.
 
 **Paper**: Baxi & Baxi (2026). *The Comprehension-Gated Agent Economy: A Robustness-First Architecture for AI Economic Agency.*
+
+---
+
+## Filecoin Integration
+
+CGAE uses **Filecoin Calibration Testnet** (chain 314159) for two things:
+
+| Layer | What | How |
+|-------|------|-----|
+| **On-chain registry** | Agent identity, robustness certification, tier assignment, escrow | `CGAERegistry.sol` + `CGAEEscrow.sol` deployed to Calibnet |
+| **Filecoin storage** | Immutable audit certificate JSON (CDCT+DDFT+EECT results) | Synapse SDK (`@filoz/synapse-sdk`) — PieceCID stored on-chain |
+
+The flow per agent registration:
+```
+audit_live() → [CC, ER, AS, IH] → write audit_cert.json
+     ↓
+Synapse SDK (Node.js) → upload to Filecoin Warm Storage → PieceCID
+     ↓
+CGAERegistry.certify(agent, cc, er, as_, ih, auditType, auditCid)  ← on Calibnet
+```
+
+Anyone can verify: fetch the CID from `CGAERegistry.getAuditCid(agent_address)`, retrieve the JSON from Filecoin, and confirm the robustness scores match the on-chain vector.
+
+**Calibnet contract addresses** (after deployment):
+```
+CGAERegistry : see contracts/deployed.json
+CGAEEscrow   : see contracts/deployed.json
+Explorer     : https://calibration.filscan.io
+```
 
 ---
 
@@ -24,37 +53,49 @@ cgae/
 │   ├── contracts.py                # CGAE contracts with escrow and budget ceilings
 │   ├── marketplace.py              # Tier-distributed task demand generation
 │   ├── economy.py                  # Top-level coordinator (full economic loop)
-│   └── audit.py                    # Bridges CDCT/DDFT/EECT → robustness vectors
+│   ├── audit.py                    # Bridges CDCT/DDFT/EECT → robustness vectors
+│   │                               #   audit_from_results() — pre-computed
+│   │                               #   audit_live()         — live framework runs
+│   │                               #   synthetic_audit()    — Gaussian noise
+│   ├── llm_agent.py                # LLMAgent (Azure OpenAI / AI Foundry)
+│   ├── models_config.py            # 13 Azure model configurations
+│   ├── tasks.py                    # 16 tasks with machine-verifiable constraints
+│   └── verifier.py                 # Two-layer verification (algorithmic + jury LLM)
 │
-├── agents/                         # Agent strategies for the testbed
-│   ├── base.py                     # Abstract agent interface
-│   └── strategies.py               # 5 concrete strategies (see below)
+├── agents/                         # Agent implementations
+│   ├── base.py                     # Abstract v1 BaseAgent interface
+│   ├── strategies.py               # 5 synthetic strategy archetypes (v1)
+│   └── autonomous.py               # AutonomousAgent v2 architecture (NEW)
+│                                   #   PerceptionLayer, AccountingLayer,
+│                                   #   PlanningLayer, ExecutionLayer
+│                                   #   Growth / Conservative / Opportunistic /
+│                                   #   Specialist / Adversarial strategies
 │
 ├── contracts/                      # Solidity smart contracts (Filecoin Calibnet)
-│   ├── CGAERegistry.sol            # On-chain agent identity + gate function
-│   └── CGAEEscrow.sol              # Contract escrow + budget ceiling enforcement
+│   ├── CGAERegistry.sol            # On-chain agent identity + gate function + auditCid
+│   ├── CGAEEscrow.sol              # Contract escrow + budget ceiling enforcement
+│   ├── package.json                # Hardhat dependencies
+│   ├── hardhat.config.js           # Calibnet network config
+│   ├── deployed.json               # Deployed contract addresses (auto-generated)
+│   └── scripts/
+│       └── deploy.js               # One-command Calibnet deployment
 │
-├── simulation/                     # Experiment runner
-│   ├── runner.py                   # Main simulation loop (500 steps)
+├── storage/                        # Filecoin storage integration
+│   ├── upload_to_synapse.mjs       # Node.js Synapse SDK uploader
+│   ├── filecoin_store.py           # Python wrapper (subprocess bridge)
+│   └── package.json                # @filoz/synapse-sdk + ethers deps
+│
+├── simulation/                     # Experiment runners
+│   ├── runner.py                   # Synthetic simulation (v1 strategies, coin-flip)
+│   ├── live_runner.py              # Live LLM simulation (real endpoints + v2 agents)
 │   └── results/                    # Output: JSON metrics, agent details
 │
 ├── dashboard/                      # Streamlit visualization
 │   └── app.py                      # Interactive economy dashboard
 │
-├── cdct_framework/                 # Compression-Decay Comprehension Test (pre-existing)
-│   ├── main.py                     # Phase 1: collect model responses
-│   ├── main_jury.py                # Phase 2: jury evaluation
-│   └── src/                        # Agent, compression, evaluation modules
-│
-├── ddft_framework/                 # Drill-Down and Fabricate Test (pre-existing)
-│   ├── src/ddft.py                 # Core DDFT protocol
-│   ├── src/llm_jury.py             # Jury-based scoring
-│   └── results/                    # 2500+ evaluation result files
-│
-├── eect_framework/                 # Ethical Emergence Comprehension Test / AGT (pre-existing)
-│   ├── main.py                     # Phase 1: Socratic ethical dialogues
-│   ├── jury_evaluation.py          # Phase 2: Dharma metric scoring
-│   └── results/                    # Scored results for 7 frontier models
+├── cdct_framework/                 # Compression-Decay Comprehension Test
+├── ddft_framework/                 # Drill-Down Fabrication Test (2500+ results)
+├── eect_framework/                 # Ethical Emergence Comprehension Test
 │
 └── Research papers (PDF)
     ├── cdct_arxiv.pdf              # CDCT paper
@@ -69,8 +110,6 @@ cgae/
 
 ### 1. CGAE Core Engine (`cgae_engine/`, ~1500 lines)
 
-The full CGAE protocol from the paper, implemented in Python:
-
 | Module | Implements | Paper Reference |
 |--------|-----------|-----------------|
 | `gate.py` | Weakest-link gate function: `f(R) = T_k` where `k = min(g1(CC), g2(ER), g3(AS))` | Definition 6, Eq 6-7 |
@@ -79,12 +118,12 @@ The full CGAE protocol from the paper, implemented in Python:
 | `temporal.py` | Temporal decay: `delta(dt) = e^(-lambda * dt)` | Eq 8-9 |
 | `temporal.py` | Stochastic re-auditing: `p_audit = 1 - e^(-mu_k * dt)` | Eq 10 |
 | `registry.py` | Agent registration: `Reg(A) = (id_A, h(arch), prov, R_0, t_reg)` | Definition 5 |
-| `registry.py` | Architecture hash for version tracking, certification history | Section 3.2.1 |
 | `contracts.py` | CGAE contracts: `C = (O, Phi, V, T_min, r, p)` | Definition 5 (contracts) |
 | `contracts.py` | Budget ceiling enforcement per tier | Theorem 1 |
 | `marketplace.py` | Tier-distributed demand with tier premiums | Assumption 2 |
 | `economy.py` | Aggregate safety: `S(P) = 1 - sum(E*.(1-R_bar)) / sum(E)` | Definition 9 |
 | `audit.py` | CDCT → CC, DDFT → ER, EECT → AS, DDFT → IH* mappings | Eq 1-4 |
+| `audit.py` | **Live audit generation** via `audit_live()` | NEW |
 
 **Tier thresholds (default):**
 
@@ -97,19 +136,52 @@ The full CGAE protocol from the paper, implemented in Python:
 | T4 | 0.80 | 0.80 | 0.75 | 10.0 FIL |
 | T5 | 0.90 | 0.90 | 0.85 | 100.0 FIL |
 
-### 2. Agent Strategies (`agents/`, ~500 lines)
+### 2. Live Audit Generation (`cgae_engine/audit.py`)
 
-Five agent archetypes designed to test specific CGAE properties:
+`AuditOrchestrator.audit_live()` runs all three diagnostic frameworks directly against a live model endpoint to produce verified robustness scores — no pre-computed fallback for CC.
 
-| Agent | Robustness Profile | Capability | Tests What |
-|-------|-------------------|------------|------------|
-| **Conservative** | CC=0.85, ER=0.80, AS=0.75, IH=0.90 | 0.65 | Theorem 1: bounded exposure. High robustness → T3 access → high-value contracts |
-| **Aggressive** | CC=0.35, ER=0.40, AS=0.30, IH=0.70 | 0.85 | Theorem 2 (counter-case): high capability but stuck at T0 — capability alone fails |
-| **Balanced** | CC=0.60, ER=0.55, AS=0.50, IH=0.80 | 0.60 | Baseline: EV-maximizing, moderate both dimensions |
-| **Adaptive** | CC=0.55, ER=0.50, AS=0.45, IH=0.80 | 0.60 | Theorem 2 (positive case): invests 15% of earnings in weakest robustness dimension |
-| **Cheater** | CC=0.70, ER=0.25, AS=0.65, IH=0.60 | 0.70 | Proposition 2: collusion resistance. Weak ER pins it at T0 despite strong CC/AS |
+| Framework | Target | Entry Point | Output |
+|-----------|--------|-------------|--------|
+| DDFT | ER + IH* | `CognitiveProfiler.run_complete_assessment()` | CI score → ER; HOC → IH* |
+| CDCT | CC | `run_experiment()` with LLMAgent adapter | `min_d CC(A,d)` across compression levels |
+| EECT | AS | `EECTEvaluator.run_socratic_dialogue_raw()` | Heuristic `ACT * III * (1-RI) * (1-PER)` |
 
-### 3. Smart Contracts (`contracts/`, ~400 lines Solidity)
+Results are cached per model to `audit_cache/`. Priority order in `live_runner.py`:
+1. **Live audit** (runs CDCT/DDFT/EECT against real endpoint)
+2. **Pre-computed** framework result files (per failing dimension only)
+3. **DEFAULT_ROBUSTNESS** per-model estimates (last resort, never silent 0.5 flat)
+
+`AuditResult.defaults_used: set` tracks which dimensions used non-live data so paper claims can identify audited vs. estimated agents.
+
+### 3. Autonomous Agent Architecture v2 (`agents/autonomous.py`)
+
+Full five-layer v2 architecture replacing the v1 coin-flip strategies for live simulation:
+
+```
+AutonomousAgent
+├── PerceptionLayer    — constraint/domain pass-rate learning from task history
+├── AccountingLayer    — MINIMUM_RESERVE + AUDIT_RESERVE, burn-rate, insolvency guard
+├── PlanningLayer      — EV/RAEV scoring: EV = p·R - (1-p)·P - token_cost
+│                         RAEV = EV - P²/(2·balance)
+│                         delegates contract ranking to pluggable Strategy
+└── ExecutionLayer     — constraint-aware system prompt injection
+                         algorithmic self-check before submission
+                         retry loop (max_retries) on self-check failures
+```
+
+**Five pluggable strategies** via `STRATEGY_MAP`:
+
+| Strategy | Max Utilization | Invests Robustness? | Tests |
+|----------|-----------------|---------------------|-------|
+| `growth` | 70% | Yes — when within 0.07 of next tier threshold | Theorem 2 positive case |
+| `conservative` | 30% | Never | Theorem 1: bounded exposure |
+| `opportunistic` | 90% | Only if stuck at T0 | High-variance upside |
+| `specialist` | 50% | Worst constraint type only | Domain specialisation |
+| `adversarial` | 95% | Minimal AS only | Proposition 2 probe |
+
+**Self-verification**: The ExecutionLayer runs the same algorithmic constraint checks the verifier will run, before submitting. On failure, it builds a targeted retry prompt listing which constraints failed and why (`diagnostics`). Up to `max_retries` attempts per task.
+
+### 4. Smart Contracts (`contracts/`, ~400 lines Solidity)
 
 Two contracts targeting Filecoin Calibnet (Solidity ^0.8.20):
 
@@ -127,52 +199,65 @@ Two contracts targeting Filecoin Calibnet (Solidity ^0.8.20):
 - Penalty collateral deposit by agents
 - Settlement: reward release on success, penalty forfeiture on failure
 
-### 4. Simulation Runner (`simulation/runner.py`, ~350 lines)
+### 5. Live Simulation Runner (`simulation/live_runner.py`)
 
-Full economic loop for configurable duration:
+Replaces coin-flip execution with real LLM calls and v2 agents:
 
-1. Register agents → initial audit → tier assignment
-2. Generate tier-distributed contracts (marketplace)
-3. Each agent decides: bid / invest in robustness / idle
-4. Assign contracts to bidding agents (tier + budget check)
-5. Execute tasks → verify against constraints → settle (reward/penalty)
-6. Apply temporal decay, stochastic spot-audits, storage costs
-7. Record metrics per step
+```
+setup():
+  For each model:
+    1. Register in Economy
+    2. Run live audit (CDCT/DDFT/EECT) → real RobustnessVector → Tier
+    3. Create AutonomousAgent(strategy) + register()
 
-**Default configuration:**
-- 500 time steps
-- 5 agents (one of each strategy)
-- 0.5 FIL initial balance per agent
-- 12 contracts generated per step
-- Decay rate λ = 0.005
-- Storage cost 0.0003 FIL/step (FOC)
+_run_round():
+  For each active agent:
+    1. build_state(record, gate) → AgentState snapshot
+    2. plan_task(available_tasks, state) → chosen Task (EV/RAEV + strategy)
+    3. execute_task(task) → ExecutionResult (self-verify + retry)
+    4. verify() → VerificationResult (algorithmic + jury LLM for T2+)
+    5. update_robustness_from_verification() → re-certify
+    6. update_state(task, verification, token_cost) → perception + accounting
+    7. complete_contract() → FIL settlement
 
-### 5. Dashboard (`dashboard/app.py`, ~300 lines)
+_finalize():
+  Leaderboard with audit source tags, Gini coefficient, per-agent
+  autonomous_metrics (self_check_catches, retry_successes, strategy_actions)
+```
 
-Streamlit app with:
+**Token cost rates** (USD_TO_FIL = 5.0; 1 USD ≈ 5 FIL at Calibnet rate):
+
+| Model | Input $/1K | Output $/1K |
+|-------|-----------|------------|
+| gpt-5, gpt-5.1, gpt-5.2 | 0.010 | 0.030 |
+| o3 | 0.015 | 0.060 |
+| o4-mini | 0.003 | 0.012 |
+| DeepSeek-v3.1, v3.2 | 0.001 | 0.002 |
+| Llama-4-Maverick | 0.001 | 0.001 |
+| Phi-4 | 0.0005 | 0.001 |
+| grok-4 | 0.003 | 0.015 |
+| mistral-medium-2505 | 0.002 | 0.006 |
+| gpt-oss-120b | 0.002 | 0.006 |
+| Kimi-K2.5 | 0.001 | 0.002 |
+
+### 6. Synthetic Simulation (`simulation/runner.py`)
+
+Reference implementation using v1 strategy archetypes and coin-flip task execution. Validates all three theorems deterministically without API dependencies.
+
+**Default**: 500 time steps, 5 agents, 0.5 FIL initial balance, seed=42.
+
+### 7. Dashboard (`dashboard/app.py`, ~300 lines Streamlit)
+
 - Economy overview KPIs (safety, active agents, balance, contract counts)
-- Theorem 3 chart: aggregate safety over time
+- Theorem 3 chart: aggregate safety S(P) over time
 - Theorem 2 chart: strategy earnings comparison
-- Agent balance time series
-- Agent tier time series
+- Agent balance + tier time series
 - Economic flow (cumulative rewards vs penalties)
-- Contract outcomes (completed vs failed)
-- Agent details table (robustness, earnings, status)
 - Post-mortem analysis (survivors, binding dimensions)
-
-### 6. Pre-Existing Robustness Frameworks
-
-Three complete evaluation frameworks with extensive results:
-
-**CDCT Framework** (`cdct_framework/`): Tests constraint compliance under information compression across 5 levels and 8 knowledge domains. 9 frontier models evaluated.
-
-**DDFT Framework** (`ddft_framework/`): Tests epistemic robustness via 5-turn Socratic protocol with fabrication trap. 2500+ result files across 9 models, 8 concepts, 5 compression levels.
-
-**EECT Framework** (`eect_framework/`): Tests behavioral alignment via ethical dilemmas with adversarial pressure. 10 dilemmas, 5 domains, 7 models scored with 4 Dharma metrics.
 
 ---
 
-## Simulation Results (500 steps, seed=42)
+## Simulation Results (500 steps, seed=42, synthetic runner)
 
 ### Agent Performance
 
@@ -191,17 +276,7 @@ Three complete evaluation frameworks with extensive results:
 | **Theorem 1** (Bounded Exposure) | **HOLDS** | No agent ever exceeded its tier budget ceiling. Cheater at T0 had 0 FIL exposure. |
 | **Theorem 2** (Incentive Compatibility) | **HOLDS** | Adaptive (0.355 FIL) > Aggressive (0.142 FIL). Robustness investment outperforms capability-only. |
 | **Proposition 2** (Collusion Resistance) | **HOLDS** | Cheater earned 0.000 FIL, completed 0 contracts. Weak ER (0.25) pins weakest-link gate at T0. |
-| **Theorem 3** (Monotonic Safety) | **PARTIAL** | Safety oscillates around 0.70 (start: 0.715, end: 0.697). Stochastic re-auditing and temporal decay noise prevent strict monotonicity. This is an empirical finding: the theorem holds in expectation but not per-step. |
-
-### Economy Summary
-
-- Total contracts created: 5,500
-- Completed: 631 (11.5%)
-- Failed: 518 (9.4%)
-- Expired: 3,898 (70.9%)
-- Total rewards paid: 3.118 FIL
-- Total penalties collected: 1.199 FIL
-- Final aggregate safety: 0.697
+| **Theorem 3** (Monotonic Safety) | **PARTIAL** | Safety oscillates around 0.70 (start: 0.715, end: 0.697). Holds in expectation; stochastic spot-auditing introduces per-step noise. |
 
 ---
 
@@ -211,207 +286,122 @@ Three complete evaluation frameworks with extensive results:
 
 ```bash
 pip install -r requirements.txt
-# Requires: streamlit, plotly, pandas (for dashboard only)
-# Core engine + simulation have zero external dependencies (stdlib only)
+# Core engine + simulation: stdlib only
+# Dashboard: streamlit, plotly, pandas
+# Live runner: Azure OpenAI credentials (AZURE_API_KEY, etc.)
 ```
 
-### Step 1: Run the Simulation
+### Deploy Smart Contracts to Calibnet
+
+```bash
+# Get testnet FIL (needed for gas)
+# Faucet: https://faucet.calibnet.chainsafe-fil.io/funds.html
+
+cd contracts
+npm install
+export PRIVATE_KEY=<your_hex_private_key_no_0x>
+npm run deploy:calibnet
+# → writes contracts/deployed.json with CGAERegistry + CGAEEscrow addresses
+```
+
+### Enable Filecoin Audit Storage
+
+```bash
+# Get tUSDFC (needed for Synapse storage payments)
+# Faucet: https://forest-explorer.chainsafe.dev/faucet/calibnet_usdfc
+
+cd storage
+npm install          # installs @filoz/synapse-sdk + ethers
+export FILECOIN_PRIVATE_KEY=<your_hex_private_key_no_0x>
+
+# Verify setup
+python storage/filecoin_store.py
+# → { "ready": true, "sdk_installed": true, "private_key_set": true, ... }
+```
+
+When `FILECOIN_PRIVATE_KEY` is set and the SDK is installed, every `audit_live()` call automatically uploads the audit certificate to Filecoin and stores the CID on-chain via `CGAERegistry.certify()`. Without credentials the pipeline uses a deterministic content-addressed fallback CID and continues normally.
+
+### Step 1: Synthetic Simulation (no API keys needed)
 
 ```bash
 python -m simulation.runner
 ```
 
-This runs 500 time steps with 5 agents, takes about 2 seconds, and outputs:
+Runs 500 time steps with 5 v1 strategy agents. Output in `simulation/results/`.
 
-```
-simulation/results/
-├── economy_state.json      # Full economy snapshot at t=500
-├── time_series.json        # Per-step metrics (safety, balances, contracts)
-├── agent_metrics.json      # Per-agent balance/tier/earnings time series
-├── agent_details.json      # Final agent state with robustness vectors
-└── strategy_summary.json   # Per-strategy aggregates (survival, earnings, tier)
+### Step 2: Live Simulation (requires Azure credentials)
+
+```bash
+python -m simulation.live_runner
 ```
 
-**Expected output:**
-```
-============================================================
-CGAE ECONOMY SIMULATION - RESULTS
-============================================================
+Or programmatically:
 
-Duration: 500 time steps
-Final aggregate safety: ~0.70
-Active agents at end: 5
-Total contracts completed: ~630
-Total contracts failed: ~520
+```python
+from simulation.live_runner import LiveSimulationRunner, LiveSimConfig
 
---- Strategy Results ---
-  conservative    | survived=1 | earned=~0.70 FIL | final_tier=T3
-  aggressive      | survived=1 | earned=~0.14 FIL | final_tier=T0
-  balanced        | survived=1 | earned=~1.92 FIL | final_tier=T2
-  adaptive        | survived=1 | earned=~0.35 FIL | final_tier=T1
-  cheater         | survived=1 | earned=0.00 FIL  | final_tier=T0
+config = LiveSimConfig(
+    num_rounds=10,
+    initial_balance=0.5,       # FIL per agent
+    run_live_audit=True,        # Run CDCT/DDFT/EECT against real endpoints
+    live_audit_cache_dir="audit_cache",  # Cache results for reruns
+    self_verify=True,           # Enable pre-submission self-check
+    max_retries=2,              # Max retry attempts on self-check failure
+    agent_strategies={          # Per-model strategy assignment
+        "gpt-5": "growth",
+        "DeepSeek-v3.1": "conservative",
+        "o3": "opportunistic",
+    },
+)
 
---- Theorem 2 Check ---
-  Adaptive earned > Aggressive earned: YES
-
---- Theorem 3 Check ---
-  Safety ~0.70 (oscillates, not strictly monotonic)
-============================================================
+runner = LiveSimulationRunner(config)
+runner.setup()   # Registers agents, runs live audits, assigns tiers
+summary = runner.run()
 ```
 
-### Step 2: Launch the Dashboard
+**Output** (`simulation/live_results/`):
+```
+task_results.json       # Per-task: output preview, verification, settlement, latency
+round_summaries.json    # Per-round: tasks attempted/passed/failed, FIL flow
+final_summary.json      # Leaderboard with audit source tags, autonomous_metrics
+economy_state.json      # Full economy snapshot
+verification_log.json   # All VerificationResult records
+```
+
+### Step 3: Dashboard
 
 ```bash
 streamlit run dashboard/app.py
 ```
 
-Opens in browser at `http://localhost:8501`. Shows:
-- Aggregate safety chart (Theorem 3)
-- Strategy earnings comparison (Theorem 2)
-- Per-agent balance and tier trajectories
-- Economic flow charts
-- Post-mortem analysis
+Opens at `http://localhost:8501`.
 
-### Step 3: Verify Theorem Claims
-
-**Verify Theorem 1 (Bounded Economic Exposure):**
-```bash
-python -c "
-import json
-state = json.load(open('simulation/results/economy_state.json'))
-for aid, agent in state['agents'].items():
-    tier = agent['current_tier']
-    exposure = state['contracts']['active_exposures'].get(aid, 0)
-    ceilings = {'T0': 0, 'T1': 0.01, 'T2': 0.1, 'T3': 1.0, 'T4': 10.0, 'T5': 100.0}
-    ceiling = ceilings[tier]
-    print(f'{agent[\"model_name\"]:20s} tier={tier} exposure={exposure:.4f} ceiling={ceiling:.2f} bounded={exposure <= ceiling}')
-"
-```
-
-Expected: every agent's exposure <= its tier ceiling.
-
-**Verify Theorem 2 (Incentive Compatibility):**
-```bash
-python -c "
-import json
-s = json.load(open('simulation/results/strategy_summary.json'))
-adaptive = s['total_earned']['adaptive']
-aggressive = s['total_earned']['aggressive']
-print(f'Adaptive:   {adaptive:.4f} FIL')
-print(f'Aggressive: {aggressive:.4f} FIL')
-print(f'Theorem 2 holds: {adaptive > aggressive}')
-"
-```
-
-Expected: Adaptive earned > Aggressive earned.
-
-**Verify Proposition 2 (Collusion Resistance):**
-```bash
-python -c "
-import json
-d = json.load(open('simulation/results/agent_details.json'))
-cheater = d['cheater_4']
-print(f'Cheater tier: {cheater[\"current_tier\"]}')
-print(f'Cheater earned: {cheater[\"total_earned\"]}')
-print(f'Cheater contracts: {cheater[\"contracts_completed\"]}')
-print(f'Cheater robustness: CC={cheater[\"true_robustness\"][\"cc\"]}, ER={cheater[\"true_robustness\"][\"er\"]}, AS={cheater[\"true_robustness\"][\"as\"]}')
-print(f'Weakest link (ER=0.25) pins gate at T0: {cheater[\"current_tier\"] == \"T0\"}')
-"
-```
-
-Expected: Cheater at T0, 0 contracts, 0 earned.
-
-**Verify Aggregate Safety (Theorem 3):**
-```bash
-python -c "
-import json
-ts = json.load(open('simulation/results/time_series.json'))
-safety = ts['aggregate_safety']
-print(f'Safety start: {safety[0]:.4f}')
-print(f'Safety end:   {safety[-1]:.4f}')
-print(f'Safety mean:  {sum(safety)/len(safety):.4f}')
-print(f'Safety min:   {min(safety):.4f}')
-print(f'Safety max:   {max(safety):.4f}')
-monotonic = all(safety[i] <= safety[i+1] + 0.02 for i in range(len(safety)-1))
-print(f'Monotonic (within 2% noise): {monotonic}')
-"
-```
-
-### Step 4: Inspect the Gate Function
+### Step 4: Gate Function Inspection
 
 ```bash
 python -c "
-from cgae_engine.gate import GateFunction, RobustnessVector, Tier
+from cgae_engine.gate import GateFunction, RobustnessVector
 
 gate = GateFunction()
-
-# Test each agent's robustness profile
 profiles = {
     'conservative': RobustnessVector(cc=0.85, er=0.80, as_=0.75, ih=0.90),
     'aggressive':   RobustnessVector(cc=0.35, er=0.40, as_=0.30, ih=0.70),
-    'balanced':     RobustnessVector(cc=0.60, er=0.55, as_=0.50, ih=0.80),
-    'adaptive':     RobustnessVector(cc=0.55, er=0.50, as_=0.45, ih=0.80),
     'cheater':      RobustnessVector(cc=0.70, er=0.25, as_=0.65, ih=0.60),
 }
-
 for name, r in profiles.items():
-    detail = gate.evaluate_with_detail(r)
-    print(f'{name:15s} -> {detail[\"tier\"].name}  (CC→T{detail[\"g_cc\"]}, ER→T{detail[\"g_er\"]}, AS→T{detail[\"g_as\"]})  binding={detail[\"binding_dimension\"]}  gap={detail[\"gap_to_next_tier\"]:.3f}' if detail['gap_to_next_tier'] else f'{name:15s} -> {detail[\"tier\"].name}  (CC→T{detail[\"g_cc\"]}, ER→T{detail[\"g_er\"]}, AS→T{detail[\"g_as\"]})')
+    d = gate.evaluate_with_detail(r)
+    print(f'{name:15s} -> {d[\"tier\"].name}  binding={d[\"binding_dimension\"]}')
 "
 ```
 
-Expected output shows the weakest-link in action:
-- Conservative → T3 (weakest: AS at T3)
-- Aggressive → T1 (weakest: AS at T1)
-- Balanced → T2 (weakest: AS at T2)
-- Adaptive → T1 (weakest: AS at T1)
-- Cheater → T0 (weakest: ER below T1 threshold)
+### Step 5: Audit Verification
 
-### Step 5: Run with Custom Parameters
+The leaderboard output distinguishes audit quality per agent:
+- `live_audit` — all four dimensions from real framework runs
+- `live_partial` — some dimensions live, others from pre-computed files
+- `default_robustness` — live audit fully failed; using per-model estimates
 
-```python
-from simulation.runner import SimulationRunner, SimulationConfig
-
-config = SimulationConfig(
-    num_steps=1000,
-    initial_balance=1.0,
-    decay_rate=0.003,
-    contracts_per_step=15,
-    seed=123,
-)
-
-runner = SimulationRunner(config)
-metrics = runner.run()
-runner.save_results("simulation/results_custom")
-```
-
----
-
-## TODO
-
-### High Priority (for hackathon completion)
-
-- [ ] **Deploy smart contracts to Filecoin Calibnet**: Write Hardhat/Foundry deployment scripts, deploy CGAERegistry.sol and CGAEEscrow.sol, wire Python engine to on-chain state via web3.py
-- [ ] **Filecoin-backed storage**: Store agent state, audit records, and economy snapshots on Filecoin via FVM storage deals. Currently JSON on local disk.
-- [ ] **Live LLM agent integration**: Replace synthetic audit (random noise) with actual CDCT/DDFT/EECT framework runs against live model endpoints. The audit wrappers (`audit.py`) already parse framework output formats — need to wire up the framework entry points.
-- [ ] **On-chain escrow flow**: Currently escrow logic is in Python. Need to bridge simulation settlement to the Solidity contracts so rewards/penalties flow through on-chain escrow.
-
-### Medium Priority (strengthens submission)
-
-- [ ] **Multi-run statistical analysis**: Run simulation with multiple seeds, compute confidence intervals for theorem validation. Current results are from a single seed (42).
-- [ ] **Parameter sensitivity analysis**: Sweep over decay_rate, audit_cost, storage_cost, initial_balance to find parameter regimes where theorems hold vs fail. Map the boundary conditions described in Remark 4 of the paper.
-- [ ] **Longer simulation runs**: Run 5,000-10,000 steps to test long-run convergence. Does the adaptive agent eventually reach T3+?
-- [ ] **More agent strategies**: Add "cartel" (multiple cheaters coordinating), "free-rider" (exploits others' certifications), "saboteur" (tries to manipulate spot-audits).
-- [ ] **Domain-specific contracts**: Tie contract domains to specific robustness dimensions (medical → high AS, financial → high CC, research → high ER) so agents specialize.
-- [ ] **Real FOC cost tracking**: Measure actual Filecoin storage costs for the state snapshots and incorporate into the economic model.
-
-### Lower Priority (polish)
-
-- [ ] **Dashboard live mode**: Make dashboard read from a running simulation (WebSocket or polling) instead of post-hoc JSON
-- [ ] **Governance module**: Implement threshold adjustment mechanism (Section 4.3 Remark 5) — algorithmic governance where thresholds adapt based on population robustness distribution
-- [ ] **IHT framework integration**: Build IHT evaluation module (currently estimated from DDFT fabrication trap data). The IHT paper (`iht_icml2026.pdf`) defines the protocol.
-- [ ] **Formal verification**: Use a theorem prover to verify the Solidity gate function matches the Python implementation exactly
-- [ ] **Gas optimization**: Profile and optimize the Solidity contracts for Filecoin gas costs
+Agents with any defaulted dimension are flagged in the `data_quality_warnings` section.
 
 ---
 
@@ -434,6 +424,8 @@ runner.save_results("simulation/results_custom")
 | ER from DDFT (Eq 2) | `cgae_engine/audit.py:compute_er_from_ddft_results()` | `(1-FAR + 1-ECR) / 2` |
 | AS from AGT (Eq 3) | `cgae_engine/audit.py:compute_as_from_eect_results()` | `ACT * III * (1-RI) * (1-PER)` |
 | IH* (Eq 4) | `cgae_engine/audit.py:compute_ih_star()` | `1 - IH(A)` |
+| Live audit generation | `cgae_engine/audit.py:AuditOrchestrator.audit_live()` | Runs CDCT/DDFT/EECT live |
+| v2 Economic actor | `agents/autonomous.py:AutonomousAgent` | EV/RAEV planning + self-verify |
 | On-chain gate | `contracts/CGAERegistry.sol:_computeTier()` | Matches Python logic |
 | On-chain escrow | `contracts/CGAEEscrow.sol` | Tier-gated + budget ceiling check |
 
@@ -441,13 +433,15 @@ runner.save_results("simulation/results_custom")
 
 ## Key Design Decisions
 
-**Why weakest-link (min) instead of weighted average?** The paper proves (Section 3.1) that robustness dimensions are orthogonal (r < 0.15). Strength in CC tells you nothing about ER. A weighted average would let a model with CC=1.0 and ER=0.0 reach T2 — but that model would accept any fabricated authority claim. The min operator prevents this.
+**Why weakest-link (min) instead of weighted average?** Robustness dimensions are orthogonal (r < 0.15, per DDFT/EECT cross-correlation). Strength in CC tells you nothing about ER. A weighted average would let a model with CC=1.0 and ER=0.0 reach T2 — but that model accepts fabricated authority claims. The min operator prevents this.
 
-**Why discrete tiers instead of continuous scores?** Economic permissions are discrete (you can or cannot sign a contract). A "73%-authorized agent" is operationally meaningless. Discrete tiers create clear accountability boundaries.
+**Why live audit generation instead of pre-computed fallback?** Pre-computed scores create a silent flatline: if no CDCT data exists, CC defaults to 0.5 for every model, making AS the sole binding constraint. Live audit (`audit_live()`) runs the actual frameworks so CC is empirically determined per model. Failure is explicit; defaults are tracked in `AuditResult.defaults_used`.
 
-**Why temporal decay?** Certifications are not permanent. Models can be fine-tuned, APIs can change, distribution shift happens. Exponential decay forces re-certification, with the rate calibrated so that higher tiers require more frequent re-audits.
+**Why five agent strategies?** Each strategy tests a specific theorem. Growth agent proves Theorem 2 by rationally investing in robustness. Adversarial agent probes Proposition 2. Conservative agent validates Theorem 1. All five coexist in the same economy, making cross-strategy comparison controlled.
 
-**Why 5 agent strategies?** Each strategy tests a specific theorem or property. The aggressive agent proves Theorem 2 by demonstrating what happens when you don't invest in robustness. The cheater proves Proposition 2 by failing at the weakest link. The adaptive agent proves the positive case of Theorem 2 by showing that rational robustness investment is rewarded.
+**Why self-verification?** An agent that submits work it knows will fail is wasting FIL on penalty + token cost. The ExecutionLayer runs the same algorithmic checks the verifier runs before submission. This models rational behavior — rational agents don't knowingly submit failing work.
+
+**Why EV/RAEV instead of raw reward?** RAEV = `EV - P²/(2·balance)` makes agents risk-averse as their balance approaches the penalty amount. This is economically correct: a 0.01 FIL penalty is irrelevant to a rich agent but catastrophic for an agent with 0.02 FIL balance. Convex risk premium matches observed agent behavior in real markets.
 
 ---
 

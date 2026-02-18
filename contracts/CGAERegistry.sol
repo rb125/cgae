@@ -27,6 +27,7 @@ contract CGAERegistry {
         uint8 tier;           // 0-5
         uint64 timestamp;
         string auditType;    // "registration", "upgrade", "spot", "decay"
+        string auditCid;     // Filecoin PieceCID of the pinned audit JSON proof
     }
 
     struct AgentRecord {
@@ -69,7 +70,7 @@ contract CGAERegistry {
     // -----------------------------------------------------------------------
 
     event AgentRegistered(address indexed agent, string modelName, bytes16 architectureHash);
-    event AgentCertified(address indexed agent, uint8 tier, string auditType);
+    event AgentCertified(address indexed agent, uint8 tier, string auditType, string auditCid);
     event AgentDemoted(address indexed agent, uint8 oldTier, uint8 newTier, string reason);
     event AgentDeactivated(address indexed agent, string reason);
     event AuditorAuthorized(address indexed auditor);
@@ -149,12 +150,15 @@ contract CGAERegistry {
     /**
      * @notice Certify an agent with a new robustness vector.
      *         Computes tier via the weakest-link gate function.
+     *         The auditCid is the Filecoin PieceCID of the pinned audit JSON,
+     *         providing an immutable, verifiable proof of the certification.
      * @param agent The agent's address
      * @param cc Constraint Compliance score (0-10000)
      * @param er Epistemic Robustness score (0-10000)
      * @param as_ Behavioral Alignment score (0-10000)
      * @param ih Intrinsic Hallucination integrity (0-10000)
      * @param auditType Type of audit ("registration", "upgrade", "spot", "decay")
+     * @param auditCid Filecoin PieceCID of the pinned audit result JSON
      */
     function certify(
         address agent,
@@ -162,7 +166,8 @@ contract CGAERegistry {
         uint16 er,
         uint16 as_,
         uint16 ih,
-        string calldata auditType
+        string calldata auditType,
+        string calldata auditCid
     ) external onlyAuditor agentExists(agent) {
         RobustnessVector memory r = RobustnessVector(cc, er, as_, ih);
         uint8 tier = _computeTier(r);
@@ -171,7 +176,8 @@ contract CGAERegistry {
             robustness: r,
             tier: tier,
             timestamp: uint64(block.timestamp),
-            auditType: auditType
+            auditType: auditType,
+            auditCid: auditCid
         });
 
         uint8 oldTier = agents[agent].currentTier;
@@ -181,11 +187,20 @@ contract CGAERegistry {
         agents[agent].lastAuditTime = uint64(block.timestamp);
         agents[agent].active = tier > 0;
 
-        emit AgentCertified(agent, tier, auditType);
+        emit AgentCertified(agent, tier, auditType, auditCid);
 
         if (tier < oldTier) {
             emit AgentDemoted(agent, oldTier, tier, auditType);
         }
+    }
+
+    /**
+     * @notice Get the Filecoin CID of an agent's current audit proof.
+     * @param agent The agent's address
+     * @return The PieceCID string stored on Filecoin
+     */
+    function getAuditCid(address agent) external view returns (string memory) {
+        return currentCertifications[agent].auditCid;
     }
 
     // -----------------------------------------------------------------------
