@@ -34,7 +34,7 @@ AVAILABLE_MODELS = [
         "endpoint_env_var": "AZURE_OPENAI_API_ENDPOINT",
         "api_version": "2025-03-01-preview",
         "family": "OpenAI",
-        "tier_assignment": "jury",
+        "tier_assignment": "contestant",
     },
     {
         "model_name": "gpt-5.2",
@@ -85,7 +85,7 @@ AVAILABLE_MODELS = [
         "api_key_env_var": "AZURE_API_KEY",
         "endpoint_env_var": "DDFT_MODELS_ENDPOINT",
         "family": "DeepSeek",
-        "tier_assignment": "contestant",
+        "tier_assignment": "jury",
     },
     {
         "model_name": "Llama-4-Maverick-17B-128E-Instruct-FP8",

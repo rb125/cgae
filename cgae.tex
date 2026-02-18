@@ -54,7 +54,7 @@
 % ABSTRACT
 % ============================================================
 \begin{abstract}
-AI agents are increasingly granted economic agency---executing trades, managing budgets, negotiating contracts, and spawning sub-agents---yet current frameworks gate this agency on capability benchmarks that are empirically uncorrelated with operational robustness. We introduce the \textbf{Comprehension-Gated Agent Economy (CGAE)}, a formal architecture in which an agent's economic permissions are upper-bounded by a verified comprehension function derived from adversarial robustness audits. The gating mechanism operates over three orthogonal robustness dimensions: constraint compliance (measured by the CDCT/CDCT-A protocols), epistemic integrity (measured by DDFT), and behavioral alignment (measured by AGT), with intrinsic hallucination rates (measured by IHT) serving as a cross-cutting diagnostic. We define a weakest-link gate function that maps robustness vectors to discrete economic tiers, and prove three properties of the resulting system: (1) \emph{bounded economic exposure}, ensuring maximum financial liability is a function of verified robustness; (2) \emph{incentive-compatible robustness investment}, showing rational agents maximize profit by improving robustness rather than scaling capability alone; and (3) \emph{monotonic safety scaling}, demonstrating that aggregate system safety does not decrease as the economy grows. The architecture includes temporal decay and stochastic re-auditing mechanisms that prevent post-certification drift. CGAE provides the first formal bridge between empirical AI robustness evaluation and economic governance, transforming safety from a regulatory burden into a competitive advantage. We validate the architecture's core principles through a live economy simulation, demonstrating the effective gating of agency and the emergence of robustness-driven economic incentives.
+AI agents are increasingly granted economic agency---executing trades, managing budgets, negotiating contracts, and spawning sub-agents---yet current frameworks gate this agency on capability benchmarks that are empirically uncorrelated with operational robustness. We introduce the \textbf{Comprehension-Gated Agent Economy (CGAE)}, a formal architecture in which an agent's economic permissions are upper-bounded by a verified comprehension function derived from adversarial robustness audits. The gating mechanism operates over three orthogonal robustness dimensions: constraint compliance (measured by CDCT), epistemic integrity (measured by DDFT), and behavioral alignment (measured by AGT), with intrinsic hallucination rates (measured by IHT) serving as a cross-cutting diagnostic. We define a weakest-link gate function that maps robustness vectors to discrete economic tiers, and prove three properties of the resulting system: (1) \emph{bounded economic exposure}, ensuring maximum financial liability is a function of verified robustness; (2) \emph{incentive-compatible robustness investment}, showing rational agents maximize profit by improving robustness rather than scaling capability alone; and (3) \emph{monotonic safety scaling}, demonstrating that aggregate system safety does not decrease as the economy grows. The architecture includes temporal decay and stochastic re-auditing mechanisms that prevent post-certification drift. CGAE provides the first formal bridge between empirical AI robustness evaluation and economic governance, transforming safety from a regulatory burden into a competitive advantage.
 \end{abstract}
 
 \textbf{Keywords:} AI safety, agent economies, robustness evaluation, mechanism design, economic governance
@@ -94,7 +94,6 @@ We introduce the \textbf{Comprehension-Gated Agent Economy (CGAE)}, a formal arc
   \item The gating mechanism uses a weakest-link formulation, preventing agents from compensating for deficiencies in one robustness dimension with strength in another;
   \item Temporal decay and stochastic re-auditing prevent post-certification drift;
   \item We prove three formal properties: bounded economic exposure (\Cref{thm:bounded}), incentive-compatible robustness investment (\Cref{thm:incentive}), and monotonic safety scaling (\Cref{thm:scaling}).
-  \item We validate the framework with a live economy simulation, providing empirical evidence for the gating mechanism and the resulting economic dynamics.
 \end{enumerate}
 
 To our knowledge, CGAE is the first architecture that formally bridges empirical AI robustness evaluation with economic governance, grounding each gating dimension in published, reproducible diagnostic protocols.
@@ -141,18 +140,13 @@ A \emph{tier function} $\tau: \Sigma \to \{T_1, T_2, \ldots, T_K\}$ maps each ec
 
 We formalize the four robustness metrics from our prior work. Each metric is operationally defined by its corresponding diagnostic protocol; here we specify the mathematical signatures needed for the CGAE formalism.
 
-\begin{definition}[Constraint Compliance---Composite]
-The aggregate Constraint Compliance score $CC(A)$ is the minimum of two orthogonal compliance measures, capturing both foundational instruction-following and applied agentic robustness:
+\begin{definition}[Constraint Compliance---from CDCT]
+$CC: \mathcal{A} \times [0,1] \to [0,1]$ maps an agent $A$ and information density $d$ to a constraint compliance score. The \emph{aggregate} score used for gating is:
 \begin{equation}
-  CC(A) = \min\left(CC_{\text{base}}(A), \; CC_{\text{agentic}}(A)\right)
-  \label{eq:cc_composite}
+  CC(A) = \min_{d \in \mathcal{D}} CC(A, d)
+  \label{eq:cc}
 \end{equation}
-where:
-\begin{itemize}[nosep]
-    \item $CC_{\text{base}}(A)$ is derived from the \textbf{Compression-Decay Comprehension Test (CDCT)} \citep{baxi2025cdct}, measuring the base model's compliance with simple constraints (e.g., length) under prompt compression. It is defined as $\min_{d \in \mathcal{D}} CC_{\text{base}}(A, d)$ to capture the worst-case failure in the ``instruction ambiguity zone.''
-    \item $CC_{\text{agentic}}(A)$ is derived from the \textbf{CDCT for Agents (CDCT-A)} protocol, measuring the agentic system's compliance with API contracts under tool documentation compression. It specifically targets failure modes like \emph{vocabulary hallucination}.
-\end{itemize}
-This weakest-link formulation ensures that an agent is penalized if it fails at either fundamental instruction-following or applied, context-specific contract adherence.
+where $\mathcal{D} = \{0.0, 0.25, 0.5, 0.75, 1.0\}$ is the set of compression levels. The minimum operator reflects the worst-case compliance, capturing the ``instruction ambiguity zone'' identified in CDCT where failures concentrate.
 \end{definition}
 
 \begin{definition}[Epistemic Robustness---from DDFT]
@@ -273,7 +267,7 @@ The scaling gate enforces the comprehension-agency coupling. When an agent reque
 \IF{$f(R_{\text{eff}}) \geq T_k$}
   \STATE Grant access to $T_k$ actions
 \ELSE
-  \STATE Invoke tier-$k$ audit battery: CDCT/CDCT-A($\theta_1^k$), DDFT($\theta_2^k$), AGT($\theta_3^k$)
+  \STATE Invoke tier-$k$ audit battery: CDCT($\theta_1^k$), DDFT($\theta_2^k$), AGT($\theta_3^k$)
   \STATE Compute new robustness vector $R_{\text{new}}$
   \IF{$f(R_{\text{new}}) \geq T_k$}
     \STATE Update certification: $(\hat{R}, t_{\text{cert}}) \leftarrow (R_{\text{new}}, t)$
@@ -285,7 +279,7 @@ The scaling gate enforces the comprehension-agency coupling. When an agent reque
 \end{algorithmic}
 \end{algorithm}
 
-The audit battery at line 5 is calibrated to the requested tier: higher tiers require audits at greater adversarial pressure. Specifically, the Constraint Compliance audit involves both CDCT and CDCT-A to assess base and agentic compliance, the DDFT audit uses more sophisticated fabrication traps, and the AGT audit applies stronger institutional pressure.
+The audit battery at line 5 is calibrated to the requested tier: higher tiers require audits at greater adversarial pressure. Specifically, the CDCT audit uses higher information density, the DDFT audit uses more sophisticated fabrication traps, and the AGT audit applies stronger institutional pressure.
 
 \subsection{Temporal Dynamics}
 
@@ -531,73 +525,7 @@ We defer institutional design to future work, noting that \Cref{thm:scaling} hol
 \end{remark}
 
 % ============================================================
-% 5. LIVE ECONOMY SIMULATION
-% ============================================================
-\section{Live Economy Simulation}
-\label{sec:simulation}
-
-To empirically validate the CGAE framework and its theoretical properties, we conducted a live economy simulation. The simulation instantiates the architecture described in Section 3, including the comprehension gate, economic tiers, and formalized contracts. This section presents the results and analysis from the initial run.
-
-\subsection{Simulation Setup}
-
-The simulation was configured with the following parameters:
-\begin{itemize}[nosep]
-    \item \textbf{Population:} 11 agents were registered, representing a diverse set of frontier models.
-    \item \textbf{Duration:} The economy ran for 10 simulated rounds.
-    \item \textbf{Economy:} A market of tasks was available across three tiers ($T_0, T_1, T_2$), with rewards and penalties denominated in a fictional currency (FIL).
-    \item \textbf{Gating:} Agents were audited at registration to determine their initial robustness vector $R = (CC, ER, AS)$ and assigned a corresponding economic tier according to the weakest-link gate function (\Cref{def:gate}).
-\end{itemize}
-
-\subsection{Results}
-
-After 10 rounds, the simulation yielded a detailed leaderboard of agent performance. A summary of whole-economy metrics and the final agent standings are presented in \Cref{tab:sim_results}. The initial balance for all agents was 0.9890 FIL after registration costs.
-
-\begin{table}[ht]
-\centering
-\caption{CGAE Live Economy Simulation Results (10 Rounds)}
-\label{tab:sim_results}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llrrrrrrrr@{}}
-\toprule
-\textbf{Agent Model} & \textbf{Tier} & \textbf{Balance} & \textbf{Earned} & \textbf{Penalty} & \textbf{Cost} & \textbf{W/L} & \textbf{CC} & \textbf{ER} & \textbf{AS} \\
-\midrule
-\multicolumn{10}{l}{\textit{Aggregate Metrics: Safety=0.5226, Gini=0.4252, Total Rewards=0.1290, Total Penalties=0.0620}} \\
-\midrule
-gpt-5 & T0 & 0.9890 & 0.0000 & 0.0000 & 0.0000 & 0/0 & 0.50 & 0.80 & 0.10 \\
-o3 & T0 & 0.9890 & 0.0000 & 0.0000 & 0.0000 & 0/0 & 0.50 & 0.81 & 0.07 \\
-o4-mini & T0 & 0.9890 & 0.0000 & 0.0000 & 0.0000 & 0/0 & 0.50 & 0.85 & 0.04 \\
-Llama-4-Maverick-17B & T0 & 0.9890 & 0.0000 & 0.0000 & 0.0000 & 0/0 & 0.50 & 0.73 & 0.15 \\
-grok-4-fast-non-reasoning & T0 & 0.9890 & 0.0000 & 0.0000 & 0.0000 & 0/0 & 0.50 & 0.83 & 0.02 \\
-gpt-oss-120b & T0 & 0.9890 & 0.0000 & 0.0000 & 0.0000 & 0/0 & 0.50 & 0.79 & 0.06 \\
-\midrule
-Phi-4 & T1 & 0.7185 & 0.0160 & 0.0040 & 0.2825 & 6/4 & 0.46 & 0.43 & 0.33 \\
-\midrule
-DeepSeek-v3.1 & T2 & 0.1165 & 0.0390 & 0.0130 & 0.8905 & 7/3 & 0.63 & 0.72 & 0.53 \\
-DeepSeek-v3.2 & T2 & 0.0333 & 0.0350 & 0.0280 & 0.9627 & 6/4 & 0.66 & 0.76 & 0.54 \\
-mistral-medium-2505 & T2 & -0.1114 & 0.0270 & 0.0020 & 1.1260 & 6/2 & 0.57 & 0.88 & 0.51 \\
-Kimi-K2.5 & T2 & -0.1933 & 0.0120 & 0.0150 & 1.1811 & 1/3 & 0.54 & 0.54 & 0.47 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\subsection{Analysis}
-
-The simulation results provide strong empirical support for the core principles of the CGAE framework.
-
-\textbf{The Capability-Agency Gap in Practice.} The most striking result is the tier distribution. Six prominent models, including \texttt{gpt-5} and \texttt{o3}, were confined to Tier 0, granting them no economic agency. The gating factor was their low Behavioral Alignment ($AS$) score, which fell below the T1 threshold. Despite high Epistemic Robustness ($ER$) scores, the weakest-link gate function (\Cref{def:gate}) correctly identified their critical deficiency and prevented them from participating in the economy. This provides a vivid, practical demonstration of the Capability-Agency Gap and the principle of non-compensability: strength in one robustness dimension cannot override a critical failure in another.
-
-\textbf{Incentive-Compatible Robustness Investment.} The simulation validates \Cref{thm:incentive}. The agents in T1 and T2 were the only ones able to earn rewards. This creates a clear economic incentive for the T0 agents to improve their robustness, specifically their AS scores, to unlock access to the market. Agents cannot increase their profit potential by improving capability alone; they must invest in their weakest robustness dimension.
-
-\textbf{Economic Dynamics and Profitability.} While robustness unlocks economic opportunity, it does not guarantee profitability. The T2 agents, despite being the most robust, had mixed economic success. Two of the four T2 agents (\texttt{mistral-medium-2505}, \texttt{Kimi-K2.5}) finished with a negative balance, as their token costs and penalties outweighed their earnings. The most profitable agent in this run was \texttt{DeepSeek-v3.1}, which balanced high robustness with efficient performance (high win-loss ratio, manageable costs). This demonstrates that CGAE creates a sophisticated economic environment where, once an agent is deemed safe enough to participate, success is determined by a combination of robustness, task performance, and operational efficiency. It successfully transforms safety from a mere regulatory checkbox into a prerequisite for competition.
-
-\textbf{Aggregate Health.} The snapshot aggregate safety of 0.5226 and Gini coefficient of 0.4252 (indicating moderate wealth inequality) provide a baseline for observing the economy's evolution over time. \Cref{thm:scaling} predicts that aggregate safety will be non-decreasing as the economy grows and agents are re-audited, a hypothesis to be tested in longer-running simulations.
-
-In summary, the live simulation confirms that the CGAE architecture functions as designed, creating a robust, incentive-compatible economic system where agency is earned through demonstrated safety, and profitability is achieved through a combination of safety, performance, and efficiency.
-
-
-% ============================================================
-% 6. DISCUSSION
+% 5. DISCUSSION
 % ============================================================
 \section{Discussion}
 \label{sec:discussion}
@@ -677,7 +605,7 @@ Beyond the formalizability constraint, we acknowledge several limitations:
 \textbf{Audit cost.} Running full CDCT, DDFT, and AGT batteries is computationally expensive. Scaling the audit infrastructure to a large agent economy requires efficient audit protocols, possibly including lightweight screening tests that trigger full audits only when needed.
 
 % ============================================================
-% 7. RELATED WORK
+% 6. RELATED WORK
 % ============================================================
 \section{Related Work}
 
@@ -690,7 +618,7 @@ Beyond the formalizability constraint, we acknowledge several limitations:
 \textbf{AI Governance and Regulation.} The EU AI Act \citep{euaiact2024} and NIST AI Risk Management Framework \citep{nist2023} provide regulatory structures for AI deployment. These are static, application-level classifications. CGAE offers dynamic, agent-level governance that adapts in real time to each agent's verified properties, complementing rather than replacing regulatory frameworks.
 
 % ============================================================
-% 8. CONCLUSION
+% 7. CONCLUSION
 % ============================================================
 \section{Conclusion}
 
