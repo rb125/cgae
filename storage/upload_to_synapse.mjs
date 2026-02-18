@@ -89,15 +89,16 @@ async function main() {
   }
 
   // Dynamically import Synapse SDK and viem (ESM-compatible)
-  let Synapse, http, privateKeyToAccount, defineChain;
+  let Synapse, http, privateKeyToAccount, synapseChains;
   try {
     const synapseModule = await import("@filoz/synapse-sdk");
     Synapse = synapseModule.Synapse;
     const viemModule = await import("viem");
     http = viemModule.http;
-    defineChain = viemModule.defineChain;
     const viemAccounts = await import("viem/accounts");
     privateKeyToAccount = viemAccounts.privateKeyToAccount;
+    // Chain definitions must come from @filoz/synapse-core/chains (SDK requirement)
+    synapseChains = await import("@filoz/synapse-core/chains");
   } catch (e) {
     writeError(
       `Cannot load @filoz/synapse-sdk or viem. ` +
@@ -106,13 +107,8 @@ async function main() {
     process.exit(2);  // Exit code 2 = SDK not installed (Python wrapper treats as soft fail)
   }
 
-  // Build viem chain definition
-  const chain = defineChain({
-    id: chainConfig.chainId,
-    name: chainConfig.name,
-    nativeCurrency: { name: "Filecoin", symbol: "FIL", decimals: 18 },
-    rpcUrls: { default: { http: [chainConfig.rpc] } },
-  });
+  // Use the SDK-provided chain objects (SDK validates against these)
+  const chain = network === "mainnet" ? synapseChains.mainnet : synapseChains.calibration;
 
   // Create viem account from private key
   const account = privateKeyToAccount(`0x${privateKey}`);
