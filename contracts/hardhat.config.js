@@ -59,7 +59,7 @@ module.exports = {
 
   // Compilation output paths
   paths: {
-    sources: ".",
+    sources: "./src",
     artifacts: "./artifacts",
     cache: "./cache",
   },
