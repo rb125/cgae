@@ -22,14 +22,11 @@
  *   { "error": "...", "ok": false }
  *
  * Install deps (from storage/):
- *   npm install @filoz/synapse-sdk ethers
+ *   npm install @filoz/synapse-sdk viem
  */
 
 import { readFileSync, statSync } from "fs";
 import { resolve } from "path";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
 
 // ---------------------------------------------------------------------------
 // CLI
@@ -91,66 +88,60 @@ async function main() {
     process.exit(1);
   }
 
-  // Dynamically import Synapse SDK (ESM-compatible)
-  let Synapse, ethers;
+  // Dynamically import Synapse SDK and viem (ESM-compatible)
+  let Synapse, http, privateKeyToAccount, defineChain;
   try {
     const synapseModule = await import("@filoz/synapse-sdk");
     Synapse = synapseModule.Synapse;
-    const ethersModule = await import("ethers");
-    ethers = ethersModule;
+    const viemModule = await import("viem");
+    http = viemModule.http;
+    defineChain = viemModule.defineChain;
+    const viemAccounts = await import("viem/accounts");
+    privateKeyToAccount = viemAccounts.privateKeyToAccount;
   } catch (e) {
     writeError(
-      `Cannot load @filoz/synapse-sdk or ethers. ` +
-      `Run: npm install @filoz/synapse-sdk ethers  (in storage/ directory)\n${e.message}`
+      `Cannot load @filoz/synapse-sdk or viem. ` +
+      `Run: npm install @filoz/synapse-sdk viem  (in storage/ directory)\n${e.message}`
     );
     process.exit(2);  // Exit code 2 = SDK not installed (Python wrapper treats as soft fail)
   }
 
-  // Create wallet from private key
-  const provider = new ethers.JsonRpcProvider(chainConfig.rpc, {
-    chainId: chainConfig.chainId,
+  // Build viem chain definition
+  const chain = defineChain({
+    id: chainConfig.chainId,
     name: chainConfig.name,
+    nativeCurrency: { name: "Filecoin", symbol: "FIL", decimals: 18 },
+    rpcUrls: { default: { http: [chainConfig.rpc] } },
   });
-  const wallet = new ethers.Wallet(`0x${privateKey}`, provider);
 
-  // Initialise Synapse SDK
+  // Create viem account from private key
+  const account = privateKeyToAccount(`0x${privateKey}`);
+
+  // Initialise Synapse SDK (0.37+ API)
   let synapse;
   try {
-    synapse = await Synapse.create({
-      privateKey: `0x${privateKey}`,
-      rpcURL: chainConfig.rpc,
-      withCDN: false,         // no CDN markup on testnet
+    synapse = Synapse.create({
+      account,
+      transport: http(chainConfig.rpc),
+      chain,
+      withCDN: false,
     });
   } catch (e) {
     writeError(`Failed to initialise Synapse SDK: ${e.message}`);
     process.exit(1);
   }
 
-  // Create storage service handle
-  let storageService;
-  try {
-    storageService = await synapse.createStorage({
-      storageCapacity: 1,              // 1 GB minimum allocation
-      persistencePeriod: 30,           // 30 days
-    });
-  } catch (e) {
-    writeError(`Failed to create storage service: ${e.message}. ` +
-               `Ensure the wallet has sufficient USDFC on ${network}.`);
-    process.exit(1);
-  }
-
-  // Upload the file bytes
+  // Upload the file bytes directly via synapse.storage
   let uploadResult;
   try {
-    // The Synapse SDK upload method accepts a Uint8Array or Buffer
-    uploadResult = await storageService.upload(fileBytes);
+    uploadResult = await synapse.storage.upload(fileBytes);
   } catch (e) {
-    writeError(`Upload failed: ${e.message}`);
+    writeError(`Failed to upload: ${e.message}`);
     process.exit(1);
   }
 
-  // uploadResult contains { pieceCID, commp, paddedPieceSize, ... }
-  const cid = uploadResult.pieceCID || uploadResult.cid || uploadResult.commp;
+  // uploadResult contains { pieceCid, size, pieceId? }
+  const cid = uploadResult.pieceCid?.toString() || uploadResult.pieceCID?.toString() || uploadResult.cid?.toString();
   if (!cid) {
     writeError(`Upload succeeded but no CID returned. Result: ${JSON.stringify(uploadResult)}`);
     process.exit(1);
@@ -159,8 +150,8 @@ async function main() {
   // Success
   const output = {
     ok: true,
-    cid: cid.toString(),
-    size: fileSize,
+    cid: cid,
+    size: uploadResult.size || fileSize,
     network,
     file: filePath,
     txHash: uploadResult.txHash || null,

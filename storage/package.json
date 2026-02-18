@@ -9,8 +9,8 @@
     "check": "node -e \"import('@filoz/synapse-sdk').then(m => console.log('SDK ok:', Object.keys(m))).catch(e => console.error('SDK missing:', e.message))\""
   },
   "dependencies": {
-    "@filoz/synapse-sdk": "^0.24.0",
-    "ethers": "^6.0.0"
+    "@filoz/synapse-sdk": "^0.37.0",
+    "viem": "^2.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
