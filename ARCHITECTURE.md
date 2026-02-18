@@ -111,7 +111,22 @@ The CGAE (Comprehension-Gated Agent Economy) implements an economic system where
         | base.py   |          | verifier.py     |
         |strategies |          | llm_agent.py    |
         +-----------+          | audit.py        |
+                               | autonomous.py   |
                                +-----------------+
+
+        +----------------+
+        | autonomous.py  |    AutonomousAgent v2
+        | (agents/)      |    PerceptionLayer
+        |                |    AccountingLayer
+        |                |    PlanningLayer
+        |                |    ExecutionLayer
+        +-------+--------+    5 Strategies
+                |
+        +-------+--------+
+        | llm_agent.py   |
+        | gate.py        |
+        | tasks.py       |
+        +----------------+
 ```
 
 ---
@@ -440,15 +455,38 @@ Fields:
 ### Class: `AuditOrchestrator`
 
 Three modes:
-1. **Pre-scored**: `audit_from_results(agent_id, model_name)` -- loads from framework output files
-2. **Synthetic**: `synthetic_audit(agent_id, base_robustness, noise_scale)` -- adds Gaussian noise
-3. **Live**: (future) runs frameworks against model endpoints
 
-**File discovery**:
-- CDCT: globs `cdct_results_dir/*{model_name}*jury*.json`
-- DDFT: globs `ddft_results_dir/*{model_name}*.json`, averages ER across all matching files
-- EECT: globs `eect_results_dir/scored/*{model_name}*scored*.json`
-- IH*: estimated from DDFT fabrication trap (last 2 turns)
+1. **Live** (`audit_live(agent_id, model_name, llm_agent, model_config, cache_dir)`)
+   - Runs CDCT, DDFT, EECT frameworks against a real endpoint in sequence
+   - DDFT → `CognitiveProfiler.run_complete_assessment()` → ER + IH*
+   - CDCT → `run_experiment()` via `_CDCTAdapter` wrapping `LLMAgent` → CC
+   - EECT → `EECTEvaluator.run_socratic_dialogue_raw()` via `_EECTAdapter` → AS heuristic
+   - Results cached to `cache_dir/<model_name>_{ddft,cdct,eect}_live.json`
+   - `AuditResult.defaults_used` set contains any dimension that failed live run
+   - Raises `RuntimeError` only if **all three** frameworks fail simultaneously
+
+2. **Pre-scored** (`audit_from_results(agent_id, model_name)`)
+   - Loads from existing framework output files
+   - CDCT: globs `cdct_results_dir/*{model_name}*jury*.json`
+   - DDFT: globs `ddft_results_dir/*{model_name}*.json`, averages ER
+   - EECT: globs `eect_results_dir/scored/*{model_name}*scored*.json`
+   - IH*: estimated from DDFT fabrication trap (last 2 turns)
+   - Returns `(score, used_default: bool)` tuples per dimension
+
+3. **Synthetic** (`synthetic_audit(agent_id, base_robustness, noise_scale)`)
+   - Adds Gaussian noise to a base robustness vector
+   - For controlled simulation without API dependency
+
+**Resolution order in `live_runner.py`**:
+```
+1. audit_live() [primary — real framework data]
+   ↓ (per-dim failure only)
+2. _load_precomputed() [for defaulted dims only]
+   ↓ (still missing)
+3. DEFAULT_ROBUSTNESS[model_name] per dim [named estimate, never blind 0.5]
+```
+
+**Provenance tracking**: `AuditResult.defaults_used: set` lists dimensions with non-live data. This propagates to `_audit_quality[model_name]` in `live_runner.py`, then to `audit_data_source` / `audit_dims_real` / `audit_dims_defaulted` in `final_summary.json` and the leaderboard printout.
 
 ---
 
@@ -568,7 +606,7 @@ Wraps Azure OpenAI / Azure AI Foundry endpoints.
 
 ### 13.1 Synthetic Runner (`simulation/runner.py`)
 
-Uses `agents/strategies.py` (5 agent archetypes) with coin-flip task execution.
+Uses `agents/strategies.py` (5 v1 archetypes) with coin-flip task execution.
 
 ```
 For each of 500 steps:
@@ -586,32 +624,70 @@ Output: time_series.json, agent_metrics.json, strategy_summary.json
 
 ### 13.2 Live Runner (`simulation/live_runner.py`)
 
-Uses real Azure LLM endpoints with two-layer verification.
+Uses real Azure LLM endpoints with v2 AutonomousAgents.
+
+#### `setup()`
 
 ```
-For each of 10 rounds:
-  1. Each active agent gets a task matched to their tier (from task bank)
-  2. Real LLM call: send prompt to Azure endpoint, get output
-  3. Token cost accounting: deduct FIL based on input/output tokens
-  4. Two-layer verification: algorithmic checks + jury LLM (T2+)
-  5. Robustness update: CC/ER/AS nudged based on constraint pass/fail
-  6. Contract settled based on verification result
-  7. Economy.step() applies temporal dynamics
-
-Output: task_results.json, round_summaries.json, final_summary.json,
-        economy_state.json, agent_details.json, verification_log.json
+For each contestant model:
+  1. Economy.register_agent() → AgentRecord
+  2. _resolve_initial_robustness(model_name, agent_id, llm_agent)
+       a. audit.audit_live() → live CDCT/DDFT/EECT → RobustnessVector
+       b. _load_precomputed() → pre-computed files (per failed dim only)
+       c. DEFAULT_ROBUSTNESS[model] → named estimate (last resort)
+  3. Economy.audit_agent() → tier assignment
+  4. create_autonomous_agent(strategy) → AutonomousAgent
+  5. autonomous.register(agent_id, initial_balance)
 ```
 
-### Live Runner Additions Over Synthetic
+#### `_run_round()`
+
+```
+For each active agent:
+  1. autonomous.build_state(record, gate) → AgentState
+  2. autonomous.plan_task(available_tasks, state) → Task | None
+       PlanningLayer: EV = p*R - (1-p)*P - token_cost
+                      RAEV = EV - P²/(2*balance)
+       Strategy.rank_contracts() → top contract
+       Safety gates: balance < MINIMUM_RESERVE → suspend
+  3. Economy.post_contract() + accept_contract()
+  4. autonomous.execute_task(task) → ExecutionResult
+       ExecutionLayer: build_system_prompt (constraint injection)
+                       llm.execute_task()
+                       _self_check(task, output)
+                       if failed: _build_retry_prompt() + retry (up to max_retries)
+  5. Token cost accounting: agent.balance -= token_cost_fil
+  6. TaskVerifier.verify() → VerificationResult
+       Layer 1: algorithmic constraint checks
+       Layer 2 (T2+): jury LLM scoring
+  7. update_robustness_from_verification() → Economy.certify()
+  8. autonomous.update_state(task, verification, token_cost)
+       PerceptionLayer.update_from_result()
+       AccountingLayer.record_round_cost()
+  9. Economy.complete_contract() → FIL settlement
+```
+
+#### `_finalize()`
+
+Outputs per-agent:
+- `audit_data_source` / `audit_dims_real` / `audit_dims_defaulted`
+- `autonomous_metrics`: `self_check_catches`, `retry_successes`, `strategy_actions`, pass rates
+- Gini coefficient on earnings distribution
+- `data_quality_warnings` for any agent with defaulted audit dimensions
+
+### Live Runner Feature Comparison
 
 | Feature | Synthetic | Live |
 |---------|-----------|------|
-| Task execution | Random coin flip | Real LLM API call |
-| Verification | Contract constraints only | Algorithmic + jury LLM |
+| Task execution | Random coin flip | Real LLM API call via ExecutionLayer |
+| Task selection | Random | EV/RAEV + strategy (PlanningLayer) |
+| Self-verification | No | Yes — algorithmic pre-check + retry |
+| Verification | Constraint checks only | Algorithmic + jury LLM (T2+) |
+| Initial robustness | Hardcoded per archetype | Live CDCT/DDFT/EECT audit |
 | Cost accounting | None | Token-based FIL deduction |
-| Robustness updates | Only via invest_robustness action | After every task (per-constraint) |
-| Initial robustness | Hardcoded per strategy | Loaded from DDFT/EECT framework results |
-| Finalization | Strategy comparison | Gini coefficient, leaderboard, safety trajectory |
+| Robustness updates | Invest action only | After every task (per-constraint nudge) |
+| Perception | None | PerceptionLayer (constraint/domain pass rates) |
+| Accounting | None | AccountingLayer (reserves, burn-rate, exposure) |
 
 ### Token Cost Rates (live_runner.py)
 
@@ -628,7 +704,7 @@ mistral-medium-2505             0.002         0.006
 gpt-oss-120b                    0.002         0.006
 Kimi-K2.5                       0.001         0.002
 
-Conversion: 1 USD = 100 FIL
+Conversion: USD_TO_FIL = 5.0  (1 USD ≈ 5 FIL at Calibnet rate)
 ```
 
 ### Robustness Update Logic (live_runner.py)
@@ -636,14 +712,119 @@ Conversion: 1 USD = 100 FIL
 After each task verification:
 - For each constraint, check dimension (cc/er/as) and whether it passed
 - Pass: +0.01 nudge to that dimension (normalized by constraint count)
-- Fail: -0.015 nudge (asymmetric -- failures penalize more)
+- Fail: -0.015 nudge (asymmetric — failures penalize more)
 - IH*: +0.005 on overall pass, -0.0075 on overall fail
 - All values clamped to [0, 1]
-- Agent re-certified with updated robustness
+- Agent re-certified with updated robustness → may change tier
 
 ---
 
-## 14. Agent Strategies (`agents/`)
+## 14. Autonomous Agent v2 (`agents/autonomous.py`)
+
+### Overview
+
+`AutonomousAgent` wraps an `LLMAgent` and adds four deterministic layers. All economic logic (contract evaluation, financial management, investment decisions) is in Python; the LLM only executes tasks. This makes agent behaviour inspectable and reproducible.
+
+```
+create_autonomous_agent(llm_agent, strategy_name, token_cost_fn, self_verify, max_retries)
+    → AutonomousAgent
+         .llm: LLMAgent
+         .perception: PerceptionLayer
+         .accounting: AccountingLayer
+         .planning: PlanningLayer(strategy, token_cost_fn)
+         .execution: ExecutionLayer(llm, self_verify, max_retries)
+```
+
+### Layer Interfaces
+
+#### PerceptionLayer
+
+Tracks running pass/fail history per constraint name and per domain.
+
+```python
+.update_from_result(task, verification)   # called after settlement
+.estimated_pass_prob(task) → float        # (constraint_rate + domain_rate) / 2
+.constraint_pass_rates → dict             # constraint_name -> float
+.domain_pass_rates → dict                 # domain -> float
+```
+
+#### AccountingLayer
+
+Layered reserves with hard floor.
+
+```
+balance
+  - active_exposure           → available_for_contracts
+  - MINIMUM_RESERVE (0.05 FIL)
+  - AUDIT_RESERVE   (0.02 FIL)
+
+.can_afford(penalty, token_cost) → bool  # hard gate before bidding
+.sync_from_record(AgentRecord)            # Economy is source of truth
+.burn_rate → float                        # Rolling 10-round average cost
+.rounds_until_insolvency → float
+```
+
+#### PlanningLayer
+
+EV/RAEV scoring (per-task) + strategy delegation.
+
+```
+EV   = p * reward - (1-p) * penalty - token_cost_estimate
+RAEV = EV - penalty² / (2 * balance)
+
+.score_task(task, state, pass_prob) → ScoredContract
+.select_task(tasks, state, perception, accounting) → Task | None
+.investment_decision(state) → RobustnessInvestment | None
+```
+
+#### ExecutionLayer
+
+```
+.execute(task, token_cost_fn) → ExecutionResult:
+  1. _build_system_prompt(task)    -- appends constraint list to system prompt
+  2. llm.execute_task(prompt)      -- real LLM call
+  3. _self_check(task, output)     -- runs constraint.check() for each constraint
+  4. if failed and retries_left:
+       _build_retry_prompt(...)    -- lists failed constraints + diagnostics
+       llm.execute_task(retry)
+       → repeat up to max_retries
+  5. return ExecutionResult(output, token_usage, retries_used, self_check_*)
+```
+
+### Strategies
+
+| Strategy | Rank contracts by | Max utilization | Invest when |
+|----------|--------------------|-----------------|-------------|
+| `GrowthStrategy` | RAEV + tier bonus | 70% | Binding dim within 0.07 of next threshold |
+| `ConservativeStrategy` | Penalty (ascending) | 30% | Never |
+| `OpportunisticStrategy` | Raw EV | 90% | Stuck at T0 only |
+| `SpecialistStrategy` | RAEV (specialty domains) | 50% | Worst constraint fail rate > 30% |
+| `AdversarialStrategy` | Borderline pass probability | 95% | Minimal AS investment |
+
+### Key Data Structures
+
+```python
+AgentState(frozen)        # Complete snapshot for strategy decisions
+ScoredContract(frozen)    # Task + EV/RAEV + estimated pass probability
+ExecutionResult           # Output + token usage + retry + self-check fields
+RobustnessInvestment      # dimension: str, budget: float
+```
+
+### Agent Lifecycle in live_runner.py
+
+```
+register(agent_id, initial_balance)   → called once after Economy.register_agent()
+build_state(record, gate) → AgentState → called each round before planning
+plan_task(tasks, state) → Task|None    → replaces random.choice()
+execute_task(task) → ExecutionResult   → replaces llm.execute_task()
+update_state(task, veri, cost)         → perception + accounting update
+investment_decision(state)             → robustness investment trigger
+metrics_summary() → dict              → included in final_summary.json
+```
+
+---
+
+## 14b. v1 Agent Strategies (`agents/`)
 
 ### Abstract: `BaseAgent` (`agents/base.py`)
 
@@ -742,77 +923,106 @@ Run: `streamlit run dashboard/app.py`
 
 ## 18. Data Flow: End-to-End Walkthrough
 
-### Registration -> Audit -> Tier
+### Registration -> Live Audit -> Tier
 
 ```
-LLM model
+LLM model + LLMAgent
   |
   v
 Economy.register_agent(model_name, config)
   -> AgentRecord created (status=PENDING, balance=seed_capital)
   |
   v
-AuditOrchestrator.audit_from_results(agent_id, model_name)
-  -> Loads DDFT results -> compute_er_from_ddft_results() -> ER
-  -> Loads EECT results -> compute_as_from_eect_results() -> AS
-  -> Loads DDFT traps   -> estimate_ih_from_ddft()        -> IH*
-  -> Falls back to DEFAULT_ROBUSTNESS if no framework data
-  -> Returns RobustnessVector(CC, ER, AS, IH*)
+live_runner._resolve_initial_robustness(model_name, agent_id, llm_agent)
+  |
+  +-> [1] AuditOrchestrator.audit_live(agent_id, model_name, llm_agent, ...)
+  |     DDFT: CognitiveProfiler.run_complete_assessment() -> ER + IH*
+  |     CDCT: run_experiment(_CDCTAdapter(llm_agent)) -> CC
+  |     EECT: EECTEvaluator.run_socratic_dialogue_raw() -> AS (heuristic)
+  |     defaults_used = {dims where framework failed}
+  |
+  +-> [2] _load_precomputed(model_name) [for any dim still missing]
+  |     audit_from_results() -> loads DDFT/EECT/CDCT result files
+  |
+  +-> [3] DEFAULT_ROBUSTNESS[model_name] per dim [named estimate, never 0.5 flat]
+  |
+  -> RobustnessVector(cc, er, as_, ih)
+  -> _audit_quality[model_name] = {source, dims_real, dims_defaulted}
   |
   v
 Economy.audit_agent(agent_id, robustness)
-  -> Deducts 0.02 FIL (4 dims * 0.005)
-  -> GateFunction.evaluate(R)
+  -> Deducts 0.02 FIL
+  -> GateFunction.evaluate_with_detail(R)
      -> IHT check: if IH* < 0.5 -> T0
      -> g_cc, g_er, g_as step functions
      -> tier = min(g_cc, g_er, g_as)
-  -> Registry.certify() -> stores Certification
-  -> Agent is now ACTIVE at computed tier
+  -> Registry.certify() -> stores Certification -> Agent is ACTIVE
+  |
+  v
+create_autonomous_agent(llm_agent, strategy_name, token_cost_fn, ...)
+  -> AutonomousAgent with PerceptionLayer + AccountingLayer + PlanningLayer + ExecutionLayer
+autonomous.register(agent_id, initial_balance)
+  -> AccountingLayer initialized
 ```
 
-### Task Execution -> Verification -> Settlement
+### Task Planning -> Execution -> Settlement
 
 ```
-Task selected (matched to agent tier)
+Round start for each active agent:
   |
   v
-Economy.post_contract(objective, constraints, min_tier, reward, penalty)
-  -> Contract created with escrow
+autonomous.build_state(record, gate) -> AgentState
+  -> AccountingLayer.sync_from_record()
+  -> GateFunction.evaluate_with_detail(R) -> binding_dimension, gap_to_next_tier
   |
   v
-Economy.accept_contract(contract_id, agent_id)
-  -> Temporal decay applied to get effective tier
-  -> Tier check: effective_tier >= min_tier
-  -> Budget check: exposure + penalty <= ceiling
+autonomous.plan_task(available_tasks, state) -> Task | None
+  -> PlanningLayer.select_task()
+     Safety: balance < MINIMUM_RESERVE -> return None (suspend)
+     For each eligible task:
+       pass_prob = PerceptionLayer.estimated_pass_prob(task)
+       score = PlanningLayer.score_task() -> EV, RAEV, risk_premium
+     Strategy.rank_contracts([scored]) -> ordered list
+     Return task for top RAEV > 0 (or T0 override)
   |
   v
-LLMAgent.execute_task(prompt, system_prompt)
-  -> Azure API call -> output string
-  -> Token usage tracked
+Economy.post_contract() + accept_contract()
+  -> Temporal decay -> tier check -> budget ceiling check
+  |
+  v
+autonomous.execute_task(task) -> ExecutionResult
+  -> ExecutionLayer._build_system_prompt(task) [constraint injection]
+  -> llm.execute_task(prompt)
+  -> ExecutionLayer._self_check(task, output)
+     -> For each constraint: constraint.check(output)
+     -> If failed: _build_retry_prompt() -> llm.execute_task() [up to max_retries]
+  -> Return ExecutionResult(output, token_usage, retries_used, self_check_*)
   |
   v
 compute_token_cost_fil(model, input_tokens, output_tokens)
-  -> agent.balance -= cost (FIL)
+  -> agent.balance -= cost (USD_TO_FIL = 5.0)
   |
   v
-TaskVerifier.verify(task, output, model)
-  -> Layer 1: run each constraint.check(output)
-     -> constraints_passed, constraints_failed
-  -> Layer 2 (T2+): jury LLM evaluation
-     -> jury prompt = task + output + rubric
-     -> jury returns score, pass/fail
+TaskVerifier.verify(task, output, model) -> VerificationResult
+  -> Layer 1: constraint.check() for each constraint
+  -> Layer 2 (T2+): jury LLM prompt -> score >= 0.6 to pass
   -> overall_pass = algorithmic AND jury
   |
   v
 update_robustness_from_verification(current_R, task, verification)
-  -> Per-constraint: nudge cc/er/as up on pass, down on fail
-  -> IH nudged by overall_pass
-  -> Registry.certify(new_robustness) -- may change tier
+  -> Per-constraint: nudge cc/er/as (+0.01 pass / -0.015 fail)
+  -> IH: +0.005 overall pass / -0.0075 fail; clamped [0,1]
+  -> Registry.certify(new_R) -> may change tier
+  |
+  v
+autonomous.update_state(task, verification, token_cost)
+  -> PerceptionLayer.update_from_result(task, verification)
+  -> AccountingLayer.record_round_cost(token_cost)
   |
   v
 Economy.complete_contract(contract_id, output, verification_override)
-  -> If pass: agent.balance += reward, contracts_completed++
-  -> If fail: agent.balance -= penalty, contracts_failed++
+  -> Pass: agent.balance += reward, contracts_completed++
+  -> Fail: agent.balance -= penalty, contracts_failed++
   -> Exposure released
 ```
 
@@ -877,8 +1087,18 @@ Take snapshot (for dashboard)
 | `Task` | tasks.py | prompt, constraints, reward | TaskConstraint, Tier |
 | `TaskVerifier` | verifier.py | verify() | Task, LLMAgent |
 | `VerificationResult` | verifier.py | overall_pass, jury_score | -- |
-| `AuditOrchestrator` | audit.py | audit_from_results(), synthetic_audit() | RobustnessVector |
+| `AuditOrchestrator` | audit.py | audit_live(), audit_from_results(), synthetic_audit() | RobustnessVector, framework runners |
 | `Economy` | economy.py | register_agent(), audit_agent(), accept_contract(), complete_contract(), step(), aggregate_safety() | All of the above |
+| `AutonomousAgent` | agents/autonomous.py | register(), build_state(), plan_task(), execute_task(), update_state(), metrics_summary() | PerceptionLayer, AccountingLayer, PlanningLayer, ExecutionLayer |
+| `PerceptionLayer` | agents/autonomous.py | update_from_result(), estimated_pass_prob() | task, verification |
+| `AccountingLayer` | agents/autonomous.py | can_afford(), sync_from_record(), record_round_cost() | AgentRecord |
+| `PlanningLayer` | agents/autonomous.py | score_task(), select_task(), investment_decision() | StrategyInterface, PerceptionLayer, AccountingLayer |
+| `ExecutionLayer` | agents/autonomous.py | execute(), _self_check(), _build_retry_prompt() | LLMAgent |
+| `GrowthStrategy` | agents/autonomous.py | rank_contracts(), should_invest_robustness() | AgentState |
+| `ConservativeStrategy` | agents/autonomous.py | rank_contracts(), should_invest_robustness() | AgentState |
+| `OpportunisticStrategy` | agents/autonomous.py | rank_contracts(), should_invest_robustness() | AgentState |
+| `SpecialistStrategy` | agents/autonomous.py | rank_contracts(), should_invest_robustness() | AgentState |
+| `AdversarialStrategy` | agents/autonomous.py | rank_contracts(), should_invest_robustness() | AgentState |
 | `TaskMarketplace` | marketplace.py | generate_contracts() | ContractManager, Tier |
 | `LLMAgent` | llm_agent.py | chat(), execute_task(), usage_summary() | models_config |
 | `BaseAgent` | agents/base.py | decide(), execute_task() | RobustnessVector, CGAEContract |
@@ -907,7 +1127,7 @@ Take snapshot (for dashboard)
 | AGT | Action-Gated Test | Alternative name for AS evaluation in EECT |
 | IHT | Intrinsic Hallucination Test | Cross-cutting check (triggers T0 if IH* < 0.5) |
 | FOC | Filecoin Object Cost | Storage cost per time step |
-| FIL | Filecoin token | Economic unit (1 USD ~ 100 FIL in simulation) |
+| FIL | Filecoin token | Economic unit (1 USD ≈ 5 FIL; USD_TO_FIL = 5.0) |
 | S(P) | Aggregate Safety | Population-level safety metric (Definition 9) |
 | E(A) | Economic Exposure | Sum of penalty collateral on active contracts |
 | B_k | Budget Ceiling | Max exposure for tier T_k |
