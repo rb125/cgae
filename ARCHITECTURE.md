@@ -8,6 +8,60 @@ The CGAE (Comprehension-Gated Agent Economy) implements an economic system where
 
 ---
 
+## Filecoin Integration Architecture
+
+```
+                    Python (cgae_engine)
+                           │
+                    audit_live() complete
+                           │
+                           ▼
+               _pin_audit_to_filecoin()
+                    writes audit_cert.json
+                           │
+                           ▼
+            storage/filecoin_store.py
+              FilecoinStore.store_audit_result()
+                           │
+               ┌───────────┴────────────┐
+               │  FILECOIN_PRIVATE_KEY  │
+               │  + SDK installed?      │
+               └──────┬─────────────────┘
+                      │ yes                       no
+                      ▼                           ▼
+      subprocess → upload_to_synapse.mjs    deterministic CID
+           @filoz/synapse-sdk               SHA-256(cert JSON)
+           Filecoin Calibration             prefix: bafk2bzace...
+                      │
+                      ▼
+              PieceCID returned
+                      │
+                      ▼
+         CGAERegistry.certify(               ← Calibnet tx
+           agent, cc, er, as_, ih,
+           auditType, auditCid)
+                      │
+                      ▼
+         AuditResult.filecoin_cid = CID
+         AuditResult.filecoin_cid_real = True
+
+Verify later:
+  CGAERegistry.getAuditCid(agent_addr) → CID
+  Filecoin retrieve(CID) → audit_cert.json
+  assert json["robustness"] matches on-chain RobustnessVector  ✓
+```
+
+### Key contracts on Calibnet (chain 314159)
+
+| Contract | Purpose | Relevant function |
+|----------|---------|-------------------|
+| `CGAERegistry` | Agent identity, gate function, certification | `certify(agent, cc, er, as_, ih, auditType, auditCid)` |
+| `CGAEEscrow` | FIL escrow, tier-gated acceptance, Theorem 1 enforcement | `acceptContract(contractId)` |
+
+Deployment: `cd contracts && npm install && npm run deploy:calibnet`
+
+---
+
 ## 1. Directory Structure
 
 ```
@@ -27,9 +81,24 @@ The CGAE (Comprehension-Gated Agent Economy) implements an economic system where
 |   |-- tasks.py                  # 16 real tasks with machine-verifiable constraints
 |   |-- verifier.py               # Two-layer verification (algorithmic + jury LLM)
 |
-|-- agents/                       # Agent strategy testbed
-|   |-- base.py                   # Abstract BaseAgent interface
-|   |-- strategies.py             # 5 concrete strategies: Conservative, Aggressive, Balanced, Adaptive, Cheater
+|-- agents/                       # Agent implementations
+|   |-- base.py                   # Abstract v1 BaseAgent interface
+|   |-- strategies.py             # 5 synthetic v1 archetypes
+|   |-- autonomous.py             # AutonomousAgent v2 (5 layers + 5 strategies)
+|
+|-- storage/                      # Filecoin storage integration
+|   |-- upload_to_synapse.mjs     # Node.js Synapse SDK uploader script
+|   |-- filecoin_store.py         # Python wrapper (subprocess bridge + fallback)
+|   |-- package.json              # @filoz/synapse-sdk + ethers deps
+|
+|-- contracts/                    # Solidity smart contracts (Calibnet)
+|   |-- CGAERegistry.sol          # Gate function + auditCid anchoring
+|   |-- CGAEEscrow.sol            # Tier-gated escrow + Theorem 1
+|   |-- package.json              # Hardhat dependencies
+|   |-- hardhat.config.js         # Calibnet network config (chain 314159)
+|   |-- deployed.json             # Auto-generated after deploy:calibnet
+|   |-- scripts/
+|       |-- deploy.js             # One-command Calibnet deployment
 |
 |-- simulation/                   # Experiment runners
 |   |-- runner.py                 # Synthetic simulation (coin-flip execution, 500 steps)
@@ -950,6 +1019,17 @@ live_runner._resolve_initial_robustness(model_name, agent_id, llm_agent)
   -> _audit_quality[model_name] = {source, dims_real, dims_defaulted}
   |
   v
+_pin_audit_to_filecoin(model_name, agent_id, cache_dir, robustness, ...)
+  -> writes audit_cert.json to cache_dir
+  -> FilecoinStore.store_audit_result() via subprocess → upload_to_synapse.mjs
+     [if FILECOIN_PRIVATE_KEY set + SDK installed]
+       → Synapse SDK → Filecoin Calibration Testnet → PieceCID
+     [else]
+       → SHA-256(cert_json) → deterministic fallback CID
+  -> AuditResult.filecoin_cid = CID
+  -> AuditResult.filecoin_cid_real = True|False
+  |
+  v
 Economy.audit_agent(agent_id, robustness)
   -> Deducts 0.02 FIL
   -> GateFunction.evaluate_with_detail(R)
@@ -1087,7 +1167,8 @@ Take snapshot (for dashboard)
 | `Task` | tasks.py | prompt, constraints, reward | TaskConstraint, Tier |
 | `TaskVerifier` | verifier.py | verify() | Task, LLMAgent |
 | `VerificationResult` | verifier.py | overall_pass, jury_score | -- |
-| `AuditOrchestrator` | audit.py | audit_live(), audit_from_results(), synthetic_audit() | RobustnessVector, framework runners |
+| `AuditOrchestrator` | audit.py | audit_live(), audit_from_results(), synthetic_audit() | RobustnessVector, framework runners, FilecoinStore |
+| `FilecoinStore` | storage/filecoin_store.py | store_audit_result(), store_bytes(), check_setup() | upload_to_synapse.mjs via subprocess |
 | `Economy` | economy.py | register_agent(), audit_agent(), accept_contract(), complete_contract(), step(), aggregate_safety() | All of the above |
 | `AutonomousAgent` | agents/autonomous.py | register(), build_state(), plan_task(), execute_task(), update_state(), metrics_summary() | PerceptionLayer, AccountingLayer, PlanningLayer, ExecutionLayer |
 | `PerceptionLayer` | agents/autonomous.py | update_from_result(), estimated_pass_prob() | task, verification |

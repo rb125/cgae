@@ -10,6 +10,35 @@ This repository implements the full CGAE protocol as described in `cgae.tex`, in
 
 ---
 
+## Filecoin Integration
+
+CGAE uses **Filecoin Calibration Testnet** (chain 314159) for two things:
+
+| Layer | What | How |
+|-------|------|-----|
+| **On-chain registry** | Agent identity, robustness certification, tier assignment, escrow | `CGAERegistry.sol` + `CGAEEscrow.sol` deployed to Calibnet |
+| **Filecoin storage** | Immutable audit certificate JSON (CDCT+DDFT+EECT results) | Synapse SDK (`@filoz/synapse-sdk`) — PieceCID stored on-chain |
+
+The flow per agent registration:
+```
+audit_live() → [CC, ER, AS, IH] → write audit_cert.json
+     ↓
+Synapse SDK (Node.js) → upload to Filecoin Warm Storage → PieceCID
+     ↓
+CGAERegistry.certify(agent, cc, er, as_, ih, auditType, auditCid)  ← on Calibnet
+```
+
+Anyone can verify: fetch the CID from `CGAERegistry.getAuditCid(agent_address)`, retrieve the JSON from Filecoin, and confirm the robustness scores match the on-chain vector.
+
+**Calibnet contract addresses** (after deployment):
+```
+CGAERegistry : see contracts/deployed.json
+CGAEEscrow   : see contracts/deployed.json
+Explorer     : https://calibration.filscan.io
+```
+
+---
+
 ## Repository Structure
 
 ```
@@ -43,8 +72,18 @@ cgae/
 │                                   #   Specialist / Adversarial strategies
 │
 ├── contracts/                      # Solidity smart contracts (Filecoin Calibnet)
-│   ├── CGAERegistry.sol            # On-chain agent identity + gate function
-│   └── CGAEEscrow.sol              # Contract escrow + budget ceiling enforcement
+│   ├── CGAERegistry.sol            # On-chain agent identity + gate function + auditCid
+│   ├── CGAEEscrow.sol              # Contract escrow + budget ceiling enforcement
+│   ├── package.json                # Hardhat dependencies
+│   ├── hardhat.config.js           # Calibnet network config
+│   ├── deployed.json               # Deployed contract addresses (auto-generated)
+│   └── scripts/
+│       └── deploy.js               # One-command Calibnet deployment
+│
+├── storage/                        # Filecoin storage integration
+│   ├── upload_to_synapse.mjs       # Node.js Synapse SDK uploader
+│   ├── filecoin_store.py           # Python wrapper (subprocess bridge)
+│   └── package.json                # @filoz/synapse-sdk + ethers deps
 │
 ├── simulation/                     # Experiment runners
 │   ├── runner.py                   # Synthetic simulation (v1 strategies, coin-flip)
@@ -247,10 +286,40 @@ Reference implementation using v1 strategy archetypes and coin-flip task executi
 
 ```bash
 pip install -r requirements.txt
-# Core engine + simulation have zero external dependencies (stdlib only)
-# Dashboard requires: streamlit, plotly, pandas
-# Live runner requires: Azure OpenAI credentials (AZURE_API_KEY, etc.)
+# Core engine + simulation: stdlib only
+# Dashboard: streamlit, plotly, pandas
+# Live runner: Azure OpenAI credentials (AZURE_API_KEY, etc.)
 ```
+
+### Deploy Smart Contracts to Calibnet
+
+```bash
+# Get testnet FIL (needed for gas)
+# Faucet: https://faucet.calibnet.chainsafe-fil.io/funds.html
+
+cd contracts
+npm install
+export PRIVATE_KEY=<your_hex_private_key_no_0x>
+npm run deploy:calibnet
+# → writes contracts/deployed.json with CGAERegistry + CGAEEscrow addresses
+```
+
+### Enable Filecoin Audit Storage
+
+```bash
+# Get tUSDFC (needed for Synapse storage payments)
+# Faucet: https://forest-explorer.chainsafe.dev/faucet/calibnet_usdfc
+
+cd storage
+npm install          # installs @filoz/synapse-sdk + ethers
+export FILECOIN_PRIVATE_KEY=<your_hex_private_key_no_0x>
+
+# Verify setup
+python storage/filecoin_store.py
+# → { "ready": true, "sdk_installed": true, "private_key_set": true, ... }
+```
+
+When `FILECOIN_PRIVATE_KEY` is set and the SDK is installed, every `audit_live()` call automatically uploads the audit certificate to Filecoin and stores the CID on-chain via `CGAERegistry.certify()`. Without credentials the pipeline uses a deterministic content-addressed fallback CID and continues normally.
 
 ### Step 1: Synthetic Simulation (no API keys needed)
 

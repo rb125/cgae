@@ -245,6 +245,91 @@ class AuditResult:
     raw_results: dict = field(default_factory=dict)
     # Dimensions where no real framework data was found; value is the fallback used
     defaults_used: set = field(default_factory=set)
+    # Filecoin PieceCID of the pinned audit JSON (set by audit_live when upload succeeds)
+    filecoin_cid: Optional[str] = None
+    # True if filecoin_cid is a real Filecoin CID; False if deterministic fallback
+    filecoin_cid_real: bool = False
+
+
+def _pin_audit_to_filecoin(
+    model_name: str,
+    agent_id: str,
+    cache_dir: Optional[Path],
+    robustness: "RobustnessVector",
+    defaults_used: set,
+    errors: list,
+) -> tuple:
+    """
+    Pin the combined audit certificate JSON to Filecoin via Synapse SDK.
+    Returns (cid: str | None, real: bool).
+
+    The certificate JSON contains the full robustness vector, per-dimension
+    provenance, and audit metadata.  Its CID is stored on-chain in
+    CGAERegistry.certify() so that anyone can verify the certificate by
+    fetching from Filecoin and hashing.
+
+    If the Synapse upload is unavailable (no Node.js, no FILECOIN_PRIVATE_KEY,
+    or no USDFC balance) a deterministic fallback CID is returned (real=False).
+    The pipeline continues normally in either case.
+    """
+    try:
+        # Build the certificate document
+        cert = {
+            "agent_id": agent_id,
+            "model_name": model_name,
+            "robustness": {
+                "cc": robustness.cc,
+                "er": robustness.er,
+                "as": robustness.as_,
+                "ih": robustness.ih,
+            },
+            "defaults_used": sorted(defaults_used),
+            "framework_errors": errors,
+            "source": "live_audit",
+        }
+
+        # Write the certificate to cache so the uploader script can read it
+        cert_path: Optional[Path] = None
+        if cache_dir:
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            cert_path = cache_dir / f"{model_name}_audit_cert.json"
+            cert_path.write_text(json.dumps(cert, indent=2))
+        else:
+            import tempfile
+            tmp = tempfile.NamedTemporaryFile(
+                suffix=".json", delete=False,
+                prefix=f"cgae_{model_name}_"
+            )
+            tmp.write(json.dumps(cert, indent=2).encode())
+            tmp.close()
+            cert_path = Path(tmp.name)
+
+        # Import the Python Filecoin store wrapper
+        import sys as _sys
+        _root = str(Path(__file__).resolve().parents[1])
+        if _root not in _sys.path:
+            _sys.path.insert(0, _root)
+        from storage.filecoin_store import FilecoinStore  # type: ignore
+
+        store = FilecoinStore(network="calibration")
+        result = store.store_audit_result(model_name, cert_path)
+
+        if result.real:
+            logger.info(
+                f"  [filecoin] Audit cert pinned: {result.cid} "
+                f"(model={model_name}, network={result.network})"
+            )
+        else:
+            logger.debug(
+                f"  [filecoin] Fallback CID for {model_name}: {result.cid} "
+                f"(reason: {result.error})"
+            )
+
+        return result.cid, result.real
+
+    except Exception as e:
+        logger.warning(f"  [filecoin] Pin failed for {model_name}: {e}")
+        return None, False
 
 
 class AuditOrchestrator:
@@ -496,6 +581,20 @@ class AuditOrchestrator:
             defaults_used.add("as")
 
         robustness = RobustnessVector(cc=cc, er=er, as_=as_, ih=ih)
+
+        # --- Pin audit certificate to Filecoin via Synapse SDK ----------
+        filecoin_cid: Optional[str] = None
+        filecoin_cid_real: bool = False
+        if cache_dir:
+            filecoin_cid, filecoin_cid_real = _pin_audit_to_filecoin(
+                model_name=model_name,
+                agent_id=agent_id,
+                cache_dir=Path(cache_dir) if cache_dir else None,
+                robustness=robustness,
+                defaults_used=defaults_used,
+                errors=errors,
+            )
+
         return AuditResult(
             agent_id=agent_id,
             robustness=robustness,
@@ -504,13 +603,18 @@ class AuditOrchestrator:
                 "source": "live_audit",
                 "errors": errors,
                 "defaults_used": sorted(defaults_used),
+                "filecoin_cid": filecoin_cid,
+                "filecoin_cid_real": filecoin_cid_real,
             },
             defaults_used=defaults_used,
+            filecoin_cid=filecoin_cid,
+            filecoin_cid_real=filecoin_cid_real,
         )
 
     # ------------------------------------------------------------------
     # Private: per-framework live runners
     # ------------------------------------------------------------------
+
 
     def _run_ddft_live(
         self, model_name: str, model_config: dict, cache_dir: Optional[Path]
