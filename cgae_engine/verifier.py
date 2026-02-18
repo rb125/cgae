@@ -3,7 +3,7 @@ Output Verification System for the CGAE Economy
 
 Two-layer verification:
 1. Algorithmic: Deterministic constraint checks (word count, JSON, keywords, etc.)
-2. Jury LLM: Semantic quality assessment by a separate model (gpt-5.1 / deepseek-v3.1)
+2. Jury LLM: Semantic quality assessment by a separate model (gpt-5.2 / deepseek-v3.2)
 
 The jury verifier uses the same pattern as the EECT/DDFT jury systems:
 send the task prompt, the agent's output, and a rubric to a jury model,
