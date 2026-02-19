@@ -193,10 +193,11 @@ class LiveSimConfig:
     model_names: Optional[list[str]] = None
     output_dir: str = "simulation/live_results"
     seed: Optional[int] = 42
-    # Framework result directories for pre-computed audit data
-    ddft_results_dir: Optional[str] = None
-    eect_results_dir: Optional[str] = None
-    cdct_results_dir: Optional[str] = None
+    # Framework API URLs — read from env vars (CDCT_API_URL, DDFT_API_URL, EECT_API_URL)
+    # if not set here.  Pass explicit URLs only when overriding the defaults.
+    cdct_api_url: Optional[str] = None
+    ddft_api_url: Optional[str] = None
+    eect_api_url: Optional[str] = None
     # Live audit generation (runs CDCT/DDFT/EECT against each contestant)
     # When True, pre-computed results are still checked first; live run fills
     # any dimensions that have no pre-computed file.
@@ -239,11 +240,11 @@ class LiveSimulationRunner:
         )
         self.economy = Economy(config=econ_config)
 
-        # Initialize audit orchestrator with framework directories
+        # Initialize audit orchestrator pointing at hosted framework APIs
         self.audit = AuditOrchestrator(
-            ddft_results_dir=self.config.ddft_results_dir,
-            eect_results_dir=self.config.eect_results_dir,
-            cdct_results_dir=self.config.cdct_results_dir,
+            cdct_api_url=self.config.cdct_api_url,
+            ddft_api_url=self.config.ddft_api_url,
+            eect_api_url=self.config.eect_api_url,
         )
 
         # LLM agents (populated in setup)
@@ -378,16 +379,9 @@ class LiveSimulationRunner:
         self, model_name: str, agent_id: str
     ) -> Optional[RobustnessVector]:
         """
-        Attempt to load robustness from pre-computed framework results directories.
+        Attempt to load robustness from pre-computed framework API scores.
         Returns None when no real data is found for any dimension.
         """
-        has_frameworks = (
-            self.config.ddft_results_dir
-            or self.config.eect_results_dir
-            or self.config.cdct_results_dir
-        )
-        if not has_frameworks:
-            return None
         try:
             audit_result = self.audit.audit_from_results(agent_id, model_name)
             # Only trust it when at least one dimension has real data
@@ -899,18 +893,11 @@ def main():
     available = [v for v in optional_vars if os.environ.get(v)]
     print(f"Endpoints available: {available}")
 
-    # Auto-detect framework result directories
-    base = Path(__file__).resolve().parent.parent
-    ddft_dir = base / "ddft_framework" / "results"
-    eect_dir = base / "eect_framework" / "results"
-    cdct_dir = None  # No pre-computed CDCT results available yet
-
+    # Framework API URLs are read from CDCT_API_URL / DDFT_API_URL / EECT_API_URL
+    # env vars by the clients.  Override here if needed.
     config = LiveSimConfig(
         num_rounds=10,
         seed=42,
-        ddft_results_dir=str(ddft_dir) if ddft_dir.exists() else None,
-        eect_results_dir=str(eect_dir) if eect_dir.exists() else None,
-        cdct_results_dir=str(cdct_dir) if cdct_dir and Path(cdct_dir).exists() else None,
     )
 
     runner = LiveSimulationRunner(config)
