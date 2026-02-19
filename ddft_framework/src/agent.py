@@ -431,7 +431,7 @@ class AzureOpenAICompletionAgent(Agent):
         return call_with_retry(_call, self.retry_config, log_prefix=f"[{self.model_name}]")
 
 
-def create_agent(subject_config: dict, api_keys: dict) -> Agent:
+def create_agent(subject_config: dict, api_keys: dict, resolved_api_key: Optional[str] = None, resolved_endpoint: Optional[str] = None) -> Agent:
     """Factory function to create the appropriate agent based on model config."""
     provider = subject_config.get("provider")
     model_name = subject_config.get("model_name")
@@ -440,8 +440,9 @@ def create_agent(subject_config: dict, api_keys: dict) -> Agent:
     endpoint_env_var = subject_config.get("endpoint_env_var")
     api_version = subject_config.get("api_version")  # Optional API version
 
-    api_key = api_keys.get(api_key_env_var)
-    endpoint = api_keys.get(endpoint_env_var) if endpoint_env_var else None
+    # Prioritize resolved keys/endpoints over looking them up from the api_keys dict
+    api_key = resolved_api_key if resolved_api_key is not None else api_keys.get(api_key_env_var)
+    endpoint = resolved_endpoint if resolved_endpoint is not None else (api_keys.get(endpoint_env_var) if endpoint_env_var else None)
 
     if provider == "azure_openai":
         if not api_key:

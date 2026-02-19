@@ -272,6 +272,24 @@ def _pin_audit_to_filecoin(
     or no USDFC balance) a deterministic fallback CID is returned (real=False).
     The pipeline continues normally in either case.
     """
+    cert_path: Optional[Path] = None
+    if cache_dir:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cert_path = cache_dir / f"{model_name}_audit_cert.json"
+
+        # --- Check if already pinned ---
+        if cert_path.exists():
+            try:
+                cached_cert_data = json.loads(cert_path.read_text())
+                if cached_cert_data.get("filecoin_cid_real") and cached_cert_data.get("filecoin_cid"):
+                    logger.info(
+                        f"  [filecoin] Audit cert for {model_name} already pinned: "
+                        f"{cached_cert_data['filecoin_cid']} (from cache)"
+                    )
+                    return cached_cert_data["filecoin_cid"], True
+            except (json.JSONDecodeError, KeyError):
+                pass # Continue to re-generate/re-upload if cache is malformed or incomplete
+
     try:
         # Build the certificate document
         cert = {
@@ -286,15 +304,13 @@ def _pin_audit_to_filecoin(
             "defaults_used": sorted(defaults_used),
             "framework_errors": errors,
             "source": "live_audit",
+            "filecoin_cid": None,  # Will be filled after upload
+            "filecoin_cid_real": False,
         }
 
-        # Write the certificate to cache so the uploader script can read it
-        cert_path: Optional[Path] = None
-        if cache_dir:
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            cert_path = cache_dir / f"{model_name}_audit_cert.json"
+        if cert_path:
             cert_path.write_text(json.dumps(cert, indent=2))
-        else:
+        else: # Fallback to temp file if no cache_dir
             import tempfile
             tmp = tempfile.NamedTemporaryFile(
                 suffix=".json", delete=False,
@@ -303,6 +319,7 @@ def _pin_audit_to_filecoin(
             tmp.write(json.dumps(cert, indent=2).encode())
             tmp.close()
             cert_path = Path(tmp.name)
+
 
         # Import the Python Filecoin store wrapper
         import sys as _sys
@@ -314,13 +331,19 @@ def _pin_audit_to_filecoin(
         store = FilecoinStore(network="calibration")
         result = store.store_audit_result(model_name, cert_path)
 
+        # Update the certificate JSON with the Filecoin CID (even if fallback)
+        cert["filecoin_cid"] = result.cid
+        cert["filecoin_cid_real"] = result.real
+        if cert_path:
+            cert_path.write_text(json.dumps(cert, indent=2))
+
         if result.real:
             logger.info(
                 f"  [filecoin] Audit cert pinned: {result.cid} "
                 f"(model={model_name}, network={result.network})"
             )
         else:
-            logger.debug(
+            logger.warning(
                 f"  [filecoin] Fallback CID for {model_name}: {result.cid} "
                 f"(reason: {result.error})"
             )
@@ -344,10 +367,18 @@ class AuditOrchestrator:
 
     def __init__(
         self,
+        azure_api_key: str,
+        azure_openai_endpoint: str,
+        ddft_models_endpoint: str,
+        azure_anthropic_api_endpoint: Optional[str] = None,
         cdct_results_dir: Optional[str] = None,
         ddft_results_dir: Optional[str] = None,
         eect_results_dir: Optional[str] = None,
     ):
+        self.azure_api_key = azure_api_key
+        self.azure_openai_endpoint = azure_openai_endpoint
+        self.ddft_models_endpoint = ddft_models_endpoint
+        self.azure_anthropic_api_endpoint = azure_anthropic_api_endpoint
         self.cdct_dir = Path(cdct_results_dir) if cdct_results_dir else None
         self.ddft_dir = Path(ddft_results_dir) if ddft_results_dir else None
         self.eect_dir = Path(eect_results_dir) if eect_results_dir else None
@@ -634,44 +665,37 @@ class AuditOrchestrator:
                 data = json.loads(cached.read_text())
                 return data["er"], data["ih"]
 
-        # Temporarily extend sys.path so DDFT's absolute imports resolve
-        _orig = list(_sys.path)
+        _orig_sys_path = list(_sys.path)
         if ddft_src not in _sys.path:
             _sys.path.insert(0, ddft_src)
         try:
             from cognitive_profiler import CognitiveProfiler  # type: ignore
-        finally:
-            _sys.path[:] = _orig
 
-        api_keys = {
-            "AZURE_API_KEY": os.getenv("AZURE_API_KEY"),
-            "AZURE_OPENAI_API_ENDPOINT": os.getenv("AZURE_OPENAI_API_ENDPOINT"),
-            "DDFT_MODELS_ENDPOINT": os.getenv("DDFT_MODELS_ENDPOINT"),
-        }
+            api_keys = {
+                "AZURE_API_KEY": self.azure_api_key,
+                "AZURE_OPENAI_API_ENDPOINT": self.azure_openai_endpoint,
+                "DDFT_MODELS_ENDPOINT": self.ddft_models_endpoint,
+                "AZURE_ANTHROPIC_API_ENDPOINT": self.azure_anthropic_api_endpoint,
+            }
 
-        concepts_dir = str(_base / "ddft_framework" / "concepts")
-        results_dir = str(_base / "ddft_framework" / "results")
+            concepts_dir = str(_base / "ddft_framework" / "concepts")
+            results_dir = str(_base / "ddft_framework" / "results")
 
-        _sys.path.insert(0, ddft_src)
-        try:
             profiler = CognitiveProfiler(
                 model=model_config,
                 api_keys=api_keys,
                 concepts_dir=concepts_dir,
                 results_dir=results_dir,
             )
-            # Quick assessment: 2 concepts, 3 compression levels
             profile = profiler.run_complete_assessment(
                 concepts=["Natural Selection", "Recursion"],
                 compression_levels=[0.0, 0.5, 1.0],
                 save_results=True,
             )
         finally:
-            _sys.path[:] = _orig
+            _sys.path[:] = _orig_sys_path
 
         er = compute_er_from_ddft_ci(profile.ci_score)
-        # IH* proxy: HOC (hallucination onset compression) inverted
-        # High HOC = agent stays coherent longer = low hallucination rate
         ih_raw = getattr(profile, "hoc", 0.5)
         ih = compute_ih_star(1.0 - min(1.0, max(0.0, ih_raw)))
 

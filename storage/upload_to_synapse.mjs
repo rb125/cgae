@@ -127,10 +127,26 @@ async function main() {
     process.exit(1);
   }
 
+  // --- NEW: Create or reuse a StorageContext ---
+  let context;
+  try {
+    context = await synapse.storage.createContext({
+      metadata: {
+        Application: "CGAE Audit",
+        // Additional metadata could be passed here if available, e.g., Model: model_name
+      },
+    });
+    console.error(`Created/reused StorageContext: ${context.contextId}`); // Use stderr for logs
+  } catch (e) {
+    writeError(`Failed to create StorageContext: ${e.message}`);
+    process.exit(1);
+  }
+
+
   // Upload the file bytes directly via synapse.storage
   let uploadResult;
   try {
-    uploadResult = await synapse.storage.upload(fileBytes);
+    uploadResult = await synapse.storage.upload(fileBytes, { context }); // Pass the context here
   } catch (e) {
     writeError(`Failed to upload: ${e.message}`);
     process.exit(1);

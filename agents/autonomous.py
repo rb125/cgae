@@ -668,7 +668,7 @@ class PlanningLayer:
             # Budget eligibility (approximate — exact check in economy)
             if task.penalty > utilisation_limit:
                 continue
-            if not accounting.can_afford(task.penalty, est_token_cost=0.01):
+            if not accounting.can_afford(task.penalty, token_cost=0.01):
                 continue
             pp = perception.estimated_pass_prob(task)
             sc = self.score_task(task, state, pp)

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@filoz/synapse-sdk": "^0.37.0",
-    "viem": "^2.0.0"
+    "viem": "^2.46.2"
   },
   "engines": {
     "node": ">=18.0.0"

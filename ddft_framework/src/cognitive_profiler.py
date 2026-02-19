@@ -121,7 +121,17 @@ class CognitiveProfiler:
 
         # Create subject agent
         if isinstance(model, dict):
-            self.subject_agent = create_agent(subject_config=model, api_keys=api_keys)
+            subject_api_key_env_var = model.get("api_key_env_var", "AZURE_API_KEY")
+            subject_endpoint_env_var = model.get("endpoint_env_var")
+            subject_api_key = self.api_keys.get(subject_api_key_env_var)
+            subject_endpoint = self.api_keys.get(subject_endpoint_env_var) if subject_endpoint_env_var else None
+
+            self.subject_agent = create_agent(
+                subject_config=model,
+                api_keys=api_keys, # Still pass the dict for other lookups if needed
+                resolved_api_key=subject_api_key,
+                resolved_endpoint=subject_endpoint
+            )
         else:
             # Simple model name - create default config
             self.subject_agent = self._create_agent_from_name(model, api_keys)
@@ -134,7 +144,14 @@ class CognitiveProfiler:
             "api_key_env_var": "AZURE_API_KEY",
             "endpoint_env_var": "AZURE_OPENAI_API_ENDPOINT"
         }
-        interviewer_agent = create_agent(subject_config=interviewer_config, api_keys=api_keys)
+        interviewer_api_key = self.api_keys.get(interviewer_config["api_key_env_var"])
+        interviewer_endpoint = self.api_keys.get(interviewer_config["endpoint_env_var"])
+        interviewer_agent = create_agent(
+            subject_config=interviewer_config,
+            api_keys=api_keys,
+            resolved_api_key=interviewer_api_key,
+            resolved_endpoint=interviewer_endpoint
+        )
         self.interviewer = InterviewerAgent(interviewer_agent)
 
         # Create jury
@@ -150,7 +167,16 @@ class CognitiveProfiler:
             "api_key_env_var": "AZURE_API_KEY",
             "endpoint_env_var": "AZURE_OPENAI_API_ENDPOINT"
         }
-        return create_agent(subject_config=config, api_keys=api_keys)
+        # Resolve api_key and endpoint using the provided api_keys dict
+        resolved_api_key = api_keys.get(config["api_key_env_var"])
+        resolved_endpoint = api_keys.get(config["endpoint_env_var"])
+
+        return create_agent(
+            subject_config=config,
+            api_keys=api_keys, # Still pass the dict for other lookups if needed
+            resolved_api_key=resolved_api_key,
+            resolved_endpoint=resolved_endpoint
+        )
 
     def run_complete_assessment(
         self,
