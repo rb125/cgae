@@ -1,5 +1,5 @@
 """
-Audit Orchestration - Bridges existing CDCT, DDFT, and EECT frameworks
+Audit Orchestration - Bridges the CDCT, DDFT, and EECT framework APIs
 into CGAE robustness scores.
 
 Maps framework-specific metrics to the CGAE robustness vector:
@@ -8,9 +8,16 @@ Maps framework-specific metrics to the CGAE robustness vector:
 - EECT/AGT -> AS (Behavioral Alignment): ACT * III * (1-RI) * (1-PER)
 - IHT -> IH* (Intrinsic Hallucination integrity): 1 - IH(A)
 
+The three diagnostic frameworks are hosted as independent API services.
+This module calls them over HTTP via cgae_engine.framework_clients.
+Configure their URLs via environment variables:
+  CDCT_API_URL  — default http://localhost:8001
+  DDFT_API_URL  — default http://localhost:8002
+  EECT_API_URL  — default http://localhost:8003
+
 Supports two modes:
-1. Live audit: actually runs the frameworks against a model endpoint
-2. Pre-scored: loads existing results from framework output files
+1. Live audit: calls framework APIs to run fresh assessments against a model endpoint
+2. Pre-scored: queries framework APIs for stored results for a given model
 """
 
 from __future__ import annotations
@@ -360,33 +367,41 @@ class AuditOrchestrator:
     Orchestrates the full CGAE audit battery.
 
     Supports:
-    1. Loading pre-computed results from existing framework outputs
-    2. Running fresh audits via framework entry points
+    1. Fetching pre-computed scores from hosted framework APIs
+    2. Running fresh audits via framework API endpoints
     3. Synthetic audits for simulation/testing
+
+    The three framework services (CDCT, DDFT, EECT) are hosted independently.
+    Configure their URLs via environment variables or pass them directly:
+      CDCT_API_URL  — default http://localhost:8001
+      DDFT_API_URL  — default http://localhost:8002
+      EECT_API_URL  — default http://localhost:8003
     """
 
     def __init__(
         self,
-        azure_api_key: str,
-        azure_openai_endpoint: str,
-        ddft_models_endpoint: str,
+        azure_api_key: Optional[str] = None,
+        azure_openai_endpoint: Optional[str] = None,
+        ddft_models_endpoint: Optional[str] = None,
         azure_anthropic_api_endpoint: Optional[str] = None,
-        cdct_results_dir: Optional[str] = None,
-        ddft_results_dir: Optional[str] = None,
-        eect_results_dir: Optional[str] = None,
+        cdct_api_url: Optional[str] = None,
+        ddft_api_url: Optional[str] = None,
+        eect_api_url: Optional[str] = None,
     ):
-        self.azure_api_key = azure_api_key
-        self.azure_openai_endpoint = azure_openai_endpoint
-        self.ddft_models_endpoint = ddft_models_endpoint
-        self.azure_anthropic_api_endpoint = azure_anthropic_api_endpoint
-        self.cdct_dir = Path(cdct_results_dir) if cdct_results_dir else None
-        self.ddft_dir = Path(ddft_results_dir) if ddft_results_dir else None
-        self.eect_dir = Path(eect_results_dir) if eect_results_dir else None
+        # Credentials — prefer explicit args, fall back to env vars
+        self.azure_api_key = azure_api_key or os.getenv("AZURE_API_KEY")
+        self.azure_openai_endpoint = azure_openai_endpoint or os.getenv("AZURE_OPENAI_API_ENDPOINT")
+        self.ddft_models_endpoint = ddft_models_endpoint or os.getenv("DDFT_MODELS_ENDPOINT")
+        self.azure_anthropic_api_endpoint = azure_anthropic_api_endpoint or os.getenv("AZURE_ANTHROPIC_API_ENDPOINT")
+        from cgae_engine.framework_clients import CDCTClient, DDFTClient, EECTClient
+        self._cdct = CDCTClient(cdct_api_url)
+        self._ddft = DDFTClient(ddft_api_url)
+        self._eect = EECTClient(eect_api_url)
 
     def audit_from_results(self, agent_id: str, model_name: str) -> AuditResult:
         """
-        Compute robustness vector from pre-existing framework results.
-        Looks for result files matching the model name in each framework directory.
+        Compute robustness vector from pre-computed framework scores.
+        Queries each hosted framework API for stored results for *model_name*.
 
         ``defaults_used`` on the returned result lists any dimensions where no
         real framework data was found and the 0.5 / 0.7 midpoint was substituted.
@@ -453,92 +468,46 @@ class AuditOrchestrator:
         )
 
     def _load_cdct_score(self, model_name: str) -> tuple[float, bool]:
-        """Return (cc_score, used_default).  used_default=True when no CDCT data found."""
-        if self.cdct_dir is None:
-            return 0.5, True
-        # Look for jury results matching model name
-        for f in self.cdct_dir.glob(f"*{model_name}*jury*.json"):
-            try:
-                data = json.loads(f.read_text())
-                score = compute_cc_from_cdct_results(data)
-                if score > 0.0:
-                    return score, False
-            except Exception as e:
-                logger.warning(f"Failed to load CDCT results from {f}: {e}")
-        # Try metrics file
-        for f in self.cdct_dir.glob(f"*{model_name}*metrics*.json"):
-            try:
-                data = json.loads(f.read_text())
-                score = compute_cc_from_cdct_metrics(data)
-                if score > 0.0:
-                    return score, False
-            except Exception as e:
-                logger.warning(f"Failed to load CDCT metrics from {f}: {e}")
+        """Return (cc_score, used_default).  Queries CDCT API for pre-computed score."""
+        try:
+            data = self._cdct.get_score(model_name)
+            if data.get("found") and data.get("cc", 0.0) > 0.0:
+                return float(data["cc"]), False
+        except Exception as e:
+            logger.warning(f"CDCT API unavailable for {model_name}: {e}")
         logger.warning(f"No CDCT data found for {model_name}; CC will use fallback")
         return 0.5, True
 
     def _load_ddft_score(self, model_name: str) -> tuple[float, bool]:
-        """Return (er_score, used_default).  used_default=True when no DDFT data found."""
-        if self.ddft_dir is None:
-            return 0.5, True
-        all_er = []
-        for f in self.ddft_dir.glob(f"*{model_name}*.json"):
-            try:
-                data = json.loads(f.read_text())
-                er = compute_er_from_ddft_results(data)
-                if er > 0:
-                    all_er.append(er)
-            except Exception as e:
-                logger.warning(f"Failed to load DDFT results from {f}: {e}")
-        if all_er:
-            return sum(all_er) / len(all_er), False
-        # Try rankings CSV
-        rankings = self.ddft_dir / "paper_logic_rankings.csv"
-        if rankings.exists():
-            for line in rankings.read_text().splitlines()[1:]:
-                parts = line.split(",")
-                if parts and model_name.lower() in parts[0].lower():
-                    try:
-                        ci = float(parts[1])
-                        return compute_er_from_ddft_ci(ci), False
-                    except (ValueError, IndexError):
-                        pass
+        """Return (er_score, used_default).  Queries DDFT API for pre-computed score."""
+        try:
+            data = self._ddft.get_score(model_name)
+            if data.get("found") and data.get("er", 0.0) > 0.0:
+                return float(data["er"]), False
+        except Exception as e:
+            logger.warning(f"DDFT API unavailable for {model_name}: {e}")
         logger.warning(f"No DDFT data found for {model_name}; ER will use fallback")
         return 0.5, True
 
     def _load_eect_score(self, model_name: str) -> tuple[float, bool]:
-        """Return (as_score, used_default).  used_default=True when no EECT data found."""
-        if self.eect_dir is None:
-            return 0.5, True
-        scored_dir = self.eect_dir / "scored"
-        if not scored_dir.exists():
-            scored_dir = self.eect_dir
-        for f in scored_dir.glob(f"*{model_name}*scored*.json"):
-            try:
-                data = json.loads(f.read_text())
-                score = compute_as_from_eect_results(data)
-                if score > 0.0:
-                    return score, False
-            except Exception as e:
-                logger.warning(f"Failed to load EECT results from {f}: {e}")
+        """Return (as_score, used_default).  Queries EECT API for pre-computed score."""
+        try:
+            data = self._eect.get_score(model_name)
+            if data.get("found") and data.get("as_", 0.0) > 0.0:
+                return float(data["as_"]), False
+        except Exception as e:
+            logger.warning(f"EECT API unavailable for {model_name}: {e}")
         logger.warning(f"No EECT data found for {model_name}; AS will use fallback")
         return 0.5, True
 
     def _load_ih_score(self, model_name: str) -> tuple[float, bool]:
-        """Return (ih_score, used_default).  used_default=True when no DDFT data found."""
-        if self.ddft_dir is None:
-            return 0.7, True  # Default: assume moderate epistemic integrity
-        all_ih = []
-        for f in self.ddft_dir.glob(f"*{model_name}*.json"):
-            try:
-                data = json.loads(f.read_text())
-                ih = estimate_ih_from_ddft(data)
-                if ih > 0:
-                    all_ih.append(ih)
-            except Exception:
-                pass
-        if all_ih:
-            return sum(all_ih) / len(all_ih), False
+        """Return (ih_score, used_default).  Queries DDFT API for pre-computed IH score."""
+        try:
+            data = self._ddft.get_score(model_name)
+            if data.get("found") and data.get("ih", 0.0) > 0.0:
+                return float(data["ih"]), False
+        except Exception as e:
+            logger.warning(f"DDFT API unavailable for IH score of {model_name}: {e}")
         return 0.7, True
 
     # ------------------------------------------------------------------
@@ -651,59 +620,40 @@ class AuditOrchestrator:
         self, model_name: str, model_config: dict, cache_dir: Optional[Path]
     ) -> tuple[float, float]:
         """
-        Run DDFT CognitiveProfiler against a live model.
+        Run DDFT assessment via the hosted DDFT API service.
         Returns (er_score, ih_score).
         Cache file: cache_dir/<model_name>_ddft_live.json
         """
-        import sys as _sys
-        _base = Path(__file__).resolve().parents[1]
-        ddft_src = str(_base / "ddft_framework" / "src")
-
         if cache_dir:
             cached = cache_dir / f"{model_name}_ddft_live.json"
             if cached.exists():
                 data = json.loads(cached.read_text())
                 return data["er"], data["ih"]
 
-        _orig_sys_path = list(_sys.path)
-        if ddft_src not in _sys.path:
-            _sys.path.insert(0, ddft_src)
-        try:
-            from cognitive_profiler import CognitiveProfiler  # type: ignore
+        api_keys = {
+            "AZURE_API_KEY": self.azure_api_key,
+            "AZURE_OPENAI_API_ENDPOINT": self.azure_openai_endpoint,
+            "DDFT_MODELS_ENDPOINT": self.ddft_models_endpoint,
+            "AZURE_ANTHROPIC_API_ENDPOINT": self.azure_anthropic_api_endpoint,
+        }
 
-            api_keys = {
-                "AZURE_API_KEY": self.azure_api_key,
-                "AZURE_OPENAI_API_ENDPOINT": self.azure_openai_endpoint,
-                "DDFT_MODELS_ENDPOINT": self.ddft_models_endpoint,
-                "AZURE_ANTHROPIC_API_ENDPOINT": self.azure_anthropic_api_endpoint,
-            }
+        result = self._ddft.assess(
+            model_name=model_name,
+            model_config=model_config,
+            api_keys=api_keys,
+            concepts=["Natural Selection", "Recursion"],
+            compression_levels=[0.0, 0.5, 1.0],
+        )
 
-            concepts_dir = str(_base / "ddft_framework" / "concepts")
-            results_dir = str(_base / "ddft_framework" / "results")
-
-            profiler = CognitiveProfiler(
-                model=model_config,
-                api_keys=api_keys,
-                concepts_dir=concepts_dir,
-                results_dir=results_dir,
-            )
-            profile = profiler.run_complete_assessment(
-                concepts=["Natural Selection", "Recursion"],
-                compression_levels=[0.0, 0.5, 1.0],
-                save_results=True,
-            )
-        finally:
-            _sys.path[:] = _orig_sys_path
-
-        er = compute_er_from_ddft_ci(profile.ci_score)
-        ih_raw = getattr(profile, "hoc", 0.5)
-        ih = compute_ih_star(1.0 - min(1.0, max(0.0, ih_raw)))
+        er = float(result.get("er", 0.5))
+        ih = float(result.get("ih", 0.7))
 
         if cache_dir:
             cache_dir.mkdir(parents=True, exist_ok=True)
             (cache_dir / f"{model_name}_ddft_live.json").write_text(
-                json.dumps({"er": er, "ih": ih, "ci_score": profile.ci_score,
-                            "phenotype": profile.phenotype}, indent=2)
+                json.dumps({"er": er, "ih": ih,
+                            "ci_score": result.get("ci_score"),
+                            "phenotype": result.get("phenotype")}, indent=2)
             )
         return er, ih
 
@@ -711,54 +661,35 @@ class AuditOrchestrator:
         self, model_name: str, llm_agent: Any, cache_dir: Optional[Path]
     ) -> float:
         """
-        Run CDCT experiment against a live model.
-        Returns cc_score.  Uses the modus_ponens concept (logic).
+        Run CDCT experiment via the hosted CDCT API service.
+        Returns cc_score.
         Cache file: cache_dir/<model_name>_cdct_live.json
         """
-        import sys as _sys
-        _base = Path(__file__).resolve().parents[1]
-        cdct_src = str(_base / "cdct_framework" / "src")
-
         if cache_dir:
             cached = cache_dir / f"{model_name}_cdct_live.json"
             if cached.exists():
                 data = json.loads(cached.read_text())
                 return data["cc"]
 
-        concept_path = str(
-            _base / "cdct_framework" / "concepts" / "logic_modus_ponens.json"
+        api_keys = {
+            "AZURE_API_KEY": self.azure_api_key,
+            "AZURE_OPENAI_API_ENDPOINT": self.azure_openai_endpoint,
+            "DDFT_MODELS_ENDPOINT": self.ddft_models_endpoint,
+            "AZURE_ANTHROPIC_API_ENDPOINT": self.azure_anthropic_api_endpoint,
+        }
+
+        model_config = getattr(llm_agent, "model_config", {})
+
+        result = self._cdct.run_experiment(
+            model_name=model_name,
+            model_config=model_config,
+            api_keys=api_keys,
+            concept="logic_modus_ponens",
+            prompt_strategy="compression_aware",
+            evaluation_mode="balanced",
         )
 
-        # Adapter: bridge LLMAgent → CDCT Agent interface
-        class _CDCTAdapter:
-            def __init__(self, agent: Any):
-                self.model_name = agent.model_name
-                self._a = agent
-
-            def query(self, prompt: str) -> str:
-                return self._a.execute_task(prompt)
-
-            def chat(self, messages: list) -> str:
-                return self._a.chat(messages)
-
-        adapter = _CDCTAdapter(llm_agent)
-
-        _orig = list(_sys.path)
-        if cdct_src not in _sys.path:
-            _sys.path.insert(0, cdct_src)
-        try:
-            from experiment import run_experiment  # type: ignore
-            results = run_experiment(
-                concept_path=concept_path,
-                agent=adapter,
-                prompt_strategy="compression_aware",
-                evaluation_mode="balanced",
-                verbose=False,
-            )
-        finally:
-            _sys.path[:] = _orig
-
-        cc = compute_cc_from_cdct_results(results)
+        cc = float(result.get("cc", 0.5))
 
         if cache_dir:
             cache_dir.mkdir(parents=True, exist_ok=True)
@@ -771,56 +702,42 @@ class AuditOrchestrator:
         self, model_name: str, llm_agent: Any, cache_dir: Optional[Path]
     ) -> float:
         """
-        Run EECT Socratic dialogue against a live model.
-        Returns as_score computed from raw turns via heuristics.
+        Run EECT Socratic dialogues via the hosted EECT API service.
+        Returns as_score.
         Cache file: cache_dir/<model_name>_eect_live.json
         """
-        import sys as _sys
-        _base = Path(__file__).resolve().parents[1]
-        eect_root = str(_base / "eect_framework")
-
         if cache_dir:
             cached = cache_dir / f"{model_name}_eect_live.json"
             if cached.exists():
                 data = json.loads(cached.read_text())
                 return data["as"]
 
-        # Load the first two dilemmas
-        dilemmas_path = _base / "eect_framework" / "dilemmas.json"
-        dilemmas = json.loads(dilemmas_path.read_text())[:2]
+        api_keys = {
+            "AZURE_API_KEY": self.azure_api_key,
+            "AZURE_OPENAI_API_ENDPOINT": self.azure_openai_endpoint,
+            "DDFT_MODELS_ENDPOINT": self.ddft_models_endpoint,
+            "AZURE_ANTHROPIC_API_ENDPOINT": self.azure_anthropic_api_endpoint,
+        }
 
-        # Adapter: bridge LLMAgent → EECT Agent interface
-        class _EECTAdapter:
-            def __init__(self, agent: Any):
-                self.model_name = agent.model_name
-                self._a = agent
+        model_config = getattr(llm_agent, "model_config", {})
 
-            def query(self, prompt: str) -> str:
-                return self._a.execute_task(prompt)
-
-            def chat(self, messages: list) -> str:
-                return self._a.chat(messages)
-
-        adapter = _EECTAdapter(llm_agent)
-
-        _orig = list(_sys.path)
-        if eect_root not in _sys.path:
-            _sys.path.insert(0, eect_root)
-        try:
-            from src.evaluation import EECTEvaluator  # type: ignore
-            evaluator = EECTEvaluator(subject_agent=adapter)
-
-            all_turns: list[list] = []
-            for dilemma in dilemmas:
-                try:
-                    turns = evaluator.run_socratic_dialogue_raw(
-                        dilemma=dilemma, compression_level="c1.0"
-                    )
+        # Run two dilemmas and average the AS scores
+        dilemma_ids = ["trolley_problem", "lying_to_save_lives"]
+        all_turns: list[list] = []
+        for dilemma_id in dilemma_ids:
+            try:
+                resp = self._eect.run_dialogue(
+                    model_name=model_name,
+                    model_config=model_config,
+                    api_keys=api_keys,
+                    dilemma={"id": dilemma_id},
+                    compression_level="c1.0",
+                )
+                turns = resp.get("turns", [])
+                if turns:
                     all_turns.append(turns)
-                except Exception as e:
-                    logger.warning(f"  EECT dialogue failed for dilemma {dilemma.get('id')}: {e}")
-        finally:
-            _sys.path[:] = _orig
+            except Exception as e:
+                logger.warning(f"  EECT dialogue failed for dilemma {dilemma_id}: {e}")
 
         if not all_turns:
             raise RuntimeError("No EECT dialogues completed successfully")
