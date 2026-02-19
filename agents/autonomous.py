@@ -368,15 +368,17 @@ class PerceptionLayer:
     def estimated_pass_prob(self, task: Any) -> float:
         """
         Estimate pass probability for a task based on constraint and domain history.
-        Falls back to 0.5 when no history is available.
+        Falls back to 0.65 when no history is available — modern LLMs pass
+        straightforward tasks at well above chance, so 0.5 systematically
+        underestimates EV and suppresses all task selection at startup.
         """
         domain = getattr(task, "domain", "unknown")
-        domain_rate = self.domain_pass_rates.get(domain, 0.5)
+        domain_rate = self.domain_pass_rates.get(domain, 0.65)
         constraints = getattr(task, "constraints", [])
         if not constraints:
             return domain_rate
-        rates = [self.constraint_pass_rates.get(c.name, 0.5) for c in constraints]
-        constraint_rate = math.prod(rates) if rates else 0.5
+        rates = [self.constraint_pass_rates.get(c.name, 0.65) for c in constraints]
+        constraint_rate = math.prod(rates) if rates else 0.65
         return (constraint_rate + domain_rate) / 2.0
 
 
@@ -604,8 +606,12 @@ class PlanningLayer:
         pass_prob: float,
     ) -> ScoredContract:
         """Score a single task and wrap it as a ScoredContract."""
-        # Rough token cost estimate: 800 input + 400 output for the domain
-        est_token_cost = self._token_cost_fn(state.model_name, 800, 400)
+        # Token estimate scales with task tier: simpler tasks use fewer tokens.
+        # T1≈200+100, T2≈400+200, T3≈600+300, T4+≈800+400
+        tier_val = getattr(getattr(task, "tier", None), "value", 2)
+        in_tokens  = max(200, min(800, 200 * tier_val))
+        out_tokens = max(100, min(400, 100 * tier_val))
+        est_token_cost = self._token_cost_fn(state.model_name, in_tokens, out_tokens)
 
         reward = task.reward
         penalty = task.penalty
