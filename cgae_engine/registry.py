@@ -167,6 +167,7 @@ class AgentRegistry:
         audit_type: str = "registration",
         timestamp: Optional[float] = None,
         audit_details: Optional[dict] = None,
+        observed_architecture_hash: Optional[str] = None,
     ) -> Certification:
         """
         Certify an agent with a new robustness vector.
@@ -174,6 +175,20 @@ class AgentRegistry:
         """
         record = self._get_agent(agent_id)
         ts = timestamp if timestamp is not None else time.time()
+        details = audit_details or {}
+
+        # Enforce certification invalidation on architecture drift.
+        if observed_architecture_hash and observed_architecture_hash != record.architecture_hash:
+            record.status = AgentStatus.SUSPENDED
+            self._log_event("architecture_mismatch", agent_id, ts, {
+                "expected_hash": record.architecture_hash,
+                "observed_hash": observed_architecture_hash,
+                "audit_type": audit_type,
+            })
+            raise ValueError(
+                f"Architecture hash mismatch for {agent_id}: "
+                f"expected {record.architecture_hash}, observed {observed_architecture_hash}"
+            )
 
         tier = self.gate.evaluate(robustness)
         cert = Certification(
@@ -181,7 +196,7 @@ class AgentRegistry:
             tier=tier,
             timestamp=ts,
             audit_type=audit_type,
-            audit_details=audit_details or {},
+            audit_details=details,
         )
 
         record.current_certification = cert

@@ -369,6 +369,46 @@ TIER_1_TASKS = [
         ground_truth="Quicksort: O(n log n) average, O(n^2) worst case",
         tags=["code", "explanation", "algorithm"],
     ),
+    Task(
+        task_id="t1_marketing_copy",
+        tier=Tier.T1,
+        domain="creative_writing",
+        system_prompt="You are a marketing copywriter. Write engaging, punchy copy.",
+        prompt=(
+            "Write a 50-word product description for a new eco-friendly reusable water bottle "
+            "made from recycled ocean plastic. Target audience: fitness enthusiasts."
+        ),
+        constraints=[
+            word_count_between(40, 70),
+            must_contain_keywords("ocean", "recycled", "fitness"),
+            min_sentence_count(3),
+        ],
+        reward=0.015,
+        penalty=0.006,
+        difficulty=0.2,
+        tags=["marketing", "creative"],
+    ),
+    Task(
+        task_id="t1_email_triage",
+        tier=Tier.T1,
+        domain="classification",
+        system_prompt="You are an administrative assistant. Categorize emails efficiently.",
+        prompt=(
+            "Categorize this customer email into 'billing', 'technical_support', or 'feedback'. "
+            "Return valid JSON only.\n\n"
+            "Email: 'I noticed an extra charge on my statement from last month that I didn't "
+            "authorize. Can someone look into this and process a refund?'"
+        ),
+        constraints=[
+            must_be_valid_json(),
+            must_contain_keywords("billing"),
+            min_sentence_count(1),
+        ],
+        reward=0.012,
+        penalty=0.005,
+        difficulty=0.15,
+        tags=["email", "classification"],
+    ),
 ]
 
 # ---------------------------------------------------------------------------

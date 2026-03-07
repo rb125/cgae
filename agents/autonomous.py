@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import logging
 import math
+import random
 import re
 import time
 from abc import ABC, abstractmethod
@@ -690,8 +691,10 @@ class PlanningLayer:
         if not ranked_scores:
             return None
 
-        # Return the original task for the top-ranked scored contract
-        top_id = ranked_scores[0].task_id
+        # To avoid repetition, pick randomly from top N (e.g., top 3)
+        top_n = ranked_scores[:3]
+        selected_sc = random.choice(top_n)
+        top_id = selected_sc.task_id
         for task, sc in scored:
             if task.task_id == top_id:
                 if sc.risk_adjusted_ev > 0 or state.effective_tier == Tier.T0:

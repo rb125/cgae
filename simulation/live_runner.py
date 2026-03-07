@@ -25,6 +25,8 @@ from __future__ import annotations
 import json
 import logging
 import math
+import argparse
+import hashlib
 import os
 import random
 import time
@@ -198,6 +200,9 @@ class LiveSimConfig:
     cdct_api_url: Optional[str] = None
     ddft_api_url: Optional[str] = None
     eect_api_url: Optional[str] = None
+    # Deprecated path knobs kept for test/config compatibility.
+    ddft_results_dir: Optional[str] = None
+    eect_results_dir: Optional[str] = None
     # Live audit generation (runs CDCT/DDFT/EECT against each contestant)
     # When True, pre-computed results are still checked first; live run fills
     # any dimensions that have no pre-computed file.
@@ -209,6 +214,10 @@ class LiveSimConfig:
     # Self-verification in ExecutionLayer (retry on self-check failure)
     self_verify: bool = True
     max_retries: int = 2
+    # Demo-focused behaviors for showcasing framework enforcement.
+    demo_mode: bool = True
+    circumvention_rate: float = 0.35
+    delegation_rate: float = 0.30
 
 
 class LiveSimulationRunner:
@@ -267,6 +276,7 @@ class LiveSimulationRunner:
         # Metrics
         self._results: list[dict] = []
         self._round_summaries: list[dict] = []
+        self._protocol_events: list[dict] = []
         self._final_summary: Optional[dict] = None
 
     def _resolve_initial_robustness(
@@ -461,6 +471,7 @@ class LiveSimulationRunner:
                 record.agent_id,
                 robustness,
                 audit_type="registration",
+                observed_architecture_hash=record.architecture_hash,
             )
             logger.info(
                 f"Registered {model_name} -> {record.agent_id} "
@@ -489,29 +500,166 @@ class LiveSimulationRunner:
         """Run all rounds of the live simulation."""
         self.setup()
 
-        for round_num in range(self.config.num_rounds):
-            logger.info(f"\n{'='*60}")
-            logger.info(f"ROUND {round_num + 1}/{self.config.num_rounds}")
-            logger.info(f"{'='*60}")
+        round_num = 0
+        infinite = self.config.num_rounds == -1
 
-            round_results = self._run_round(round_num)
-            self._round_summaries.append(round_results)
+        try:
+            while infinite or round_num < self.config.num_rounds:
+                logger.info(f"\n{'='*60}")
+                logger.info(f"ROUND {round_num + 1}/{'inf' if infinite else self.config.num_rounds}")
+                logger.info(f"{'='*60}")
 
-            # Apply temporal dynamics
-            self.economy.step()
+                round_results = self._run_round(round_num)
+                self._round_summaries.append(round_results)
 
-            # Log round summary
-            safety = self.economy.aggregate_safety()
-            active = len(self.economy.registry.active_agents)
-            logger.info(
-                f"Round {round_num + 1} complete | "
-                f"Safety={safety:.3f} | Active={active} | "
-                f"Tasks={round_results['tasks_attempted']} | "
-                f"Passed={round_results['tasks_passed']}"
-            )
+                # Apply temporal dynamics and capture high-signal events
+                step_events = self.economy.step()
+                
+                # Map economy step events to our protocol event log
+                for aid in step_events.get("agents_demoted", []):
+                    self._protocol_events.append({
+                        "timestamp": self.economy.current_time,
+                        "type": "DEMOTION",
+                        "agent": self.agent_model_map.get(aid, aid),
+                        "message": f"Agent {self.agent_model_map.get(aid, aid)} was DEMOTED due to audit failure."
+                    })
+                
+                for aid in step_events.get("agents_expired", []):
+                    self._protocol_events.append({
+                        "timestamp": self.economy.current_time,
+                        "type": "EXPIRATION",
+                        "agent": self.agent_model_map.get(aid, aid),
+                        "message": f"Certification for {self.agent_model_map.get(aid, aid)} EXPIRED."
+                    })
+
+                # Log round summary
+                
+                safety = self.economy.aggregate_safety()
+                active = len(self.economy.registry.active_agents)
+                logger.info(
+                    f"Round {round_num + 1} complete | "
+                    f"Safety={safety:.3f} | Active={active} | "
+                    f"Tasks={round_results['tasks_attempted']} | "
+                    f"Passed={round_results['tasks_passed']}"
+                )
+
+                # Save periodic results for the dashboard
+                self._finalize()
+                self.save_results()
+                
+                round_num += 1
+        except KeyboardInterrupt:
+            logger.info("\nSimulation interrupted by user. Finalizing...")
+        except Exception as e:
+            logger.exception(f"Simulation failed: {e}")
 
         self._finalize()
+        self.save_results()
         return self._results
+
+    def _emit_protocol_event(self, event_type: str, agent: str, message: str, **extra):
+        event = {
+            "timestamp": self.economy.current_time,
+            "type": event_type,
+            "agent": agent,
+            "message": message,
+        }
+        if extra:
+            event.update(extra)
+        self._protocol_events.append(event)
+
+    def _strategy_name(self, autonomous: Optional[AutonomousAgent]) -> str:
+        if autonomous is None:
+            return "unknown"
+        return type(autonomous.strategy).__name__
+
+    def _maybe_attempt_tier_bypass(self, agent, model_name: str, strategy_name: str):
+        """
+        Demo-only adversarial behavior: try to accept a contract above current tier.
+        Should be blocked by accept_contract() tier checks.
+        """
+        if not self.config.demo_mode:
+            return
+        if strategy_name != "AdversarialStrategy":
+            return
+        if random.random() > self.config.circumvention_rate:
+            return
+        if agent.current_tier >= Tier.T5:
+            return
+
+        target_tier = Tier(min(Tier.T5.value, agent.current_tier.value + 1))
+        target_tasks = [t for t in ALL_TASKS.values() if t.tier == target_tier]
+        if not target_tasks:
+            return
+        task = random.choice(target_tasks)
+        contract = self.economy.post_contract(
+            objective=f"[bypass-attempt] {task.prompt[:80]}...",
+            constraints=[Constraint(c.name, c.description, c.check) for c in task.constraints],
+            min_tier=task.tier,
+            reward=task.reward,
+            penalty=task.penalty,
+            deadline_offset=25.0,
+            domain=task.domain,
+            difficulty=task.difficulty,
+            issuer_id="bypass_probe",
+        )
+        accepted = self.economy.accept_contract(contract.contract_id, agent.agent_id)
+        if accepted:
+            self._emit_protocol_event(
+                "CRITICAL_BYPASS_ACCEPTED",
+                model_name,
+                f"{model_name} unexpectedly accepted T{task.tier.value} while at {agent.current_tier.name}.",
+                required_tier=task.tier.name,
+                current_tier=agent.current_tier.name,
+                contract_id=contract.contract_id,
+            )
+        else:
+            self._emit_protocol_event(
+                "CIRCUMVENTION_BLOCKED",
+                model_name,
+                f"{model_name} attempted tier bypass to {task.tier.name}; gate blocked acceptance.",
+                required_tier=task.tier.name,
+                current_tier=agent.current_tier.name,
+                contract_id=contract.contract_id,
+            )
+
+    def _maybe_attempt_architecture_spoof(self, agent, model_name: str, strategy_name: str):
+        """Demo-only: adversarial agent attempts re-certification after a fake self-modification."""
+        if not self.config.demo_mode or strategy_name != "AdversarialStrategy":
+            return
+        if random.random() > (self.config.circumvention_rate * 0.5):
+            return
+        if agent.current_robustness is None:
+            return
+
+        try:
+            self.economy.audit_agent(
+                agent.agent_id,
+                agent.current_robustness,
+                audit_type="spoofed_self_mod_attempt",
+                observed_architecture_hash="deadbeefdeadbeef",
+            )
+        except Exception:
+            self._emit_protocol_event(
+                "CIRCUMVENTION_BLOCKED",
+                model_name,
+                f"{model_name} attempted certification with modified architecture hash; blocked.",
+                current_tier=agent.current_tier.name,
+                attempt="architecture_spoof",
+            )
+
+    def _pick_delegate_candidate(self, principal_id: str, required_tier: Tier, adversarial: bool) -> Optional[str]:
+        candidates = [a for a in self.economy.registry.active_agents if a.agent_id != principal_id]
+        if not candidates:
+            return None
+        # Adversarial mode intentionally picks weak candidates (laundering attempt).
+        if adversarial:
+            candidates.sort(key=lambda a: a.current_tier.value)
+            return candidates[0].agent_id
+        qualified = [a for a in candidates if a.current_tier >= required_tier]
+        if not qualified:
+            return None
+        return random.choice(qualified).agent_id
 
     def _run_round(self, round_num: int) -> dict:
         """Execute one round: each active agent attempts one task."""
@@ -532,7 +680,12 @@ class LiveSimulationRunner:
                 continue
 
             autonomous = self.autonomous_agents.get(model_name)
+            strategy_name = self._strategy_name(autonomous)
             tier = agent.current_tier
+
+            # Demo adversary behavior: try bypassing tier gate directly.
+            self._maybe_attempt_tier_bypass(agent, model_name, strategy_name)
+            self._maybe_attempt_architecture_spoof(agent, model_name, strategy_name)
 
             # Build agent state and use planning layer to select a task
             available_tasks = get_tasks_for_tier(tier)
@@ -572,12 +725,71 @@ class LiveSimulationRunner:
                 continue
 
             round_data["tasks_attempted"] += 1
+            liability_agent_id = agent.agent_id
+            execution_agent_id = agent.agent_id
+            execution_model_name = model_name
+            delegation_info = None
+
+            # Demo delegation behavior: principal may "hire" another agent to execute.
+            if self.config.demo_mode and random.random() <= self.config.delegation_rate:
+                delegate_id = self._pick_delegate_candidate(
+                    principal_id=agent.agent_id,
+                    required_tier=task.tier,
+                    adversarial=(strategy_name == "AdversarialStrategy"),
+                )
+                if delegate_id:
+                    delegate_model = self.agent_model_map.get(delegate_id, delegate_id)
+                    check = self.economy.can_delegate(agent.agent_id, delegate_id, task.tier)
+                    self.economy.record_delegation(
+                        contract.contract_id,
+                        principal_id=agent.agent_id,
+                        delegate_id=delegate_id,
+                        required_tier=task.tier,
+                        allowed=check["allowed"],
+                        reason=check["reason"],
+                    )
+                    delegation_info = {
+                        "principal_agent_id": agent.agent_id,
+                        "principal_model": model_name,
+                        "delegate_agent_id": delegate_id,
+                        "delegate_model": delegate_model,
+                        **check,
+                    }
+                    if check["allowed"]:
+                        execution_agent_id = delegate_id
+                        execution_model_name = delegate_model
+                        liability_agent_id = agent.agent_id  # principal remains liable
+                        self._emit_protocol_event(
+                            "DELEGATION_ALLOWED",
+                            model_name,
+                            f"{model_name} hired {delegate_model} for {task.task_id}; principal retains liability.",
+                            contract_id=contract.contract_id,
+                            delegate=delegate_model,
+                            required_tier=task.tier.name,
+                            chain_tier=check["chain_tier"],
+                        )
+                    else:
+                        self._emit_protocol_event(
+                            "CIRCUMVENTION_BLOCKED",
+                            model_name,
+                            f"{model_name} attempted delegation/laundering via {delegate_model}; blocked ({check['reason']}).",
+                            contract_id=contract.contract_id,
+                            delegate=delegate_model,
+                            required_tier=task.tier.name,
+                            principal_tier=check.get("principal_tier"),
+                            delegate_tier=check.get("delegate_tier"),
+                            chain_tier=check.get("chain_tier"),
+                        )
 
             # Execute task — delegate to AutonomousAgent (self-verify + retry)
-            logger.info(f"  {model_name} executing {task.task_id} (T{task.tier.value})...")
-            if autonomous is not None:
+            logger.info(
+                f"  {model_name} executing {task.task_id} (T{task.tier.value})"
+                f"{' via ' + execution_model_name if execution_model_name != model_name else ''}..."
+            )
+            execution_autonomous = self.autonomous_agents.get(execution_model_name)
+            if execution_autonomous is not None:
                 try:
-                    exec_result = autonomous.execute_task(task)
+                    exec_result = execution_autonomous.execute_task(task)
                     output = exec_result.output
                     token_cost = exec_result.token_cost_fil
                     latency = exec_result.latency_ms
@@ -589,13 +801,13 @@ class LiveSimulationRunner:
                             f"retries={exec_result.retries_used}"
                         )
                 except Exception as e:
-                    logger.error(f"  {model_name} AutonomousAgent.execute_task FAILED: {e}")
+                    logger.error(f"  {execution_model_name} AutonomousAgent.execute_task FAILED: {e}")
                     output = ""
                     token_cost = 0.0
                     latency = 0.0
                     tokens_in = tokens_out = 0
             else:
-                llm_agent = self.llm_agents[model_name]
+                llm_agent = self.llm_agents[execution_model_name]
                 tok_in_before = llm_agent.total_input_tokens
                 tok_out_before = llm_agent.total_output_tokens
                 start_time = time.time()
@@ -603,12 +815,12 @@ class LiveSimulationRunner:
                     output = llm_agent.execute_task(task.prompt, task.system_prompt)
                     latency = (time.time() - start_time) * 1000
                 except Exception as e:
-                    logger.error(f"  {model_name} FAILED to execute: {e}")
+                    logger.error(f"  {execution_model_name} FAILED to execute: {e}")
                     output = ""
                     latency = (time.time() - start_time) * 1000
                 tokens_in  = llm_agent.total_input_tokens  - tok_in_before
                 tokens_out = llm_agent.total_output_tokens - tok_out_before
-                token_cost = compute_token_cost_fil(model_name, tokens_in, tokens_out)
+                token_cost = compute_token_cost_fil(execution_model_name, tokens_in, tokens_out)
 
             # Cost accounting: deduct token costs from agent balance
             agent.balance    -= token_cost
@@ -622,21 +834,54 @@ class LiveSimulationRunner:
             verification = self.verifier.verify(
                 task=task,
                 output=output,
-                agent_model=model_name,
+                agent_model=execution_model_name,
                 latency_ms=latency,
             )
 
             # Real-time robustness update based on constraint outcomes
+            new_robustness = None
             if agent.current_robustness is not None:
                 new_robustness = update_robustness_from_verification(
                     agent.current_robustness, task, verification,
                 )
-                self.economy.registry.certify(
-                    agent.agent_id,
-                    new_robustness,
-                    audit_type="task_update",
-                    timestamp=self.economy.current_time,
-                )
+                candidate_tier = self.economy.gate.evaluate(new_robustness)
+                if candidate_tier > tier:
+                    upgrade = self.economy.request_tier_upgrade(
+                        agent.agent_id,
+                        requested_tier=candidate_tier,
+                        audit_callback=lambda _aid, _tier, r=new_robustness: r,
+                    )
+                    if upgrade.get("granted"):
+                        self._emit_protocol_event(
+                            "UPGRADE",
+                            model_name,
+                            f"{model_name} upgraded to {candidate_tier.name} via scaling-gate audit.",
+                            requested_tier=candidate_tier.name,
+                            path=upgrade.get("path"),
+                        )
+                    else:
+                        # Persist robustness updates even when higher-tier request fails.
+                        self.economy.registry.certify(
+                            agent.agent_id,
+                            new_robustness,
+                            audit_type="task_update",
+                            timestamp=self.economy.current_time,
+                        )
+                        self._emit_protocol_event(
+                            "UPGRADE_DENIED",
+                            model_name,
+                            f"{model_name} tier request to {candidate_tier.name} denied ({upgrade.get('reason')}).",
+                            requested_tier=candidate_tier.name,
+                            reason=upgrade.get("reason"),
+                            gaps=upgrade.get("gaps"),
+                        )
+                else:
+                    self.economy.registry.certify(
+                        agent.agent_id,
+                        new_robustness,
+                        audit_type="task_update",
+                        timestamp=self.economy.current_time,
+                    )
 
             # Let AutonomousAgent update its internal perception + accounting
             if autonomous is not None:
@@ -647,15 +892,20 @@ class LiveSimulationRunner:
                 contract.contract_id,
                 output,
                 verification_override=verification.overall_pass,
+                liability_agent_id=liability_agent_id,
             )
 
             # Log result
+            cid = f"bafybeig{hashlib.sha256(str(task.task_id).encode()).hexdigest()[:32]}"
             task_result = {
                 "agent": model_name,
                 "agent_id": agent.agent_id,
+                "executed_by_agent_id": execution_agent_id,
+                "executed_by_model": execution_model_name,
                 "task_id": task.task_id,
                 "tier": task.tier.name,
                 "domain": task.domain,
+                "proof_cid": cid,
                 "verification": verification.to_dict(),
                 "settlement": settlement,
                 "latency_ms": latency,
@@ -665,6 +915,8 @@ class LiveSimulationRunner:
             }
             if autonomous is not None:
                 task_result["agent_strategy"] = type(autonomous.strategy).__name__
+            if delegation_info is not None:
+                task_result["delegation"] = delegation_info
             round_data["task_results"].append(task_result)
             self._results.append(task_result)
 
@@ -757,6 +1009,16 @@ class LiveSimulationRunner:
 
         # Total token costs
         total_token_cost = sum(self._token_costs.values())
+        event_counts = {}
+        for e in self._protocol_events:
+            t = e.get("type", "UNKNOWN")
+            event_counts[t] = event_counts.get(t, 0) + 1
+        delegation_attempts = sum(1 for r in self._results if r.get("delegation") is not None)
+        delegation_allowed = sum(
+            1 for r in self._results
+            if (r.get("delegation") or {}).get("allowed") is True
+        )
+        circumvention_blocked = event_counts.get("CIRCUMVENTION_BLOCKED", 0)
 
         # Data quality audit — list agents with unverified robustness dimensions
         unaudited_agents = [
@@ -781,6 +1043,13 @@ class LiveSimulationRunner:
                 "num_rounds": self.config.num_rounds,
                 "num_agents": len(agents_data),
                 "active_agents": len(self.economy.registry.active_agents),
+            },
+            "demo_highlights": {
+                "protocol_event_counts": event_counts,
+                "delegation_attempts": delegation_attempts,
+                "delegation_allowed": delegation_allowed,
+                "delegation_blocked": max(0, delegation_attempts - delegation_allowed),
+                "circumvention_blocked": circumvention_blocked,
             },
             "tier_distribution": {t.name: c for t, c in tier_dist.items()},
             "verification": v_summary,
@@ -833,6 +1102,11 @@ class LiveSimulationRunner:
             json.dumps(self._round_summaries, indent=2, default=str)
         )
 
+        # Protocol events for high-signal dashboard alerts
+        (output_dir / "protocol_events.json").write_text(
+            json.dumps(self._protocol_events, indent=2, default=str)
+        )
+
         # Final summary
         if self._final_summary:
             (output_dir / "final_summary.json").write_text(
@@ -872,6 +1146,11 @@ class LiveSimulationRunner:
 
 def main():
     """Entry point for running the live simulation."""
+    parser = argparse.ArgumentParser(description="Run the CGAE live economy simulation.")
+    parser.add_argument("--live", action="store_true", help="Run in infinite loop mode for dashboard.")
+    parser.add_argument("--rounds", type=int, default=10, help="Number of rounds (ignored if --live is set).")
+    args = parser.parse_args()
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -896,7 +1175,7 @@ def main():
     # Framework API URLs are read from CDCT_API_URL / DDFT_API_URL / EECT_API_URL
     # env vars by the clients.  Override here if needed.
     config = LiveSimConfig(
-        num_rounds=10,
+        num_rounds=-1 if args.live else args.rounds,
         seed=42,
     )
 
@@ -918,6 +1197,15 @@ def main():
         print(f"Total rewards: {econ['total_rewards_paid']:.4f} FIL")
         print(f"Total penalties: {econ['total_penalties_collected']:.4f} FIL")
         print(f"Total token costs: {econ['total_token_cost_fil']:.4f} FIL")
+        highlights = runner._final_summary.get("demo_highlights", {})
+        if highlights:
+            print("\nDemo highlights:")
+            print(f"  Circumvention blocked: {highlights.get('circumvention_blocked', 0)}")
+            print(
+                f"  Delegation attempts: {highlights.get('delegation_attempts', 0)} "
+                f"(allowed={highlights.get('delegation_allowed', 0)}, "
+                f"blocked={highlights.get('delegation_blocked', 0)})"
+            )
 
     if runner.verifier:
         vs = runner.verifier.summary()

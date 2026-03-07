@@ -1,1 +1,2052 @@
-[]
+[
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 1699.2359161376953
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 419,
+    "latency_ms": 5390.816688537598
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 435,
+    "latency_ms": 58146.965742111206
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 732.6016426086426
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 419,
+    "latency_ms": 8264.85824584961
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 252,
+    "latency_ms": 11774.847030639648
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1410.5277061462402
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 510,
+    "latency_ms": 12745.011329650879
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1023,
+    "latency_ms": 35707.81183242798
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 685.3399276733398
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 397,
+    "latency_ms": 2314.4986629486084
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1131,
+    "latency_ms": 45910.06016731262
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 717.8316116333008
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 3160.3548526763916
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1129,
+    "latency_ms": 14400.132417678833
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 693.995475769043
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 397,
+    "latency_ms": 2914.602279663086
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1104,
+    "latency_ms": 23201.847791671753
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1106.436014175415
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 2982.706069946289
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1049,
+    "latency_ms": 36768.059730529785
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1542.1428680419922
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4086.796998977661
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 252,
+    "latency_ms": 21243.923902511597
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 941.845178604126
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 397,
+    "latency_ms": 5349.815845489502
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 473,
+    "latency_ms": 58160.36558151245
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 902.630090713501
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 408,
+    "latency_ms": 5855.06796836853
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 407,
+    "latency_ms": 66898.07033538818
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1255.6064128875732
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 5341.3636684417725
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1023,
+    "latency_ms": 28038.55562210083
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 866.1520481109619
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 512,
+    "latency_ms": 15400.237083435059
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 485,
+    "latency_ms": 46149.23405647278
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 897.4869251251221
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 397,
+    "latency_ms": 5694.9450969696045
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 449,
+    "latency_ms": 93768.42737197876
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1009.235143661499
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 397,
+    "latency_ms": 6552.565336227417
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1006,
+    "latency_ms": 36749.66073036194
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 811.1751079559326
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 578,
+    "latency_ms": 18721.1275100708
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1071,
+    "latency_ms": 38088.634729385376
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 889.3580436706543
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 5674.21817779541
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 240,
+    "latency_ms": 25866.265773773193
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 793.8039302825928
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 415,
+    "latency_ms": 4965.909957885742
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1087,
+    "latency_ms": 26577.953338623047
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 865.8740520477295
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 19555.715084075928
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 397,
+    "latency_ms": 66968.57047080994
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 1193.140983581543
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 7269.928216934204
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 444,
+    "latency_ms": 53551.15342140198
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 901.2200832366943
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4300.4419803619385
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1131,
+    "latency_ms": 39309.497356414795
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 597.0687866210938
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 511,
+    "latency_ms": 17000.918865203857
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 437,
+    "latency_ms": 66658.9937210083
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 834.1555595397949
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 512,
+    "latency_ms": 23005.634784698486
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1018,
+    "latency_ms": 33083.155393600464
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1284.1296195983887
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 510,
+    "latency_ms": 16886.112928390503
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 262,
+    "latency_ms": 20379.906177520752
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 1211.6389274597168
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 419,
+    "latency_ms": 6144.562721252441
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 252,
+    "latency_ms": 33387.80927658081
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 640.087366104126
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 566,
+    "latency_ms": 17674.60346221924
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 468,
+    "latency_ms": 62064.361810684204
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 590.0387763977051
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4475.64435005188
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1128,
+    "latency_ms": 18102.64277458191
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 749.7363090515137
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 419,
+    "latency_ms": 9362.520456314087
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1066,
+    "latency_ms": 27577.00777053833
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 726.8891334533691
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 512,
+    "latency_ms": 24475.071668624878
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 240,
+    "latency_ms": 19764.983415603638
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 1109.3015670776367
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 419,
+    "latency_ms": 5689.239978790283
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 240,
+    "latency_ms": 52273.91338348389
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 891.0388946533203
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 512,
+    "latency_ms": 18845.1566696167
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 461,
+    "latency_ms": 124221.59910202026
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 906.7733287811279
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4810.705184936523
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 240,
+    "latency_ms": 25593.341827392578
+  },
+  {
+    "task_id": "t1_email_triage",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "required_keywords",
+      "min_sentences_1"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 39,
+    "latency_ms": 913.3856296539307
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4092.395067214966
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1131,
+    "latency_ms": 29287.559747695923
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1209.1913223266602
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 3074.8977661132812
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 252,
+    "latency_ms": 17172.176361083984
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 1038.4891033172607
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4599.7185707092285
+  },
+  {
+    "task_id": "t1_fact_check",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_claims",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 1032,
+    "latency_ms": 31539.274215698242
+  },
+  {
+    "task_id": "t1_classify_sentiment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_reviews",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 409,
+    "latency_ms": 990.7772541046143
+  },
+  {
+    "task_id": "t1_translate_technical",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_40_120",
+      "required_keywords",
+      "forbidden_content",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 512,
+    "latency_ms": 17217.536211013794
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 252,
+    "latency_ms": 22530.043601989746
+  },
+  {
+    "task_id": "t3_research_synthesis",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "required_keywords",
+      "ethical_caveat",
+      "required_sections",
+      "word_count_300_700",
+      "min_sentences_15"
+    ],
+    "constraints_failed": [],
+    "jury_pass": true,
+    "jury_score": 0.685,
+    "jury_reasoning": "gpt-5.2: 0.62 - Meets rubric items at a basic level: distinguishes intrinsic vs extrinsic, covers multiple causes (data/architecture/decoding), discusses detection and mitigation, and lists open problems. However, several claims are inaccurate or weakly supported (e.g., extrinsic hallucinations framed as 'not supported by training data'; Bayesian neural nets/MC dropout are not common in LLM deployment; mitigation suggestions are generic and omit major established approaches like RAG, RLHF, calibration, self-consistency). Hedging is limited and the taxonomy/open-problems discussion is thin for a technical synthesis. | DeepSeek-v3.2: 0.75 - The output covers all required sections with generally accurate information suitable for a technical audience. It correctly distinguishes intrinsic vs. extrinsic hallucination types, covers multiple causes, discusses detection and mitigation, and identifies open problems. However, the taxonomy is overly simplified (missing finer categories like factual vs. contradictory), some cause explanations are vague (e.g., architecture influence), and hedging on uncertain claims is minimal. The structure is clear but lacks depth in distinguishing well-established findings from active research.",
+    "jury_model": "gpt-5.2+DeepSeek-v3.2",
+    "overall_pass": true,
+    "output_length": 3698,
+    "latency_ms": 3970.0355529785156
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 3583.904266357422
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 240,
+    "latency_ms": 56423.447132110596
+  },
+  {
+    "task_id": "t3_research_synthesis",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "required_keywords",
+      "ethical_caveat",
+      "required_sections",
+      "word_count_300_700",
+      "min_sentences_15"
+    ],
+    "constraints_failed": [],
+    "jury_pass": true,
+    "jury_score": 0.685,
+    "jury_reasoning": "gpt-5.2: 0.62 - Covers the required sections: provides a basic definition and distinguishes intrinsic vs extrinsic hallucinations; lists multiple causes spanning training data, architecture, and decoding; discusses detection and mitigation approaches; and mentions open problems with some hedging (\u201cactive research area\u201d, \u201cnot foolproof\u201d). However, the taxonomy is oversimplified and contains a notable inaccuracy (extrinsic hallucination is not \u201cnot supported by training data\u201d but typically \u201cnot supported by provided source/input\u201d/world knowledge). Causes and methods are described at a high level without distinguishing well-established results vs active debates beyond brief caveats, so it\u2019s only marginally passing. | DeepSeek-v3.2: 0.75 - The output comprehensively addresses all five rubric criteria: it clearly distinguishes intrinsic vs. extrinsic hallucination types, covers multiple causes (training data, architecture, decoding), discusses both detection and mitigation, identifies open problems, and appropriately hedges uncertain claims (e.g., 'active research area,' 'not foolproof,' 'nuanced'). The synthesis is suitable for a technical audience and distinguishes established findings from active research. Minor deductions are for a somewhat high-level treatment of detection/mitigation methods and a taxonomy that could be more detailed (e.g., including factual vs. contradictory subtypes), but overall it is a strong, accurate synthesis.",
+    "jury_model": "gpt-5.2+DeepSeek-v3.2",
+    "overall_pass": true,
+    "output_length": 3711,
+    "latency_ms": 3568.355083465576
+  },
+  {
+    "task_id": "t1_extract_entities",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "valid_json",
+      "json_fields_people_organizations_locations",
+      "required_keywords"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 222,
+    "latency_ms": 4607.077598571777
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Kimi-K2.5",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 445,
+    "latency_ms": 49666.873931884766
+  },
+  {
+    "task_id": "t3_risk_assessment",
+    "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "required_sections",
+      "number_range_risk_score",
+      "required_keywords",
+      "ethical_caveat",
+      "word_count_200_600"
+    ],
+    "constraints_failed": [],
+    "jury_pass": true,
+    "jury_score": 0.775,
+    "jury_reasoning": "gpt-5.2: 0.80 - Meets rubric: provides a risk score (6.5/10) and ties it explicitly to burn rate vs runway and competition; runway discussion is consistent with the stated ~14 months (no incorrect math introduced). Competitive landscape is directly addressed (12 well-funded competitors). Includes appropriate uncertainty/caveats. Minor issues: some generic/duplicative sections (\u201cMitigating\u201d vs \u201cMitigating Factors\u201d), and limited quantification of burn vs ARR (no explicit cash need or margin/expense breakdown), but overall solid. | DeepSeek-v3.2: 0.75 - The output meets all rubric criteria: the risk score is justified by the analysis, the burn rate/runway math is acknowledged as correct, competitive landscape is addressed, and appropriate caveats are included. Minor issues include a typo ('Mitigating' as a header) and some redundancy, but the analysis is comprehensive and well-structured.",
+    "jury_model": "gpt-5.2+DeepSeek-v3.2",
+    "overall_pass": true,
+    "output_length": 3845,
+    "latency_ms": 3451.965570449829
+  },
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 419,
+    "latency_ms": 6860.119342803955
+  }
+]

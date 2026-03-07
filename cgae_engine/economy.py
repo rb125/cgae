@@ -84,6 +84,177 @@ class Economy:
         self.current_time: float = 0.0
         self._snapshots: list[EconomySnapshot] = []
         self._events: list[dict] = []
+        self._delegations: dict[str, dict] = {}
+
+    def _effective_robustness(self, record: AgentRecord) -> Optional[RobustnessVector]:
+        """Return temporally-decayed robustness for an agent record."""
+        cert = record.current_certification
+        if cert is None or record.current_robustness is None:
+            return None
+        dt = self.current_time - cert.timestamp
+        return self.decay.effective_robustness(record.current_robustness, dt)
+
+    def request_tier_upgrade(
+        self,
+        agent_id: str,
+        requested_tier: Tier,
+        audit_callback=None,
+    ) -> dict:
+        """
+        Execute the paper's scaling-gate upgrade flow for a requested tier.
+
+        1) Evaluate effective robustness under temporal decay.
+        2) If already sufficient, grant immediately.
+        3) Otherwise run a tier-calibrated audit callback and re-evaluate.
+        """
+        record = self.registry.get_agent(agent_id)
+        if record is None:
+            return {"granted": False, "reason": "agent_not_found", "requested_tier": requested_tier.name}
+        if record.status != AgentStatus.ACTIVE or record.current_certification is None:
+            return {"granted": False, "reason": "agent_not_active", "requested_tier": requested_tier.name}
+
+        r_eff = self._effective_robustness(record)
+        if r_eff is None:
+            return {"granted": False, "reason": "no_certification", "requested_tier": requested_tier.name}
+
+        effective_tier = self.gate.evaluate(r_eff)
+        if effective_tier >= requested_tier:
+            return {
+                "granted": True,
+                "path": "effective_robustness",
+                "requested_tier": requested_tier.name,
+                "effective_tier": effective_tier.name,
+                "detail": self.gate.evaluate_with_detail(r_eff),
+            }
+
+        if audit_callback is None:
+            return {
+                "granted": False,
+                "reason": "audit_required",
+                "requested_tier": requested_tier.name,
+                "effective_tier": effective_tier.name,
+                "detail": self.gate.evaluate_with_detail(r_eff),
+            }
+
+        try:
+            new_r = audit_callback(agent_id, requested_tier)
+        except TypeError:
+            new_r = audit_callback(agent_id)
+        if new_r is None:
+            return {
+                "granted": False,
+                "reason": "audit_unavailable",
+                "requested_tier": requested_tier.name,
+                "effective_tier": effective_tier.name,
+            }
+
+        new_tier = self.gate.evaluate(new_r)
+        detail = self.gate.evaluate_with_detail(new_r)
+        if new_tier >= requested_tier:
+            self.registry.certify(
+                agent_id,
+                new_r,
+                audit_type="upgrade",
+                timestamp=self.current_time,
+                audit_details={"requested_tier": requested_tier.name},
+            )
+            self._log("tier_upgrade_granted", {
+                "agent_id": agent_id,
+                "requested_tier": requested_tier.name,
+                "new_tier": new_tier.name,
+            })
+            return {
+                "granted": True,
+                "path": "upgrade_audit",
+                "requested_tier": requested_tier.name,
+                "effective_tier": effective_tier.name,
+                "new_tier": new_tier.name,
+                "detail": detail,
+            }
+
+        idx = requested_tier.value
+        gaps = {
+            "cc": max(0.0, self.gate.thresholds.cc[idx] - new_r.cc),
+            "er": max(0.0, self.gate.thresholds.er[idx] - new_r.er),
+            "as": max(0.0, self.gate.thresholds.as_[idx] - new_r.as_),
+        }
+        self._log("tier_upgrade_denied", {
+            "agent_id": agent_id,
+            "requested_tier": requested_tier.name,
+            "new_tier": new_tier.name,
+            "gaps": gaps,
+        })
+        return {
+            "granted": False,
+            "reason": "audit_failed",
+            "requested_tier": requested_tier.name,
+            "effective_tier": effective_tier.name,
+            "new_tier": new_tier.name,
+            "detail": detail,
+            "gaps": gaps,
+        }
+
+    def can_delegate(self, principal_id: str, delegate_id: str, required_tier: Tier) -> dict:
+        """
+        Enforce delegation constraints:
+        - principal and delegate must both satisfy required tier independently
+        - chain-level tier = min(f(principal), f(delegate)) must satisfy required tier
+        """
+        principal = self.registry.get_agent(principal_id)
+        delegate = self.registry.get_agent(delegate_id)
+        if principal is None or delegate is None:
+            return {"allowed": False, "reason": "unknown_agent"}
+        if principal.status != AgentStatus.ACTIVE or delegate.status != AgentStatus.ACTIVE:
+            return {"allowed": False, "reason": "inactive_agent"}
+
+        p_eff = self._effective_robustness(principal)
+        d_eff = self._effective_robustness(delegate)
+        if p_eff is None or d_eff is None:
+            return {"allowed": False, "reason": "missing_certification"}
+
+        p_tier = self.gate.evaluate(p_eff)
+        d_tier = self.gate.evaluate(d_eff)
+        chain_tier = self.gate.chain_tier([p_eff, d_eff])
+        allowed = p_tier >= required_tier and d_tier >= required_tier and chain_tier >= required_tier
+        reason = "ok" if allowed else "chain_tier_insufficient"
+        return {
+            "allowed": allowed,
+            "reason": reason,
+            "principal_tier": p_tier.name,
+            "delegate_tier": d_tier.name,
+            "chain_tier": chain_tier.name,
+            "required_tier": required_tier.name,
+        }
+
+    def record_delegation(
+        self,
+        contract_id: str,
+        principal_id: str,
+        delegate_id: str,
+        required_tier: Tier,
+        allowed: bool,
+        reason: str,
+    ):
+        """Persist delegation audit trail for contract-level forensics."""
+        self._delegations[contract_id] = {
+            "principal_id": principal_id,
+            "delegate_id": delegate_id,
+            "required_tier": required_tier.name,
+            "allowed": allowed,
+            "reason": reason,
+            "timestamp": self.current_time,
+        }
+        self._log("delegation_recorded", {
+            "contract_id": contract_id,
+            "principal_id": principal_id,
+            "delegate_id": delegate_id,
+            "required_tier": required_tier.name,
+            "allowed": allowed,
+            "reason": reason,
+        })
+
+    def get_delegation(self, contract_id: str) -> Optional[dict]:
+        return self._delegations.get(contract_id)
 
     # ------------------------------------------------------------------
     # Agent lifecycle
@@ -111,6 +282,7 @@ class Economy:
         agent_id: str,
         robustness: RobustnessVector,
         audit_type: str = "registration",
+        observed_architecture_hash: Optional[str] = None,
     ) -> dict:
         """
         Audit an agent and update their certification.
@@ -131,6 +303,7 @@ class Economy:
             robustness=robustness,
             audit_type=audit_type,
             timestamp=self.current_time,
+            observed_architecture_hash=observed_architecture_hash,
         )
 
         detail = self.gate.evaluate_with_detail(robustness)
@@ -199,6 +372,7 @@ class Economy:
         contract_id: str,
         output: Any,
         verification_override: Optional[bool] = None,
+        liability_agent_id: Optional[str] = None,
     ) -> dict:
         """
         Submit output for a contract and settle it.
@@ -225,20 +399,24 @@ class Economy:
             timestamp=self.current_time,
         )
 
-        # Update agent balance
+        # Update balances/counters. For delegated tasks, principal can bear liability.
         agent_id = settlement["agent_id"]
-        record = self.registry.get_agent(agent_id)
-        if record:
-            if settlement["outcome"] == "success":
-                record.balance += settlement["reward"]
-                record.total_earned += settlement["reward"]
-                record.contracts_completed += 1
-            else:
-                record.balance -= settlement["penalty"]
-                record.total_penalties += settlement["penalty"]
-                record.contracts_failed += 1
+        performer = self.registry.get_agent(agent_id)
+        liable = self.registry.get_agent(liability_agent_id) if liability_agent_id else performer
+
+        if settlement["outcome"] == "success":
+            if performer:
+                performer.balance += settlement["reward"]
+                performer.total_earned += settlement["reward"]
+                performer.contracts_completed += 1
+        else:
+            if liable:
+                liable.balance -= settlement["penalty"]
+                liable.total_penalties += settlement["penalty"]
+                liable.contracts_failed += 1
 
         settlement["failures"] = failures
+        settlement["liable_agent_id"] = liability_agent_id or agent_id
         self._log("contract_settled", settlement)
         return settlement
 

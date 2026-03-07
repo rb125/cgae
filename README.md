@@ -8,6 +8,25 @@ This repository implements the full CGAE protocol as described in `cgae.tex`, in
 
 **Paper**: Baxi & Baxi (2026). *The Comprehension-Gated Agent Economy: A Robustness-First Architecture for AI Economic Agency.*
 
+## Demo-Ready Enforcement Scenarios
+
+The live runner now includes explicit adversarial and delegation scenarios so demos can show enforcement behavior, not just happy-path throughput:
+
+- `CIRCUMVENTION_BLOCKED`: direct tier-bypass attempts are posted and rejected by gate checks.
+- `CIRCUMVENTION_BLOCKED` (architecture spoof): adversarial re-certification with a mismatched architecture hash is blocked.
+- `DELEGATION_ALLOWED`: one agent can "hire" another only when both independent tier checks and chain-tier checks pass.
+- `CIRCUMVENTION_BLOCKED` (delegation laundering): delegation to underqualified agents is blocked.
+- `UPGRADE` / `UPGRADE_DENIED`: tier changes follow a scaling-gate request flow instead of unconditional task-by-task promotion.
+
+These signals are written to `simulation/live_results/protocol_events.json` and summarized under `demo_highlights` in `simulation/live_results/final_summary.json`.
+
+Quick start with hosted framework APIs:
+
+```bash
+./scripts/run_demo_hosted.sh 10     # fixed rounds
+./scripts/run_demo_hosted.sh --live # continuous mode
+```
+
 ---
 
 ## Filecoin Integration

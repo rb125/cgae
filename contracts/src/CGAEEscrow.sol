@@ -32,6 +32,8 @@ contract CGAEEscrow {
         address issuer;
         address assignedAgent;
         string objective;
+        bytes32 constraintsHash;   // Hash of machine-verifiable constraint set (Phi)
+        string verifierSpecCid;    // CID/pointer to verifier specification V
         uint8 minTier;
         uint256 reward;
         uint256 penalty;
@@ -88,6 +90,8 @@ contract CGAEEscrow {
      */
     function createContract(
         string calldata objective,
+        bytes32 constraintsHash,
+        string calldata verifierSpecCid,
         uint8 minTier,
         uint256 penalty,
         uint64 deadline,
@@ -96,6 +100,8 @@ contract CGAEEscrow {
         require(msg.value > 0, "Must escrow reward");
         require(minTier > 0 && minTier <= 5, "Invalid tier");
         require(deadline > block.timestamp, "Deadline must be in future");
+        require(constraintsHash != bytes32(0), "Missing constraints hash");
+        require(bytes(verifierSpecCid).length > 0, "Missing verifier spec");
 
         bytes32 contractId = keccak256(abi.encodePacked(
             msg.sender, block.timestamp, objective, contractIds.length
@@ -106,6 +112,8 @@ contract CGAEEscrow {
             issuer: msg.sender,
             assignedAgent: address(0),
             objective: objective,
+            constraintsHash: constraintsHash,
+            verifierSpecCid: verifierSpecCid,
             minTier: minTier,
             reward: msg.value,
             penalty: penalty,

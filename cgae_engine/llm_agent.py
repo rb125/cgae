@@ -156,7 +156,7 @@ class LLMAgent:
             }
             # Azure OpenAI supports max_completion_tokens; AI Foundry uses temperature
             if self.provider == "azure_openai":
-                kwargs["max_completion_tokens"] = 4096
+                kwargs["max_completion_tokens"] = 8192
             else:
                 kwargs["temperature"] = 0.0
                 kwargs["max_tokens"] = 4096

@@ -18,6 +18,7 @@ This produces the empirical data for the CGAE paper:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import random
@@ -84,6 +85,12 @@ class SimulationMetrics:
     strategy_survival: dict[str, int] = field(default_factory=dict)
     strategy_total_earned: dict[str, float] = field(default_factory=dict)
     strategy_final_tier: dict[str, int] = field(default_factory=dict)
+
+    # Task execution history
+    task_results: list[dict] = field(default_factory=list)
+
+    # High-signal protocol events for the dashboard (Bankruptcies, Demotions, Upgrades)
+    protocol_events: list[dict] = field(default_factory=list)
 
 
 class SimulationRunner:
@@ -155,18 +162,35 @@ class SimulationRunner:
         """Run the full simulation."""
         self.setup()
 
-        for step in range(self.config.num_steps):
-            self._run_step(step)
+        step = 0
+        infinite = self.config.num_steps == -1
+        
+        try:
+            while infinite or step < self.config.num_steps:
+                self._run_step(step)
 
-            if step % self.config.snapshot_interval == 0:
-                logger.info(
-                    f"Step {step}/{self.config.num_steps} | "
-                    f"Safety={self.metrics.aggregate_safety[-1]:.3f} | "
-                    f"Active={self.metrics.active_agent_count[-1]} | "
-                    f"Balance={self.metrics.total_balance[-1]:.4f}"
-                )
+                if step % self.config.snapshot_interval == 0:
+                    logger.info(
+                        f"Step {step}/{'inf' if infinite else self.config.num_steps} | "
+                        f"Safety={self.metrics.aggregate_safety[-1]:.3f} | "
+                        f"Active={self.metrics.active_agent_count[-1]} | "
+                        f"Balance={self.metrics.total_balance[-1]:.4f}"
+                    )
+                    # Periodic save for dashboard
+                    self._finalize()
+                    self.save_results()
+
+                if infinite:
+                    time.sleep(0.5)  # Slow down for live observation
+                
+                step += 1
+        except KeyboardInterrupt:
+            logger.info("\nSimulation interrupted by user. Finalizing...")
+        except Exception as e:
+            logger.exception(f"Simulation failed: {e}")
 
         self._finalize()
+        self.save_results()
         return self.metrics
 
     def _run_step(self, step: int):
@@ -182,6 +206,14 @@ class SimulationRunner:
         for agent_id, agent in self.agents.items():
             record = self.economy.registry.get_agent(agent_id)
             if record is None or record.status != AgentStatus.ACTIVE:
+                # Check for bankruptcy
+                if record and record.balance <= 0:
+                    self.metrics.protocol_events.append({
+                        "timestamp": self.economy.current_time,
+                        "type": "BANKRUPTCY",
+                        "agent": agent.name,
+                        "message": f"Agent {agent.name} has gone bankrupt and is suspended."
+                    })
                 continue
 
             available = self.economy.contracts.get_contracts_for_tier(record.current_tier)
@@ -210,7 +242,28 @@ class SimulationRunner:
                     contract = self.economy.contracts.contracts.get(decision.contract_id)
                     if contract:
                         output = agent.execute_task(contract)
-                        self.economy.complete_contract(decision.contract_id, output)
+                        settlement = self.economy.complete_contract(decision.contract_id, output)
+                        
+                        # Record result for transparency
+                        # Mock CID for demonstration
+                        cid = f"bafybeig{hashlib.sha256(str(contract.contract_id).encode()).hexdigest()[:32]}"
+                        self.metrics.task_results.append({
+                            "agent": agent.name,
+                            "task_id": contract.contract_id,
+                            "tier": f"T{contract.min_tier.value}",
+                            "domain": contract.domain,
+                            "proof_cid": cid,
+                            "verification": {
+                                "overall_pass": settlement["outcome"] == "success",
+                                "constraints_passed": [], # Simplified for synthetic
+                                "constraints_failed": settlement.get("failures", [])
+                            },
+                            "settlement": {
+                                "reward": settlement.get("reward", 0),
+                                "penalty": settlement.get("penalty", 0)
+                            },
+                            "output_preview": f"Synthetic execution of {contract.contract_id}: {settlement['outcome'].upper()}"
+                        })
 
             elif decision.action == "invest_robustness":
                 agent = self.agents[agent_id]
@@ -229,11 +282,20 @@ class SimulationRunner:
                             base_robustness=new_r,
                             noise_scale=0.02,
                         )
+                        old_tier = record.current_tier
                         self.economy.audit_agent(
                             agent_id,
                             audit_result.robustness,
                             audit_type="upgrade",
                         )
+                        new_tier = record.current_tier
+                        if new_tier.value > old_tier.value:
+                            self.metrics.protocol_events.append({
+                                "timestamp": self.economy.current_time,
+                                "type": "UPGRADE",
+                                "agent": agent.name,
+                                "message": f"Agent {agent.name} UPGRADED to {new_tier.name} via robustness investment!"
+                            })
 
         # 4. Advance time (decay, spot-audits, storage costs)
         def audit_callback(aid):
@@ -278,7 +340,12 @@ class SimulationRunner:
                 self.metrics.agent_earnings[agent.name].append(record.total_earned)
 
     def _finalize(self):
-        """Compute final aggregate metrics."""
+        """Compute aggregate metrics (idempotent)."""
+        # Reset strategy-level aggregates before re-computing
+        self.metrics.strategy_survival = {}
+        self.metrics.strategy_total_earned = {}
+        self.metrics.strategy_final_tier = {}
+
         for agent_id, agent in self.agents.items():
             record = self.economy.registry.get_agent(agent_id)
             if record:
@@ -333,6 +400,16 @@ class SimulationRunner:
         }
         (output_dir / "strategy_summary.json").write_text(json.dumps(summary, indent=2))
 
+        # Task execution history for dashboard
+        (output_dir / "task_results.json").write_text(
+            json.dumps(self.metrics.task_results, indent=2)
+        )
+
+        # Protocol events for high-signal dashboard alerts
+        (output_dir / "protocol_events.json").write_text(
+            json.dumps(self.metrics.protocol_events, indent=2)
+        )
+
         # Agent details
         agent_details = {}
         for agent_id, agent in self.agents.items():
@@ -356,15 +433,22 @@ class SimulationRunner:
         logger.info(f"Results saved to {output_dir}")
 
 
+import argparse
+
 def main():
     """Entry point for running the simulation."""
+    parser = argparse.ArgumentParser(description="Run the CGAE economy simulation.")
+    parser.add_argument("--live", action="store_true", help="Run in infinite loop mode for dashboard.")
+    parser.add_argument("--steps", type=int, default=500, help="Number of steps (ignored if --live is set).")
+    args = parser.parse_args()
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
     )
 
     config = SimulationConfig(
-        num_steps=500,
+        num_steps=-1 if args.live else args.steps,
         seed=42,
     )
 
@@ -377,6 +461,11 @@ def main():
     print("CGAE ECONOMY SIMULATION - RESULTS")
     print("=" * 60)
     print(f"\nDuration: {config.num_steps} time steps")
+    
+    if not metrics.aggregate_safety:
+        print("\nERROR: Simulation ended before recording metrics.")
+        return
+
     print(f"Final aggregate safety: {metrics.aggregate_safety[-1]:.4f}")
     print(f"Active agents at end: {metrics.active_agent_count[-1]}")
     print(f"Total contracts completed: {metrics.contracts_completed[-1]}")

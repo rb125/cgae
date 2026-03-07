@@ -1,1 +1,4764 @@
-[]
+[
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 1699.2359161376953
+    },
+    "settlement": {
+      "contract_id": "contract_a9811fdae485",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1699.2359161376953,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 419,
+      "latency_ms": 5390.816688537598
+    },
+    "settlement": {
+      "contract_id": "contract_3f6b4fd3d58f",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5390.816688537598,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The decrease in ice reduces the albedo effect, a",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 435,
+      "latency_ms": 58146.965742111206
+    },
+    "settlement": {
+      "contract_id": "contract_64c687a8ce67",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 58146.965742111206,
+    "token_cost_fil": 0.019775,
+    "tokens_used": {
+      "input": 137,
+      "output": 1909
+    },
+    "output_preview": "\u2022 Rising global temperatures accelerate Arctic sea ice melt, reducing reflective surfaces and triggering dangerous feedback loops that amplify warming trends.\n\u2022 Diminished ice coverage lowers albedo, ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 732.6016426086426
+    },
+    "settlement": {
+      "contract_id": "contract_2886954ce144",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 732.6016426086426,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 419,
+      "latency_ms": 8264.85824584961
+    },
+    "settlement": {
+      "contract_id": "contract_cddb3061f217",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 8264.85824584961,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The decrease in ice reduces the albedo effect, a",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 252,
+      "latency_ms": 11774.847030639648
+    },
+    "settlement": {
+      "contract_id": "contract_1fba485641c9",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 11774.847030639648,
+    "token_cost_fil": 0.00478,
+    "tokens_used": {
+      "input": 158,
+      "output": 399
+    },
+    "output_preview": "```json\n{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Sw",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1410.5277061462402
+    },
+    "settlement": {
+      "contract_id": "contract_30d5f5ea710d",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1410.5277061462402,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 510,
+      "latency_ms": 12745.011329650879
+    },
+    "settlement": {
+      "contract_id": "contract_29586efa6c0f",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 12745.011329650879,
+    "token_cost_fil": 0.002005,
+    "tokens_used": {
+      "input": 410,
+      "output": 196
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called attention. They can handle tasks in parallel, meaning they do many things at the same time, instead ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1023,
+      "latency_ms": 35707.81183242798
+    },
+    "settlement": {
+      "contract_id": "contract_431203e037e6",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 35707.81183242798,
+    "token_cost_fil": 0.009065,
+    "tokens_used": {
+      "input": 173,
+      "output": 820
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 685.3399276733398
+    },
+    "settlement": {
+      "contract_id": "contract_535997895693",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 685.3399276733398,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 397,
+      "latency_ms": 2314.4986629486084
+    },
+    "settlement": {
+      "contract_id": "contract_aeb977c8923b",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 2314.4986629486084,
+    "token_cost_fil": 0.0006800000000000002,
+    "tokens_used": {
+      "input": 136,
+      "output": 68
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1131,
+      "latency_ms": 45910.06016731262
+    },
+    "settlement": {
+      "contract_id": "contract_65448dd2e051",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 45910.06016731262,
+    "token_cost_fil": 0.008735,
+    "tokens_used": {
+      "input": 173,
+      "output": 787
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 717.8316116333008
+    },
+    "settlement": {
+      "contract_id": "contract_1b63986b09e3",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 717.8316116333008,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 3160.3548526763916
+    },
+    "settlement": {
+      "contract_id": "contract_7c4bf3c7e3dd",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 3160.3548526763916,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1129,
+      "latency_ms": 14400.132417678833
+    },
+    "settlement": {
+      "contract_id": "contract_8f0e3f2c0d6a",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 14400.132417678833,
+    "token_cost_fil": 0.0078049999999999994,
+    "tokens_used": {
+      "input": 173,
+      "output": 694
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 693.995475769043
+    },
+    "settlement": {
+      "contract_id": "contract_22d07b38da50",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 693.995475769043,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 397,
+      "latency_ms": 2914.602279663086
+    },
+    "settlement": {
+      "contract_id": "contract_4814adc885d9",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 2914.602279663086,
+    "token_cost_fil": 0.0006800000000000002,
+    "tokens_used": {
+      "input": 136,
+      "output": 68
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1104,
+      "latency_ms": 23201.847791671753
+    },
+    "settlement": {
+      "contract_id": "contract_b5bc5a0268af",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 23201.847791671753,
+    "token_cost_fil": 0.008925,
+    "tokens_used": {
+      "input": 173,
+      "output": 806
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1106.436014175415
+    },
+    "settlement": {
+      "contract_id": "contract_ce2d6055aca1",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1106.436014175415,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 2982.706069946289
+    },
+    "settlement": {
+      "contract_id": "contract_a5c28242ccd8",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 2982.706069946289,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1049,
+      "latency_ms": 36768.059730529785
+    },
+    "settlement": {
+      "contract_id": "contract_87ae62674ef3",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 36768.059730529785,
+    "token_cost_fil": 0.009014999999999999,
+    "tokens_used": {
+      "input": 173,
+      "output": 815
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1542.1428680419922
+    },
+    "settlement": {
+      "contract_id": "contract_d31c50b6e5ee",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1542.1428680419922,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4086.796998977661
+    },
+    "settlement": {
+      "contract_id": "contract_f7c97d30e825",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4086.796998977661,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 252,
+      "latency_ms": 21243.923902511597
+    },
+    "settlement": {
+      "contract_id": "contract_c45b90888eef",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 21243.923902511597,
+    "token_cost_fil": 0.00678,
+    "tokens_used": {
+      "input": 158,
+      "output": 599
+    },
+    "output_preview": "```json\n{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Sw",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 941.845178604126
+    },
+    "settlement": {
+      "contract_id": "contract_588d440fa413",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 941.845178604126,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 397,
+      "latency_ms": 5349.815845489502
+    },
+    "settlement": {
+      "contract_id": "contract_d3e3208f31d0",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5349.815845489502,
+    "token_cost_fil": 0.0006800000000000002,
+    "tokens_used": {
+      "input": 136,
+      "output": 68
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 473,
+      "latency_ms": 58160.36558151245
+    },
+    "settlement": {
+      "contract_id": "contract_58dba640f5ef",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 58160.36558151245,
+    "token_cost_fil": 0.010425,
+    "tokens_used": {
+      "input": 137,
+      "output": 974
+    },
+    "output_preview": "\u2022 Rising global temperature accelerates Arctic sea ice melt, reducing reflective surfaces and exposing darker ocean water to absorb more solar heat.\n\u2022 This albedo effect creates dangerous feedback loo",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 902.630090713501
+    },
+    "settlement": {
+      "contract_id": "contract_b2205ca42b7e",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 902.630090713501,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 408,
+      "latency_ms": 5855.06796836853
+    },
+    "settlement": {
+      "contract_id": "contract_c612f6e3de6c",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5855.06796836853,
+    "token_cost_fil": 0.0006850000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 69
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, leading to feedback loops that accelerate warming.\n- The decrease in ice reduces the albedo effect, causing m",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 407,
+      "latency_ms": 66898.07033538818
+    },
+    "settlement": {
+      "contract_id": "contract_7faa2961645b",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 66898.07033538818,
+    "token_cost_fil": 0.015555,
+    "tokens_used": {
+      "input": 137,
+      "output": 1487
+    },
+    "output_preview": "\u2022 Rising global temperatures accelerate Arctic sea ice melt, reducing reflective surfaces and amplifying regional warming through positive feedback loops.\n\u2022 Diminished ice coverage lowers albedo, caus",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1255.6064128875732
+    },
+    "settlement": {
+      "contract_id": "contract_b3db4608ae4a",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1255.6064128875732,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 5341.3636684417725
+    },
+    "settlement": {
+      "contract_id": "contract_93f0ff13ec79",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5341.3636684417725,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1023,
+      "latency_ms": 28038.55562210083
+    },
+    "settlement": {
+      "contract_id": "contract_08c4e7e1b150",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 28038.55562210083,
+    "token_cost_fil": 0.009165,
+    "tokens_used": {
+      "input": 173,
+      "output": 830
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 866.1520481109619
+    },
+    "settlement": {
+      "contract_id": "contract_c7b502a9b4f6",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 866.1520481109619,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 512,
+      "latency_ms": 15400.237083435059
+    },
+    "settlement": {
+      "contract_id": "contract_297feb15e0e3",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 15400.237083435059,
+    "token_cost_fil": 0.0020599999999999998,
+    "tokens_used": {
+      "input": 410,
+      "output": 207
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called \"attention.\" They can handle tasks in parallel, meaning they do many things at the same time, instea",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 485,
+      "latency_ms": 46149.23405647278
+    },
+    "settlement": {
+      "contract_id": "contract_4fbb276f60e4",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 46149.23405647278,
+    "token_cost_fil": 0.016805,
+    "tokens_used": {
+      "input": 137,
+      "output": 1612
+    },
+    "output_preview": "\u2022 Rising global temperatures accelerate Arctic sea ice melt, reducing reflective surfaces and triggering dangerous feedback loops that amplify warming trends.\n\u2022 Diminished ice coverage lowers albedo, ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 897.4869251251221
+    },
+    "settlement": {
+      "contract_id": "contract_ab679b6b21a2",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 897.4869251251221,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 397,
+      "latency_ms": 5694.9450969696045
+    },
+    "settlement": {
+      "contract_id": "contract_20376068b124",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5694.9450969696045,
+    "token_cost_fil": 0.0006800000000000002,
+    "tokens_used": {
+      "input": 136,
+      "output": 68
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 449,
+      "latency_ms": 93768.42737197876
+    },
+    "settlement": {
+      "contract_id": "contract_e735a4718614",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 93768.42737197876,
+    "token_cost_fil": 0.018064999999999998,
+    "tokens_used": {
+      "input": 137,
+      "output": 1738
+    },
+    "output_preview": "\u2022 Rising global temperature accelerates Arctic sea ice melt, reducing reflective surfaces and triggering dangerous feedback loops that amplify warming trends.\n\u2022 Diminished ice coverage lowers albedo, ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1009.235143661499
+    },
+    "settlement": {
+      "contract_id": "contract_b014212cd618",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1009.235143661499,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 397,
+      "latency_ms": 6552.565336227417
+    },
+    "settlement": {
+      "contract_id": "contract_43769343aedc",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 6552.565336227417,
+    "token_cost_fil": 0.0006800000000000002,
+    "tokens_used": {
+      "input": 136,
+      "output": 68
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1006,
+      "latency_ms": 36749.66073036194
+    },
+    "settlement": {
+      "contract_id": "contract_f5b65b8a6950",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 36749.66073036194,
+    "token_cost_fil": 0.009314999999999999,
+    "tokens_used": {
+      "input": 173,
+      "output": 845
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 811.1751079559326
+    },
+    "settlement": {
+      "contract_id": "contract_c6689ff39af9",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 811.1751079559326,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 578,
+      "latency_ms": 18721.1275100708
+    },
+    "settlement": {
+      "contract_id": "contract_1a8f59b67c1c",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 18721.1275100708,
+    "token_cost_fil": 0.00214,
+    "tokens_used": {
+      "input": 410,
+      "output": 223
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called attention. They can handle tasks in parallel, meaning they do many things at the same time, instead ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1071,
+      "latency_ms": 38088.634729385376
+    },
+    "settlement": {
+      "contract_id": "contract_b92798f7118a",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 38088.634729385376,
+    "token_cost_fil": 0.009405,
+    "tokens_used": {
+      "input": 173,
+      "output": 854
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is 299,792 kilometers pe",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 889.3580436706543
+    },
+    "settlement": {
+      "contract_id": "contract_de96deba7477",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 889.3580436706543,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 5674.21817779541
+    },
+    "settlement": {
+      "contract_id": "contract_551f5f28ed01",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5674.21817779541,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 240,
+      "latency_ms": 25866.265773773193
+    },
+    "settlement": {
+      "contract_id": "contract_bd3c9f6307d6",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 25866.265773773193,
+    "token_cost_fil": 0.008969999999999999,
+    "tokens_used": {
+      "input": 158,
+      "output": 818
+    },
+    "output_preview": "{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Switzerlan",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 793.8039302825928
+    },
+    "settlement": {
+      "contract_id": "contract_a5b10cdcee5d",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 793.8039302825928,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 415,
+      "latency_ms": 4965.909957885742
+    },
+    "settlement": {
+      "contract_id": "contract_75a93ddf6395",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4965.909957885742,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1087,
+      "latency_ms": 26577.953338623047
+    },
+    "settlement": {
+      "contract_id": "contract_42c6a9baa4ab",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 26577.953338623047,
+    "token_cost_fil": 0.008915000000000001,
+    "tokens_used": {
+      "input": 173,
+      "output": 805
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 865.8740520477295
+    },
+    "settlement": {
+      "contract_id": "contract_28d580b63450",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 865.8740520477295,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 19555.715084075928
+    },
+    "settlement": {
+      "contract_id": "contract_da92b9414e44",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 19555.715084075928,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 397,
+      "latency_ms": 66968.57047080994
+    },
+    "settlement": {
+      "contract_id": "contract_1dfe576ff34c",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 66968.57047080994,
+    "token_cost_fil": 0.019174999999999998,
+    "tokens_used": {
+      "input": 137,
+      "output": 1849
+    },
+    "output_preview": "\u2022 Rising global temperature accelerates Arctic sea ice melt, reducing reflective surfaces and amplifying heat absorption across the polar region.\n\u2022 Decreasing ice coverage lowers albedo, creating dang",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 1193.140983581543
+    },
+    "settlement": {
+      "contract_id": "contract_fd3b6e95302b",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1193.140983581543,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 7269.928216934204
+    },
+    "settlement": {
+      "contract_id": "contract_c1837ae7d427",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 7269.928216934204,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 444,
+      "latency_ms": 53551.15342140198
+    },
+    "settlement": {
+      "contract_id": "contract_c9eff7851632",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 53551.15342140198,
+    "token_cost_fil": 0.010834999999999997,
+    "tokens_used": {
+      "input": 137,
+      "output": 1015
+    },
+    "output_preview": "\u2022 Rising global temperatures accelerate Arctic sea ice melt, reducing reflective surfaces and exposing darker ocean water to absorb more solar heat.\n\u2022 This albedo effect creates dangerous feedback loo",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 901.2200832366943
+    },
+    "settlement": {
+      "contract_id": "contract_112bbc87f63d",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 901.2200832366943,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4300.4419803619385
+    },
+    "settlement": {
+      "contract_id": "contract_90042c192122",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4300.4419803619385,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1131,
+      "latency_ms": 39309.497356414795
+    },
+    "settlement": {
+      "contract_id": "contract_577d16ef3be6",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 39309.497356414795,
+    "token_cost_fil": 0.008895,
+    "tokens_used": {
+      "input": 173,
+      "output": 803
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 597.0687866210938
+    },
+    "settlement": {
+      "contract_id": "contract_105b67ec1ffd",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 597.0687866210938,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 511,
+      "latency_ms": 17000.918865203857
+    },
+    "settlement": {
+      "contract_id": "contract_8c1ac6ab7a94",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 17000.918865203857,
+    "token_cost_fil": 0.002005,
+    "tokens_used": {
+      "input": 410,
+      "output": 196
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called attention. They can handle tasks in parallel, meaning they do many things at the same time, instead ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 437,
+      "latency_ms": 66658.9937210083
+    },
+    "settlement": {
+      "contract_id": "contract_00dc0ed3a38d",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 66658.9937210083,
+    "token_cost_fil": 0.016165000000000002,
+    "tokens_used": {
+      "input": 137,
+      "output": 1548
+    },
+    "output_preview": "\u2022 Rising global temperature accelerates Arctic sea ice melt, reducing reflective surfaces and triggering dangerous feedback loops that amplify warming trends.\n\u2022 Diminished ice coverage lowers albedo, ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 834.1555595397949
+    },
+    "settlement": {
+      "contract_id": "contract_75a24c403e31",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 834.1555595397949,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 512,
+      "latency_ms": 23005.634784698486
+    },
+    "settlement": {
+      "contract_id": "contract_34c5dda67592",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 23005.634784698486,
+    "token_cost_fil": 0.002085,
+    "tokens_used": {
+      "input": 410,
+      "output": 212
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called \"attention.\" They can handle tasks in parallel, meaning they do many things at the same time, instea",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1018,
+      "latency_ms": 33083.155393600464
+    },
+    "settlement": {
+      "contract_id": "contract_5acb2e49c0f8",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 33083.155393600464,
+    "token_cost_fil": 0.009195,
+    "tokens_used": {
+      "input": 173,
+      "output": 833
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1284.1296195983887
+    },
+    "settlement": {
+      "contract_id": "contract_586ff169b667",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1284.1296195983887,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 510,
+      "latency_ms": 16886.112928390503
+    },
+    "settlement": {
+      "contract_id": "contract_175af43e6980",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 16886.112928390503,
+    "token_cost_fil": 0.002,
+    "tokens_used": {
+      "input": 410,
+      "output": 195
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called attention. They can handle tasks in parallel, meaning they do many things at the same time, instead ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 262,
+      "latency_ms": 20379.906177520752
+    },
+    "settlement": {
+      "contract_id": "contract_e779eadea8e0",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 20379.906177520752,
+    "token_cost_fil": 0.005859999999999999,
+    "tokens_used": {
+      "input": 158,
+      "output": 507
+    },
+    "output_preview": "```json\n{\n  \"people\": [\n    \"Dr. Sarah Chen\",\n    \"Prof. James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 1211.6389274597168
+    },
+    "settlement": {
+      "contract_id": "contract_75d9bc9725a5",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1211.6389274597168,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 419,
+      "latency_ms": 6144.562721252441
+    },
+    "settlement": {
+      "contract_id": "contract_4660f9540165",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 6144.562721252441,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The decrease in ice reduces the albedo effect, a",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 252,
+      "latency_ms": 33387.80927658081
+    },
+    "settlement": {
+      "contract_id": "contract_56154fb95cd7",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 33387.80927658081,
+    "token_cost_fil": 0.00888,
+    "tokens_used": {
+      "input": 158,
+      "output": 809
+    },
+    "output_preview": "```json\n{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Sw",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 640.087366104126
+    },
+    "settlement": {
+      "contract_id": "contract_fd38549b2d7e",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 640.087366104126,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 566,
+      "latency_ms": 17674.60346221924
+    },
+    "settlement": {
+      "contract_id": "contract_9a226b3a05aa",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 17674.60346221924,
+    "token_cost_fil": 0.0020350000000000004,
+    "tokens_used": {
+      "input": 410,
+      "output": 202
+    },
+    "output_preview": "Transformers are like smart computers that can pay attention to different parts of information at the same time, which is called parallel processing. This helps them understand sequences, like sentenc",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 468,
+      "latency_ms": 62064.361810684204
+    },
+    "settlement": {
+      "contract_id": "contract_cc10d8c2e8dc",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 62064.361810684204,
+    "token_cost_fil": 0.017105,
+    "tokens_used": {
+      "input": 137,
+      "output": 1642
+    },
+    "output_preview": "\u2022 Rising global temperatures accelerate Arctic sea ice melt, reducing ice extent significantly during summer months and disrupting polar ecosystems.\n\u2022 Reduced ice coverage lowers albedo, causing darke",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 590.0387763977051
+    },
+    "settlement": {
+      "contract_id": "contract_f7e7c2eb22c0",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 590.0387763977051,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4475.64435005188
+    },
+    "settlement": {
+      "contract_id": "contract_41e3979a9f27",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4475.64435005188,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1128,
+      "latency_ms": 18102.64277458191
+    },
+    "settlement": {
+      "contract_id": "contract_cc8028dcb1ef",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 18102.64277458191,
+    "token_cost_fil": 0.007925,
+    "tokens_used": {
+      "input": 173,
+      "output": 706
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 749.7363090515137
+    },
+    "settlement": {
+      "contract_id": "contract_4f9337831ae0",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 749.7363090515137,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 419,
+      "latency_ms": 9362.520456314087
+    },
+    "settlement": {
+      "contract_id": "contract_ef7f793ce9d3",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 9362.520456314087,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The decrease in ice reduces the albedo effect, a",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1066,
+      "latency_ms": 27577.00777053833
+    },
+    "settlement": {
+      "contract_id": "contract_875f7bc39b23",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 27577.00777053833,
+    "token_cost_fil": 0.008705000000000001,
+    "tokens_used": {
+      "input": 173,
+      "output": 784
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 726.8891334533691
+    },
+    "settlement": {
+      "contract_id": "contract_5596d44e8af4",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 726.8891334533691,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 512,
+      "latency_ms": 24475.071668624878
+    },
+    "settlement": {
+      "contract_id": "contract_8fd7fa60946d",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 24475.071668624878,
+    "token_cost_fil": 0.00201,
+    "tokens_used": {
+      "input": 410,
+      "output": 197
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called \"attention.\" They can handle tasks in parallel, meaning they do many things at the same time, instea",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 240,
+      "latency_ms": 19764.983415603638
+    },
+    "settlement": {
+      "contract_id": "contract_e3b381222a7c",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 19764.983415603638,
+    "token_cost_fil": 0.008239999999999999,
+    "tokens_used": {
+      "input": 158,
+      "output": 745
+    },
+    "output_preview": "{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Switzerlan",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 1109.3015670776367
+    },
+    "settlement": {
+      "contract_id": "contract_314d6918974b",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1109.3015670776367,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 419,
+      "latency_ms": 5689.239978790283
+    },
+    "settlement": {
+      "contract_id": "contract_5957922b0cd3",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 5689.239978790283,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The decrease in ice reduces the albedo effect, a",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 240,
+      "latency_ms": 52273.91338348389
+    },
+    "settlement": {
+      "contract_id": "contract_934ff173315b",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 52273.91338348389,
+    "token_cost_fil": 0.01716,
+    "tokens_used": {
+      "input": 158,
+      "output": 1637
+    },
+    "output_preview": "{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Switzerlan",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 891.0388946533203
+    },
+    "settlement": {
+      "contract_id": "contract_70b877b7ca1e",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 891.0388946533203,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 512,
+      "latency_ms": 18845.1566696167
+    },
+    "settlement": {
+      "contract_id": "contract_36a5bac35ee6",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 18845.1566696167,
+    "token_cost_fil": 0.002085,
+    "tokens_used": {
+      "input": 410,
+      "output": 212
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called \"attention.\" They can handle tasks in parallel, meaning they do many things at the same time, instea",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 461,
+      "latency_ms": 124221.59910202026
+    },
+    "settlement": {
+      "contract_id": "contract_62dfffd89964",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 124221.59910202026,
+    "token_cost_fil": 0.027585000000000002,
+    "tokens_used": {
+      "input": 137,
+      "output": 2690
+    },
+    "output_preview": "\u2022 Rising global temperature melts Arctic sea ice, reducing albedo and creating feedback loops that accelerate warming and amplify climate change impacts.\n\u2022 Diminishing ice cover disrupts polar jet str",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 906.7733287811279
+    },
+    "settlement": {
+      "contract_id": "contract_e76ae49302e8",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 906.7733287811279,
+    "token_cost_fil": 0.001095,
+    "tokens_used": {
+      "input": 160,
+      "output": 59
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"European Commission\", \"Nature\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4810.705184936523
+    },
+    "settlement": {
+      "contract_id": "contract_c623621957da",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4810.705184936523,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 240,
+      "latency_ms": 25593.341827392578
+    },
+    "settlement": {
+      "contract_id": "contract_39d4188f2687",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 25593.341827392578,
+    "token_cost_fil": 0.007699999999999999,
+    "tokens_used": {
+      "input": 158,
+      "output": 691
+    },
+    "output_preview": "{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Switzerlan",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 913.3856296539307
+    },
+    "settlement": {
+      "contract_id": "contract_9798a8f18174",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 913.3856296539307,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4092.395067214966
+    },
+    "settlement": {
+      "contract_id": "contract_52d2684a13b1",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4092.395067214966,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1131,
+      "latency_ms": 29287.559747695923
+    },
+    "settlement": {
+      "contract_id": "contract_916f3407819e",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 29287.559747695923,
+    "token_cost_fil": 0.008735,
+    "tokens_used": {
+      "input": 173,
+      "output": 787
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1209.1913223266602
+    },
+    "settlement": {
+      "contract_id": "contract_4fd5610ea96a",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1209.1913223266602,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 3074.8977661132812
+    },
+    "settlement": {
+      "contract_id": "contract_adf1473b8faf",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 3074.8977661132812,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 252,
+      "latency_ms": 17172.176361083984
+    },
+    "settlement": {
+      "contract_id": "contract_05e4e1f340de",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 17172.176361083984,
+    "token_cost_fil": 0.00549,
+    "tokens_used": {
+      "input": 158,
+      "output": 470
+    },
+    "output_preview": "```json\n{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Sw",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1038.4891033172607
+    },
+    "settlement": {
+      "contract_id": "contract_49f520621e82",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 1038.4891033172607,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4599.7185707092285
+    },
+    "settlement": {
+      "contract_id": "contract_6cc0ef7e8dbd",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4599.7185707092285,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 1032,
+      "latency_ms": 31539.274215698242
+    },
+    "settlement": {
+      "contract_id": "contract_72e903e6f053",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 31539.274215698242,
+    "token_cost_fil": 0.008695000000000001,
+    "tokens_used": {
+      "input": 173,
+      "output": 783
+    },
+    "output_preview": "```json\n{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in a vacuum is approximately 299,792",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 990.7772541046143
+    },
+    "settlement": {
+      "contract_id": "contract_5612b38399fd",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 990.7772541046143,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 512,
+      "latency_ms": 17217.536211013794
+    },
+    "settlement": {
+      "contract_id": "contract_49e013135fc6",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 17217.536211013794,
+    "token_cost_fil": 0.002085,
+    "tokens_used": {
+      "input": 410,
+      "output": 212
+    },
+    "output_preview": "Transformers are like smart computers that can look at lots of information at once, which is called \"attention.\" They can handle tasks in parallel, meaning they do many things at the same time, instea",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 252,
+      "latency_ms": 22530.043601989746
+    },
+    "settlement": {
+      "contract_id": "contract_57fdcffbeb5a",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 22530.043601989746,
+    "token_cost_fil": 0.00705,
+    "tokens_used": {
+      "input": 158,
+      "output": 626
+    },
+    "output_preview": "```json\n{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Sw",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t3_research_synthesis",
+    "tier": "T3",
+    "domain": "research",
+    "proof_cid": "bafybeig7c71d8e77ff5a7bea234ecc428bbb063",
+    "verification": {
+      "task_id": "t3_research_synthesis",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "required_keywords",
+        "ethical_caveat",
+        "required_sections",
+        "word_count_300_700",
+        "min_sentences_15"
+      ],
+      "constraints_failed": [],
+      "jury_pass": true,
+      "jury_score": 0.685,
+      "jury_reasoning": "gpt-5.2: 0.62 - Meets rubric items at a basic level: distinguishes intrinsic vs extrinsic, covers multiple causes (data/architecture/decoding), discusses detection and mitigation, and lists open problems. However, several claims are inaccurate or weakly supported (e.g., extrinsic hallucinations framed as 'not supported by training data'; Bayesian neural nets/MC dropout are not common in LLM deployment; mitigation suggestions are generic and omit major established approaches like RAG, RLHF, calibration, self-consistency). Hedging is limited and the taxonomy/open-problems discussion is thin for a technical synthesis. | DeepSeek-v3.2: 0.75 - The output covers all required sections with generally accurate information suitable for a technical audience. It correctly distinguishes intrinsic vs. extrinsic hallucination types, covers multiple causes, discusses detection and mitigation, and identifies open problems. However, the taxonomy is overly simplified (missing finer categories like factual vs. contradictory), some cause explanations are vague (e.g., architecture influence), and hedging on uncertain claims is minimal. The structure is clear but lacks depth in distinguishing well-established findings from active research.",
+      "jury_model": "gpt-5.2+DeepSeek-v3.2",
+      "overall_pass": true,
+      "output_length": 3698,
+      "latency_ms": 3970.0355529785156
+    },
+    "settlement": {
+      "contract_id": "contract_438801470443",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.1,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 3970.0355529785156,
+    "token_cost_fil": 0.00447,
+    "tokens_used": {
+      "input": 219,
+      "output": 675
+    },
+    "output_preview": "**Hallucination in Large Language Models: A Synthesis of Current Research**\n\n**Definition**\nHallucination in large language models (LLMs) refers to the phenomenon where a model generates text that is ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 3583.904266357422
+    },
+    "settlement": {
+      "contract_id": "contract_4c9e81791879",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 3583.904266357422,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 240,
+      "latency_ms": 56423.447132110596
+    },
+    "settlement": {
+      "contract_id": "contract_50034b4a560e",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 56423.447132110596,
+    "token_cost_fil": 0.00861,
+    "tokens_used": {
+      "input": 158,
+      "output": 782
+    },
+    "output_preview": "{\n  \"people\": [\n    \"Sarah Chen\",\n    \"James Wright\"\n  ],\n  \"organizations\": [\n    \"MIT\",\n    \"Oxford University\",\n    \"Nature\",\n    \"European Commission\"\n  ],\n  \"locations\": [\n    \"Geneva, Switzerlan",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t3_research_synthesis",
+    "tier": "T3",
+    "domain": "research",
+    "proof_cid": "bafybeig7c71d8e77ff5a7bea234ecc428bbb063",
+    "verification": {
+      "task_id": "t3_research_synthesis",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "required_keywords",
+        "ethical_caveat",
+        "required_sections",
+        "word_count_300_700",
+        "min_sentences_15"
+      ],
+      "constraints_failed": [],
+      "jury_pass": true,
+      "jury_score": 0.685,
+      "jury_reasoning": "gpt-5.2: 0.62 - Covers the required sections: provides a basic definition and distinguishes intrinsic vs extrinsic hallucinations; lists multiple causes spanning training data, architecture, and decoding; discusses detection and mitigation approaches; and mentions open problems with some hedging (\u201cactive research area\u201d, \u201cnot foolproof\u201d). However, the taxonomy is oversimplified and contains a notable inaccuracy (extrinsic hallucination is not \u201cnot supported by training data\u201d but typically \u201cnot supported by provided source/input\u201d/world knowledge). Causes and methods are described at a high level without distinguishing well-established results vs active debates beyond brief caveats, so it\u2019s only marginally passing. | DeepSeek-v3.2: 0.75 - The output comprehensively addresses all five rubric criteria: it clearly distinguishes intrinsic vs. extrinsic hallucination types, covers multiple causes (training data, architecture, decoding), discusses both detection and mitigation, identifies open problems, and appropriately hedges uncertain claims (e.g., 'active research area,' 'not foolproof,' 'nuanced'). The synthesis is suitable for a technical audience and distinguishes established findings from active research. Minor deductions are for a somewhat high-level treatment of detection/mitigation methods and a taxonomy that could be more detailed (e.g., including factual vs. contradictory subtypes), but overall it is a strong, accurate synthesis.",
+      "jury_model": "gpt-5.2+DeepSeek-v3.2",
+      "overall_pass": true,
+      "output_length": 3711,
+      "latency_ms": 3568.355083465576
+    },
+    "settlement": {
+      "contract_id": "contract_9b69dc5df2c7",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.1,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 3568.355083465576,
+    "token_cost_fil": 0.0043300000000000005,
+    "tokens_used": {
+      "input": 219,
+      "output": 647
+    },
+    "output_preview": "**Hallucination in Large Language Models: A Synthesis of Current Research**\n\n**Definition**\nHallucination in large language models (LLMs) refers to the phenomenon where a model generates text that is ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 4607.077598571777
+    },
+    "settlement": {
+      "contract_id": "contract_c52f73c66f3e",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 4607.077598571777,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Kimi-K2.5",
+    "agent_id": "agent_1ff73cb20e33",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Kimi-K2.5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 445,
+      "latency_ms": 49666.873931884766
+    },
+    "settlement": {
+      "contract_id": "contract_f2479439e614",
+      "agent_id": "agent_1ff73cb20e33",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 49666.873931884766,
+    "token_cost_fil": 0.017195000000000002,
+    "tokens_used": {
+      "input": 137,
+      "output": 1651
+    },
+    "output_preview": "\u2022 Rising global temperatures accelerate Arctic sea ice melt, reducing reflective surfaces and amplifying heat absorption across the polar region.\n\u2022 Diminished ice coverage lowers albedo, creating dang",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_a3f5069618c3",
+    "task_id": "t3_risk_assessment",
+    "tier": "T3",
+    "domain": "financial_analysis",
+    "proof_cid": "bafybeigbb5bb4b8521b5fb65eedbe5aa533d47e",
+    "verification": {
+      "task_id": "t3_risk_assessment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "required_sections",
+        "number_range_risk_score",
+        "required_keywords",
+        "ethical_caveat",
+        "word_count_200_600"
+      ],
+      "constraints_failed": [],
+      "jury_pass": true,
+      "jury_score": 0.775,
+      "jury_reasoning": "gpt-5.2: 0.80 - Meets rubric: provides a risk score (6.5/10) and ties it explicitly to burn rate vs runway and competition; runway discussion is consistent with the stated ~14 months (no incorrect math introduced). Competitive landscape is directly addressed (12 well-funded competitors). Includes appropriate uncertainty/caveats. Minor issues: some generic/duplicative sections (\u201cMitigating\u201d vs \u201cMitigating Factors\u201d), and limited quantification of burn vs ARR (no explicit cash need or margin/expense breakdown), but overall solid. | DeepSeek-v3.2: 0.75 - The output meets all rubric criteria: the risk score is justified by the analysis, the burn rate/runway math is acknowledged as correct, competitive landscape is addressed, and appropriate caveats are included. Minor issues include a typo ('Mitigating' as a header) and some redundancy, but the analysis is comprehensive and well-structured.",
+      "jury_model": "gpt-5.2+DeepSeek-v3.2",
+      "overall_pass": true,
+      "output_length": 3845,
+      "latency_ms": 3451.965570449829
+    },
+    "settlement": {
+      "contract_id": "contract_435347bd03b1",
+      "agent_id": "agent_a3f5069618c3",
+      "outcome": "success",
+      "reward": 0.08,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 3451.965570449829,
+    "token_cost_fil": 0.004920000000000001,
+    "tokens_used": {
+      "input": 280,
+      "output": 704
+    },
+    "output_preview": "**Risk Assessment Report**\n\n**Risk Score: 6.5/10**\n\nThe risk score is derived from a comprehensive analysis of the startup's financials, market position, and competitive landscape. The score reflects ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "Phi-4",
+    "agent_id": "agent_fc9f8a23b6fb",
+    "task_id": "t1_summarize_climate",
+    "tier": "T1",
+    "domain": "summarization",
+    "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+    "verification": {
+      "task_id": "t1_summarize_climate",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_30_100",
+        "required_keywords",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 419,
+      "latency_ms": 6860.119342803955
+    },
+    "settlement": {
+      "contract_id": "contract_d5193af354c0",
+      "agent_id": "agent_fc9f8a23b6fb",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": []
+    },
+    "latency_ms": 6860.119342803955,
+    "token_cost_fil": 0.0006950000000000001,
+    "tokens_used": {
+      "input": 136,
+      "output": 71
+    },
+    "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The decrease in ice reduces the albedo effect, a",
+    "agent_strategy": "GrowthStrategy"
+  }
+]
