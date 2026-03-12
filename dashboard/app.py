@@ -27,9 +27,21 @@ import plotly.graph_objects as go
 
 def get_config() -> tuple[Path, int, str]:
     st.sidebar.title("CGAE Protocol Control")
-    
+
+    is_cloud = False
+    try:
+        from dashboard.modal_loader import IS_CLOUD
+
+        is_cloud = IS_CLOUD
+    except Exception:
+        pass
+
     # Stripe-style toggle for Live vs Simulation
-    is_live = st.sidebar.toggle("Live Execution Mode", value=False, help="Toggle between Simulation (Synthetic) and Live Execution (Real LLMs)")
+    is_live = st.sidebar.toggle(
+        "Live Execution Mode",
+        value=is_cloud,
+        help="Toggle between Simulation (Synthetic) and Live Execution (Real LLMs)",
+    )
     mode_label = "Live Execution" if is_live else "Simulation"
     st.sidebar.info(f"Viewing: **{mode_label}**")
     
@@ -40,26 +52,80 @@ def get_config() -> tuple[Path, int, str]:
     if st.sidebar.button("🔄 Clear Cache"):
         st.cache_data.clear()
         st.rerun()
-        
-    res_dir = Path("simulation/live_results") if is_live else Path("simulation/results")
+    
+    # Use absolute path relative to this file
+    base_dir = Path(__file__).parent.parent
+    res_dir = base_dir / "server" / ("live_results" if is_live else "results")
     return res_dir, poll_rate, nav
 
 
-@st.cache_data(ttl=2)
 def load_all_data(results_dir: Path) -> dict:
     data = {
         "ts": {}, "agents": {}, "strategy": {}, "details": {}, 
         "economy": {}, "recent_tasks": [], "events": [], "exists": False,
         "mode": "simulation" if "live" not in str(results_dir) else "live_execution"
     }
-    if not results_dir.exists(): return data
+    
+    # Try Modal loader first if available
+    try:
+        from dashboard.modal_loader import IS_CLOUD, load_json_file
+        if IS_CLOUD:
+            # Load from Modal endpoints
+            for key, filename in [("economy", "economy_state.json"), 
+                                  ("details", "agent_details.json"),
+                                  ("recent_tasks", "task_results.json"),
+                                  ("events", "protocol_events.json")]:
+                loaded = load_json_file(filename)
+                if loaded:
+                    data[key] = loaded
+                    data["exists"] = True
+            
+            # Load mode-specific files
+            if data["mode"] == "simulation":
+                ts_data = load_json_file("time_series.json")
+                if ts_data:
+                    data["ts"] = ts_data
+                data["agents"] = load_json_file("agent_metrics.json") or {}
+                data["strategy"] = load_json_file("strategy_summary.json") or {}
+            else:
+                summary = load_json_file("final_summary.json")
+                if summary:
+                    data["exists"] = True
+                    traj = summary.get("safety_trajectory", [])
+                    data["ts"] = {
+                        "timestamps": [t["time"] for t in traj],
+                        "aggregate_safety": [t["safety"] for t in traj],
+                        "active_agent_count": [t["active_agents"] for t in traj],
+                        "total_balance": [t["total_balance"] for t in traj],
+                        "contracts_completed": [],
+                        "contracts_failed": []
+                    }
+                    rounds = load_json_file("round_summaries.json") or []
+                    if rounds:
+                        c_comp, c_fail = 0, 0
+                        for r in rounds:
+                            c_comp += r.get("tasks_passed", 0)
+                            c_fail += r.get("tasks_failed", 0)
+                            data["ts"]["contracts_completed"].append(c_comp)
+                            data["ts"]["contracts_failed"].append(c_fail)
+                    data["strategy"] = {"total_earned": {a["model_name"]: a["total_earned"] for a in summary.get("agents", [])}}
+            
+            return data
+    except ImportError:
+        pass  # Modal loader not available, fall back to filesystem
+    
+    # Filesystem fallback (local development)
+    if not results_dir.exists():
+        return data
 
     for key, filename in [("economy", "economy_state.json"), 
                           ("details", "agent_details.json"),
                           ("recent_tasks", "task_results.json"),
                           ("events", "protocol_events.json")]:
         path = results_dir / filename
-        if path.exists(): data[key] = json.loads(path.read_text())
+        if path.exists():
+            data[key] = json.loads(path.read_text())
+            data["exists"] = True
 
     if data["mode"] == "simulation":
         ts_path = results_dir / "time_series.json"
@@ -78,23 +144,26 @@ def load_all_data(results_dir: Path) -> dict:
                 "timestamps": [t["time"] for t in traj],
                 "aggregate_safety": [t["safety"] for t in traj],
                 "active_agent_count": [t["active_agents"] for t in traj],
-                "total_balance": [t["total_balance"] for t in traj]
+                "total_balance": [t["total_balance"] for t in traj],
+                "contracts_completed": [],
+                "contracts_failed": []
             }
             rounds_path = results_dir / "round_summaries.json"
             if rounds_path.exists():
                 rounds = json.loads(rounds_path.read_text())
-                c_comp, c_fail = 0, 0
-                data["ts"]["contracts_completed"], data["ts"]["contracts_failed"] = [], []
-                for r in rounds:
-                    c_comp += r.get("tasks_passed", 0); c_fail += r.get("tasks_failed", 0)
-                    data["ts"]["contracts_completed"].append(c_comp); data["ts"]["contracts_failed"].append(c_fail)
+                if rounds:  # Only process if not empty
+                    c_comp, c_fail = 0, 0
+                    for r in rounds:
+                        c_comp += r.get("tasks_passed", 0); c_fail += r.get("tasks_failed", 0)
+                        data["ts"]["contracts_completed"].append(c_comp); data["ts"]["contracts_failed"].append(c_fail)
             data["strategy"] = {"total_earned": {a["model_name"]: a["total_earned"] for a in summary.get("agents", [])}}
     return data
 
 
 @st.cache_data
 def load_onchain_data():
-    path = Path("contracts/deployed.json")
+    base_dir = Path(__file__).parent.parent
+    path = base_dir / "contracts" / "deployed.json"
     return json.loads(path.read_text()) if path.exists() else None
 
 
@@ -115,16 +184,20 @@ def main():
     st.title("Comprehension-Gated Agent Economy")
     st.caption("RFS-4: Autonomous Agent Economy Monitor | Filecoin / IPC Proof-of-Safety")
 
+    # Auto-refresh only in overview mode
+    auto_refresh = (nav == "📈 Economy Overview")
+
     if nav == "📈 Economy Overview":
         # 🚨 Sticky Moment: High-Signal Event Ticker
-        if data["events"]:
+        if data["events"] and isinstance(data["events"], list):
             st.subheader("🚨 Live Protocol Interventions")
             for event in reversed(data["events"][-3:]):
-                etype = event["type"]
-                if etype == "BANKRUPTCY": st.error(f"**{etype}**: {event['message']}")
-                elif etype == "DEMOTION": st.warning(f"**{etype}**: {event['message']}")
-                elif etype == "UPGRADE": st.success(f"**{etype}**: {event['message']}")
-                else: st.info(f"**{etype}**: {event['message']}")
+                etype = event.get("type", "UNKNOWN")
+                msg = event.get("message", "")
+                if etype == "BANKRUPTCY": st.error(f"**{etype}**: {msg}")
+                elif etype == "DEMOTION": st.warning(f"**{etype}**: {msg}")
+                elif etype == "UPGRADE": st.success(f"**{etype}**: {msg}")
+                else: st.info(f"**{etype}**: {msg}")
 
         # KPIs
         ts = data["ts"]
@@ -172,8 +245,6 @@ def main():
                 fig_bal.add_trace(go.Scatter(y=balance, fill='tozeroy', name="Total Circulating FIL", line=dict(color="#3498db")))
                 fig_bal.update_layout(height=350, yaxis_title="FIL")
                 st.plotly_chart(fig_bal, use_container_width=True)
-
-        time.sleep(poll_rate); st.rerun()
 
     elif nav == "🤝 Trade Activity":
         st.header("Verified Trade Activity & Proof-of-Safety")
@@ -242,9 +313,9 @@ def main():
             st.plotly_chart(px.pie(df, names="Tier", title="Population by Protocol Tier"))
             
             # 📈 Sticky Moment: Progression Alert
-            upgrades = [e for e in data["events"] if e["type"] == "UPGRADE"]
+            upgrades = [e for e in data.get("events", []) if isinstance(e, dict) and e.get("type") == "UPGRADE"]
             if upgrades:
-                st.success(f"**Recent Progression:** {upgrades[-1]['message']}")
+                st.success(f"**Recent Progression:** {upgrades[-1].get('message', 'N/A')}")
 
     elif nav == "🔗 Onchain Transparency":
         st.header("Filecoin Virtual Machine (FVM) Contract Registry")
@@ -253,6 +324,11 @@ def main():
             st.dataframe(df, use_container_width=True, hide_index=True)
             st.markdown(f"**Network:** `{onchain['network']}` | **Chain ID:** `{onchain['chainId']}`")
             st.link_button("View Registry on Explorer", f"{onchain['explorer']}/address/{onchain['contracts']['CGAERegistry']['address']}")
+
+    # Auto-refresh only in overview mode
+    if auto_refresh:
+        time.sleep(poll_rate)
+        st.rerun()
 
 
 if __name__ == "__main__":

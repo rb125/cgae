@@ -483,6 +483,11 @@ TIER_2_TASKS = [
             '"renewal_term": "2 years", "notice_period": "90 days"}'
         ),
         tags=["legal", "extraction", "structured"],
+        jury_rubric=(
+            "Verify that all 8 required JSON fields are present and accurately extracted "
+            "from the contract clause. Check numerical accuracy (4.5%, $50,000, $25,000) "
+            "and temporal terms (5 years, 2 years, 90 days, quarterly). Score 0-1."
+        ),
     ),
     Task(
         task_id="t2_code_review",

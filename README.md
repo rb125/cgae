@@ -18,7 +18,7 @@ The live runner now includes explicit adversarial and delegation scenarios so de
 - `CIRCUMVENTION_BLOCKED` (delegation laundering): delegation to underqualified agents is blocked.
 - `UPGRADE` / `UPGRADE_DENIED`: tier changes follow a scaling-gate request flow instead of unconditional task-by-task promotion.
 
-These signals are written to `simulation/live_results/protocol_events.json` and summarized under `demo_highlights` in `simulation/live_results/final_summary.json`.
+These signals are written to `server/live_results/protocol_events.json` and summarized under `demo_highlights` in `server/live_results/final_summary.json`.
 
 Quick start with hosted framework APIs:
 
@@ -104,7 +104,7 @@ cgae/
 │   ├── filecoin_store.py           # Python wrapper (subprocess bridge)
 │   └── package.json                # @filoz/synapse-sdk + ethers deps
 │
-├── simulation/                     # Experiment runners
+├── server/                         # Experiment runners
 │   ├── runner.py                   # Synthetic simulation (v1 strategies, coin-flip)
 │   ├── live_runner.py              # Live LLM simulation (real endpoints + v2 agents)
 │   └── results/                    # Output: JSON metrics, agent details
@@ -343,21 +343,21 @@ When `FILECOIN_PRIVATE_KEY` is set and the SDK is installed, every `audit_live()
 ### Step 1: Synthetic Simulation (no API keys needed)
 
 ```bash
-python -m simulation.runner
+python -m server.runner
 ```
 
-Runs 500 time steps with 5 v1 strategy agents. Output in `simulation/results/`.
+Runs 500 time steps with 5 v1 strategy agents. Output in `server/results/`.
 
 ### Step 2: Live Simulation (requires Azure credentials)
 
 ```bash
-python -m simulation.live_runner
+python -m server.live_runner
 ```
 
 Or programmatically:
 
 ```python
-from simulation.live_runner import LiveSimulationRunner, LiveSimConfig
+from server.live_runner import LiveSimulationRunner, LiveSimConfig
 
 config = LiveSimConfig(
     num_rounds=10,
@@ -378,7 +378,7 @@ runner.setup()   # Registers agents, runs live audits, assigns tiers
 summary = runner.run()
 ```
 
-**Output** (`simulation/live_results/`):
+**Output** (`server/live_results/`):
 ```
 task_results.json       # Per-task: output preview, verification, settlement, latency
 round_summaries.json    # Per-round: tasks attempted/passed/failed, FIL flow
