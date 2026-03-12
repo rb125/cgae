@@ -1,7 +1,7 @@
 {
-  "total": 1,
-  "algorithmic_pass_rate": 1.0,
+  "total": 31,
+  "algorithmic_pass_rate": 0.967741935483871,
   "jury_pass_rate": null,
-  "overall_pass_rate": 1.0,
+  "overall_pass_rate": 0.967741935483871,
   "avg_jury_score": null
 }

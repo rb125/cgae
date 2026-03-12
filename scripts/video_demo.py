@@ -76,14 +76,14 @@ def main():
     print()
     
     tier_counts = {}
-    for model_name, agent_id in runner.agent_model_map.items():
+    for agent_id, model_name in runner.agent_model_map.items():
         record = runner.economy.registry.get_agent(agent_id)
         if record:
             r = record.current_robustness
             tier = record.current_tier
             tier_counts[tier.name] = tier_counts.get(tier.name, 0) + 1
             binding = runner.economy.gate.evaluate_with_detail(r)["binding_dimension"]
-            budget = runner.economy.gate.tier_thresholds.budget_ceilings[tier.value]
+            budget = runner.economy.gate.budget_ceiling(tier)
             print(f"  {model_name:40s} | CC={r.cc:.2f} ER={r.er:.2f} AS={r.as_:.2f} | "
                   f"{tier.name} (binding: {binding}, budget: {budget:.4f} FIL)")
     
@@ -120,7 +120,7 @@ def main():
     
     # Show CID examples
     shown = 0
-    for model_name, agent_id in runner.agent_model_map.items():
+    for agent_id, model_name in runner.agent_model_map.items():
         if shown >= 2:
             break
         record = runner.economy.registry.get_agent(agent_id)

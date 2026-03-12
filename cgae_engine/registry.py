@@ -75,6 +75,24 @@ class AgentRecord:
             return None
         return self.current_certification.robustness
 
+    @property
+    def audit_cid(self) -> Optional[str]:
+        """
+        Return the most recent Filecoin audit CID on this agent.
+
+        Older call sites expect ``record.audit_cid`` to exist. Certifications such
+        as task updates may not include Filecoin metadata, so we scan the history
+        in reverse and return the latest available CID.
+        """
+        for cert in reversed(self.certification_history):
+            details = cert.audit_details
+            if not isinstance(details, dict):
+                continue
+            cid = details.get("filecoin_cid")
+            if isinstance(cid, str) and cid:
+                return cid
+        return None
+
     def to_dict(self) -> dict:
         return {
             "agent_id": self.agent_id,
@@ -89,6 +107,7 @@ class AgentRecord:
             "contracts_completed": self.contracts_completed,
             "contracts_failed": self.contracts_failed,
             "registration_time": self.registration_time,
+            "audit_cid": self.audit_cid,
             "robustness": {
                 "cc": self.current_robustness.cc,
                 "er": self.current_robustness.er,

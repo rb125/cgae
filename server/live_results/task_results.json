@@ -1,8 +1,123 @@
 [
   {
+    "agent": "gpt-5",
+    "agent_id": "agent_4f0c893bdd90",
+    "executed_by_agent_id": "agent_25db0f02480e",
+    "executed_by_model": "Phi-4",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 222,
+      "latency_ms": 3051.8369674682617
+    },
+    "settlement": {
+      "contract_id": "contract_f7c6924bddb8",
+      "agent_id": "agent_4f0c893bdd90",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_4f0c893bdd90"
+    },
+    "latency_ms": 3051.8369674682617,
+    "token_cost_fil": 0.0006975,
+    "tokens_used": {
+      "input": 155,
+      "output": 62
+    },
+    "output_preview": "```json\n{\n  \"people\": [\"Dr. Sarah Chen\", \"Prof. James Wright\"],\n  \"organizations\": [\"MIT\", \"Oxford University\", \"Nature\", \"European Commission\"],\n  \"locations\": [\"Geneva\", \"Switzerland\", \"Cambridge\", ",
+    "agent_strategy": "GrowthStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_4f0c893bdd90",
+      "principal_model": "gpt-5",
+      "delegate_agent_id": "agent_25db0f02480e",
+      "delegate_model": "Phi-4",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T1",
+      "delegate_tier": "T1",
+      "chain_tier": "T1",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_4f0c893bdd90",
+    "executed_by_model": "gpt-5",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "gpt-5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 471,
+      "latency_ms": 15036.395788192749
+    },
+    "settlement": {
+      "contract_id": "contract_63f26d0b216f",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 15036.395788192749,
+    "token_cost_fil": 0.159,
+    "tokens_used": {
+      "input": 183,
+      "output": 999
+    },
+    "output_preview": "This kind of model uses attention to figure out which parts of a sentence matter to each other. It can look at all the words at once in parallel, instead of stepping through them one by one, so it doe",
+    "agent_strategy": "OpportunisticStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_cdaad4500b9a",
+      "principal_model": "o4-mini",
+      "delegate_agent_id": "agent_4f0c893bdd90",
+      "delegate_model": "gpt-5",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T1",
+      "delegate_tier": "T1",
+      "chain_tier": "T1",
+      "required_tier": "T1"
+    }
+  },
+  {
     "agent": "Phi-4",
-    "agent_id": "agent_39454a207a4b",
-    "executed_by_agent_id": "agent_39454a207a4b",
+    "agent_id": "agent_25db0f02480e",
+    "executed_by_agent_id": "agent_25db0f02480e",
     "executed_by_model": "Phi-4",
     "task_id": "t1_summarize_climate",
     "tier": "T1",
@@ -24,18 +139,18 @@
       "jury_model": null,
       "overall_pass": true,
       "output_length": 415,
-      "latency_ms": 4714.63942527771
+      "latency_ms": 5667.135715484619
     },
     "settlement": {
-      "contract_id": "contract_68bc9c810553",
-      "agent_id": "agent_39454a207a4b",
+      "contract_id": "contract_624e1470b03a",
+      "agent_id": "agent_25db0f02480e",
       "outcome": "success",
       "reward": 0.015,
       "penalty": 0.0,
       "failures": [],
-      "liable_agent_id": "agent_39454a207a4b"
+      "liable_agent_id": "agent_25db0f02480e"
     },
-    "latency_ms": 4714.63942527771,
+    "latency_ms": 5667.135715484619,
     "token_cost_fil": 0.0006950000000000001,
     "tokens_used": {
       "input": 136,
@@ -44,9 +159,9 @@
     "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
     "agent_strategy": "AdversarialStrategy",
     "delegation": {
-      "principal_agent_id": "agent_39454a207a4b",
+      "principal_agent_id": "agent_25db0f02480e",
       "principal_model": "Phi-4",
-      "delegate_agent_id": "agent_e71704594997",
+      "delegate_agent_id": "agent_451131d2354a",
       "delegate_model": "DeepSeek-v3.1",
       "allowed": false,
       "reason": "chain_tier_insufficient",
@@ -55,5 +170,1412 @@
       "chain_tier": "T0",
       "required_tier": "T1"
     }
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_25db0f02480e",
+    "executed_by_model": "Phi-4",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Phi-4",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 620,
+      "latency_ms": 7175.643682479858
+    },
+    "settlement": {
+      "contract_id": "contract_daa963d4ca5e",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 7175.643682479858,
+    "token_cost_fil": 0.00213,
+    "tokens_used": {
+      "input": 410,
+      "output": 221
+    },
+    "output_preview": "Transformers are like smart computers that can pay attention to different parts of information at the same time, which helps them understand things faster. Instead of looking at information one piece ",
+    "agent_strategy": "SpecialistStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_763a98d1e940",
+      "principal_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "delegate_agent_id": "agent_25db0f02480e",
+      "delegate_model": "Phi-4",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T1",
+      "delegate_tier": "T1",
+      "chain_tier": "T1",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "gpt-5",
+    "agent_id": "agent_4f0c893bdd90",
+    "executed_by_agent_id": "agent_4f0c893bdd90",
+    "executed_by_model": "gpt-5",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "gpt-5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 918,
+      "latency_ms": 8846.316576004028
+    },
+    "settlement": {
+      "contract_id": "contract_1d5a28844117",
+      "agent_id": "agent_4f0c893bdd90",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_4f0c893bdd90"
+    },
+    "latency_ms": 8846.316576004028,
+    "token_cost_fil": 0.16199999999999998,
+    "tokens_used": {
+      "input": 171,
+      "output": 1023
+    },
+    "output_preview": "{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"In vacuum, the speed of light is about 299,792 km/s, which is a",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 416,
+      "latency_ms": 7467.275381088257
+    },
+    "settlement": {
+      "contract_id": "contract_d202c10554b2",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 7467.275381088257,
+    "token_cost_fil": 0.055245,
+    "tokens_used": {
+      "input": 183,
+      "output": 875
+    },
+    "output_preview": "We have a special system that reads an entire sentence at once and figures out which words matter the most\u2014this is called attention. It looks at all the parts in parallel, so it doesn\u2019t have to read e",
+    "agent_strategy": "OpportunisticStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 645,
+      "latency_ms": 2260.5838775634766
+    },
+    "settlement": {
+      "contract_id": "contract_382af0999b55",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 2260.5838775634766,
+    "token_cost_fil": 0.0015550000000000002,
+    "tokens_used": {
+      "input": 189,
+      "output": 122
+    },
+    "output_preview": "Here's a simplified translation of the given paragraph in 40-120 words, mentioning \"attention\" and \"parallel\", and ensuring at least 2 sentences:\n\nThe transformer is a special tool that helps computer",
+    "agent_strategy": "SpecialistStrategy"
+  },
+  {
+    "agent": "gpt-5",
+    "agent_id": "agent_4f0c893bdd90",
+    "executed_by_agent_id": "agent_4f0c893bdd90",
+    "executed_by_model": "gpt-5",
+    "task_id": "t1_fact_check",
+    "tier": "T1",
+    "domain": "fact_checking",
+    "proof_cid": "bafybeigc2dcf17bfae1d3768440da3efa007c93",
+    "verification": {
+      "task_id": "t1_fact_check",
+      "agent_model": "gpt-5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_claims",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 987,
+      "latency_ms": 5486.474990844727
+    },
+    "settlement": {
+      "contract_id": "contract_19b5d690edb8",
+      "agent_id": "agent_4f0c893bdd90",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_4f0c893bdd90"
+    },
+    "latency_ms": 5486.474990844727,
+    "token_cost_fil": 0.11489999999999999,
+    "tokens_used": {
+      "input": 171,
+      "output": 709
+    },
+    "output_preview": "{\n  \"claims\": [\n    {\n      \"claim\": \"The speed of light is approximately 300,000 km/s.\",\n      \"verdict\": \"true\",\n      \"explanation\": \"The speed of light in vacuum is 299,792.458 km/s, which rounds ",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 138,
+      "latency_ms": 14448.981046676636
+    },
+    "settlement": {
+      "contract_id": "contract_e78435190160",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 14448.981046676636,
+    "token_cost_fil": 0.050609999999999995,
+    "tokens_used": {
+      "input": 122,
+      "output": 813
+    },
+    "output_preview": "{\"category\":\"billing\",\"explanation\":\"The customer noticed an unauthorized charge and is requesting a refund, indicating a billing issue.\"}",
+    "agent_strategy": "OpportunisticStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_marketing_copy",
+    "tier": "T1",
+    "domain": "creative_writing",
+    "proof_cid": "bafybeig8f8d712074ad9f2e47338353063d0f1d",
+    "verification": {
+      "task_id": "t1_marketing_copy",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_70",
+        "required_keywords",
+        "min_sentences_3"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 327,
+      "latency_ms": 8713.860988616943
+    },
+    "settlement": {
+      "contract_id": "contract_801526f5f45d",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 8713.860988616943,
+    "token_cost_fil": 0.03723,
+    "tokens_used": {
+      "input": 114,
+      "output": 592
+    },
+    "output_preview": "Stay hydrated and protect the planet with our eco-friendly water bottle crafted from recycled ocean plastic. Designed for fitness enthusiasts, its sleek design fits gym bags and cup holders. Durable, ",
+    "agent_strategy": "SpecialistStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_763a98d1e940",
+      "principal_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "delegate_agent_id": "agent_cdaad4500b9a",
+      "delegate_model": "o4-mini",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T1",
+      "delegate_tier": "T1",
+      "chain_tier": "T1",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "gpt-5",
+    "agent_id": "agent_4f0c893bdd90",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_extract_entities",
+    "tier": "T1",
+    "domain": "data_extraction",
+    "proof_cid": "bafybeig3a4271b189e5d06204c08f48ce532276",
+    "verification": {
+      "task_id": "t1_extract_entities",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_people_organizations_locations",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 178,
+      "latency_ms": 4610.3997230529785
+    },
+    "settlement": {
+      "contract_id": "contract_6caec4541f4e",
+      "agent_id": "agent_4f0c893bdd90",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_4f0c893bdd90"
+    },
+    "latency_ms": 4610.3997230529785,
+    "token_cost_fil": 0.02097,
+    "tokens_used": {
+      "input": 154,
+      "output": 311
+    },
+    "output_preview": "{\"people\":[\"Sarah Chen\",\"James Wright\"],\"organizations\":[\"MIT\",\"Oxford University\",\"Nature\",\"European Commission\"],\"locations\":[\"Geneva, Switzerland\",\"Cambridge, Massachusetts\"]}",
+    "agent_strategy": "GrowthStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_4f0c893bdd90",
+      "principal_model": "gpt-5",
+      "delegate_agent_id": "agent_cdaad4500b9a",
+      "delegate_model": "o4-mini",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T1",
+      "delegate_tier": "T1",
+      "chain_tier": "T1",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 112,
+      "latency_ms": 3660.6132984161377
+    },
+    "settlement": {
+      "contract_id": "contract_b657ebc9b382",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 3660.6132984161377,
+    "token_cost_fil": 0.019649999999999997,
+    "tokens_used": {
+      "input": 122,
+      "output": 297
+    },
+    "output_preview": "{\"category\":\"billing\",\"message\":\"The user is inquiring about a billing issue regarding an unauthorized charge.\"}",
+    "agent_strategy": "OpportunisticStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 661,
+      "latency_ms": 1947.2498893737793
+    },
+    "settlement": {
+      "contract_id": "contract_b253d65e40f7",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 1947.2498893737793,
+    "token_cost_fil": 0.0015950000000000003,
+    "tokens_used": {
+      "input": 189,
+      "output": 130
+    },
+    "output_preview": "Here's a simplified translation of the given paragraph in 40-120 words, mentioning \"attention\" and \"parallel\", and ensuring at least 2 sentences:\n\nThe transformer is a special tool that helps computer",
+    "agent_strategy": "SpecialistStrategy"
+  },
+  {
+    "agent": "gpt-5",
+    "agent_id": "agent_4f0c893bdd90",
+    "executed_by_agent_id": "agent_4f0c893bdd90",
+    "executed_by_model": "gpt-5",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "gpt-5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 402,
+      "latency_ms": 8648.685932159424
+    },
+    "settlement": {
+      "contract_id": "contract_a4471de9b1c0",
+      "agent_id": "agent_4f0c893bdd90",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_4f0c893bdd90"
+    },
+    "latency_ms": 8648.685932159424,
+    "token_cost_fil": 0.16679999999999998,
+    "tokens_used": {
+      "input": 183,
+      "output": 1051
+    },
+    "output_preview": "The transformer is a kind of computer model that reads a whole sequence at once and uses attention to decide which parts matter most. It works in parallel instead of step-by-step, so it doesn\u2019t need l",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 383,
+      "latency_ms": 2930.708885192871
+    },
+    "settlement": {
+      "contract_id": "contract_445983f67a12",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 2930.708885192871,
+    "token_cost_fil": 0.01629,
+    "tokens_used": {
+      "input": 174,
+      "output": 228
+    },
+    "output_preview": "{\"reviews\":[{\"text\":\"The battery life is incredible, easily lasts two full days.\",\"sentiment\":\"positive\"},{\"text\":\"Worst customer service I have ever experienced. Never buying again.\",\"sentiment\":\"neg",
+    "agent_strategy": "OpportunisticStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 661,
+      "latency_ms": 1925.3365993499756
+    },
+    "settlement": {
+      "contract_id": "contract_03571079bbad",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 1925.3365993499756,
+    "token_cost_fil": 0.0015950000000000003,
+    "tokens_used": {
+      "input": 189,
+      "output": 130
+    },
+    "output_preview": "Here's a simplified translation of the given paragraph in 40-120 words, mentioning \"attention\" and \"parallel\", and ensuring at least 2 sentences:\n\nThe transformer is a special tool that helps computer",
+    "agent_strategy": "SpecialistStrategy"
+  },
+  {
+    "agent": "gpt-5",
+    "agent_id": "agent_4f0c893bdd90",
+    "executed_by_agent_id": "agent_4f0c893bdd90",
+    "executed_by_model": "gpt-5",
+    "task_id": "t2_comparative_analysis",
+    "tier": "T2",
+    "domain": "analysis",
+    "proof_cid": "bafybeig22acd6a178e61efc34d5ef774c2a2fb2",
+    "verification": {
+      "task_id": "t2_comparative_analysis",
+      "agent_model": "gpt-5",
+      "algorithmic_pass": false,
+      "constraints_passed": [
+        "required_keywords",
+        "min_sentences_10",
+        "ethical_caveat"
+      ],
+      "constraints_failed": [
+        "required_sections",
+        "word_count_200_500"
+      ],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": false,
+      "output_length": 3587,
+      "latency_ms": 53556.134939193726
+    },
+    "settlement": {
+      "contract_id": "contract_a6a714a3e268",
+      "agent_id": "agent_4f0c893bdd90",
+      "outcome": "failure",
+      "reward": 0.0,
+      "penalty": 0.006,
+      "failures": [
+        "required_sections",
+        "word_count_200_500"
+      ],
+      "liable_agent_id": "agent_4f0c893bdd90"
+    },
+    "latency_ms": 53556.134939193726,
+    "token_cost_fil": 0.7377500000000001,
+    "tokens_used": {
+      "input": 703,
+      "output": 4684
+    },
+    "output_preview": "Overview\nYou are choosing between REST and GraphQL for a mobile-first e-commerce platform with limited bandwidth, nested product categories, and real-time inventory updates. Both can meet the requirem",
+    "agent_strategy": "GrowthStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_4f0c893bdd90",
+    "executed_by_model": "gpt-5",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "gpt-5",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 143,
+      "latency_ms": 8068.789005279541
+    },
+    "settlement": {
+      "contract_id": "contract_51bc2e8156e1",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 8068.789005279541,
+    "token_cost_fil": 0.07974999999999999,
+    "tokens_used": {
+      "input": 122,
+      "output": 491
+    },
+    "output_preview": "{\n  \"category\": \"billing\",\n  \"rationale\": \"This is a billing issue: the customer reports an unauthorized extra charge and requests a refund.\"\n}",
+    "agent_strategy": "OpportunisticStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_cdaad4500b9a",
+      "principal_model": "o4-mini",
+      "delegate_agent_id": "agent_4f0c893bdd90",
+      "delegate_model": "gpt-5",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 639,
+      "latency_ms": 2345.526933670044
+    },
+    "settlement": {
+      "contract_id": "contract_d6ed6d52dced",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 2345.526933670044,
+    "token_cost_fil": 0.001585,
+    "tokens_used": {
+      "input": 189,
+      "output": 128
+    },
+    "output_preview": "Here's a simplified translation of the given paragraph in 40-120 words, mentioning \"attention\" and \"parallel\", and ensuring at least 2 sentences:\n\nThe transformer is a special way computers understand",
+    "agent_strategy": "SpecialistStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 120,
+      "latency_ms": 3885.071039199829
+    },
+    "settlement": {
+      "contract_id": "contract_6a333d0eed70",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 3885.071039199829,
+    "token_cost_fil": 0.027450000000000002,
+    "tokens_used": {
+      "input": 122,
+      "output": 427
+    },
+    "output_preview": "{\"category\":\"billing\",\"reason\":\"This email pertains to a billing issue due to an unauthorized charge on the statement.\"}",
+    "agent_strategy": "OpportunisticStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_marketing_copy",
+    "tier": "T1",
+    "domain": "creative_writing",
+    "proof_cid": "bafybeig8f8d712074ad9f2e47338353063d0f1d",
+    "verification": {
+      "task_id": "t1_marketing_copy",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_70",
+        "required_keywords",
+        "min_sentences_3"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 349,
+      "latency_ms": 5975.632905960083
+    },
+    "settlement": {
+      "contract_id": "contract_873578973d7d",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 5975.632905960083,
+    "token_cost_fil": 0.04497,
+    "tokens_used": {
+      "input": 114,
+      "output": 721
+    },
+    "output_preview": "Stay hydrated and eco-conscious with our sleek, reusable water bottle crafted from recycled ocean plastic. Perfect for fitness enthusiasts, its durable design keeps drinks cool during intense workouts",
+    "agent_strategy": "SpecialistStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_763a98d1e940",
+      "principal_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "delegate_agent_id": "agent_cdaad4500b9a",
+      "delegate_model": "o4-mini",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 409,
+      "latency_ms": 1608.8664531707764
+    },
+    "settlement": {
+      "contract_id": "contract_99abf3cc65f8",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 1608.8664531707764,
+    "token_cost_fil": 0.001415,
+    "tokens_used": {
+      "input": 181,
+      "output": 102
+    },
+    "output_preview": "{\"reviews\": [\n  {\"text\": \"The battery life is incredible, easily lasts two full days.\", \"sentiment\": \"positive\"},\n  {\"text\": \"Worst customer service I have ever experienced. Never buying again.\", \"sen",
+    "agent_strategy": "OpportunisticStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_cdaad4500b9a",
+      "principal_model": "o4-mini",
+      "delegate_agent_id": "agent_763a98d1e940",
+      "delegate_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_marketing_copy",
+    "tier": "T1",
+    "domain": "creative_writing",
+    "proof_cid": "bafybeig8f8d712074ad9f2e47338353063d0f1d",
+    "verification": {
+      "task_id": "t1_marketing_copy",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_70",
+        "required_keywords",
+        "min_sentences_3"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 339,
+      "latency_ms": 1011.6841793060303
+    },
+    "settlement": {
+      "contract_id": "contract_05d252231a13",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 1011.6841793060303,
+    "token_cost_fil": 0.00092,
+    "tokens_used": {
+      "input": 120,
+      "output": 64
+    },
+    "output_preview": "\"Stay hydrated on-the-go with our eco-friendly water bottle made from recycled ocean plastic. Perfect for fitness enthusiasts, it's durable and BPA-free. Join the movement to reduce ocean waste while ",
+    "agent_strategy": "SpecialistStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 846.3211059570312
+    },
+    "settlement": {
+      "contract_id": "contract_8b12b9270a34",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 846.3211059570312,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "OpportunisticStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_cdaad4500b9a",
+      "principal_model": "o4-mini",
+      "delegate_agent_id": "agent_763a98d1e940",
+      "delegate_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 354,
+      "latency_ms": 6895.772695541382
+    },
+    "settlement": {
+      "contract_id": "contract_412e6705d5d2",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 6895.772695541382,
+    "token_cost_fil": 0.050144999999999995,
+    "tokens_used": {
+      "input": 183,
+      "output": 790
+    },
+    "output_preview": "This system uses attention to focus on important words and processes many words in parallel, meaning at the same time instead of one by one. It also gives each word a small marker so the computer reme",
+    "agent_strategy": "SpecialistStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_763a98d1e940",
+      "principal_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "delegate_agent_id": "agent_cdaad4500b9a",
+      "delegate_model": "o4-mini",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_classify_sentiment",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeig6fa69bcd68d68c0d3790a7655602d4eb",
+    "verification": {
+      "task_id": "t1_classify_sentiment",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "json_fields_reviews",
+        "required_keywords"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 383,
+      "latency_ms": 3328.0153274536133
+    },
+    "settlement": {
+      "contract_id": "contract_757a337364bb",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 3328.0153274536133,
+    "token_cost_fil": 0.020130000000000002,
+    "tokens_used": {
+      "input": 174,
+      "output": 292
+    },
+    "output_preview": "{\"reviews\":[{\"text\":\"The battery life is incredible, easily lasts two full days.\",\"sentiment\":\"positive\"},{\"text\":\"Worst customer service I have ever experienced. Never buying again.\",\"sentiment\":\"neg",
+    "agent_strategy": "OpportunisticStrategy"
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_marketing_copy",
+    "tier": "T1",
+    "domain": "creative_writing",
+    "proof_cid": "bafybeig8f8d712074ad9f2e47338353063d0f1d",
+    "verification": {
+      "task_id": "t1_marketing_copy",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_70",
+        "required_keywords",
+        "min_sentences_3"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 339,
+      "latency_ms": 1527.4746417999268
+    },
+    "settlement": {
+      "contract_id": "contract_65a4c7389d7e",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 1527.4746417999268,
+    "token_cost_fil": 0.00092,
+    "tokens_used": {
+      "input": 120,
+      "output": 64
+    },
+    "output_preview": "\"Stay hydrated on-the-go with our eco-friendly water bottle made from recycled ocean plastic. Perfect for fitness enthusiasts, it's durable and BPA-free. Join the movement to reduce ocean waste while ",
+    "agent_strategy": "SpecialistStrategy"
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 585.4566097259521
+    },
+    "settlement": {
+      "contract_id": "contract_3bbd1ae6429f",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 585.4566097259521,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "OpportunisticStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_cdaad4500b9a",
+      "principal_model": "o4-mini",
+      "delegate_agent_id": "agent_763a98d1e940",
+      "delegate_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_cdaad4500b9a",
+    "executed_by_model": "o4-mini",
+    "task_id": "t1_marketing_copy",
+    "tier": "T1",
+    "domain": "creative_writing",
+    "proof_cid": "bafybeig8f8d712074ad9f2e47338353063d0f1d",
+    "verification": {
+      "task_id": "t1_marketing_copy",
+      "agent_model": "o4-mini",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_70",
+        "required_keywords",
+        "min_sentences_3"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 334,
+      "latency_ms": 10201.431274414062
+    },
+    "settlement": {
+      "contract_id": "contract_17a81f6f2058",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 10201.431274414062,
+    "token_cost_fil": 0.041010000000000005,
+    "tokens_used": {
+      "input": 114,
+      "output": 655
+    },
+    "output_preview": "Stay hydrated and power your workouts with our eco-friendly water bottle crafted from recycled ocean plastic. It\u2019s lightweight, durable and designed for fitness enthusiasts who care about the planet. ",
+    "agent_strategy": "SpecialistStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_763a98d1e940",
+      "principal_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "delegate_agent_id": "agent_cdaad4500b9a",
+      "delegate_model": "o4-mini",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "o4-mini",
+    "agent_id": "agent_cdaad4500b9a",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_email_triage",
+    "tier": "T1",
+    "domain": "classification",
+    "proof_cid": "bafybeigd400c920578e7038e1e4d90f2079464f",
+    "verification": {
+      "task_id": "t1_email_triage",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "valid_json",
+        "required_keywords",
+        "min_sentences_1"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 39,
+      "latency_ms": 1283.1199169158936
+    },
+    "settlement": {
+      "contract_id": "contract_01ac295c7678",
+      "agent_id": "agent_cdaad4500b9a",
+      "outcome": "success",
+      "reward": 0.012,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_cdaad4500b9a"
+    },
+    "latency_ms": 1283.1199169158936,
+    "token_cost_fil": 0.0007099999999999999,
+    "tokens_used": {
+      "input": 128,
+      "output": 14
+    },
+    "output_preview": "```json\n{\n  \"category\": \"billing\"\n}\n```",
+    "agent_strategy": "OpportunisticStrategy",
+    "delegation": {
+      "principal_agent_id": "agent_cdaad4500b9a",
+      "principal_model": "o4-mini",
+      "delegate_agent_id": "agent_763a98d1e940",
+      "delegate_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "allowed": true,
+      "reason": "ok",
+      "principal_tier": "T2",
+      "delegate_tier": "T2",
+      "chain_tier": "T2",
+      "required_tier": "T1"
+    }
+  },
+  {
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "agent_id": "agent_763a98d1e940",
+    "executed_by_agent_id": "agent_763a98d1e940",
+    "executed_by_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "task_id": "t1_translate_technical",
+    "tier": "T1",
+    "domain": "translation",
+    "proof_cid": "bafybeig38583d08130e062b58b01476babf01fb",
+    "verification": {
+      "task_id": "t1_translate_technical",
+      "agent_model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "algorithmic_pass": true,
+      "constraints_passed": [
+        "word_count_40_120",
+        "required_keywords",
+        "forbidden_content",
+        "min_sentences_2"
+      ],
+      "constraints_failed": [],
+      "jury_pass": null,
+      "jury_score": null,
+      "jury_reasoning": null,
+      "jury_model": null,
+      "overall_pass": true,
+      "output_length": 661,
+      "latency_ms": 1009.3178749084473
+    },
+    "settlement": {
+      "contract_id": "contract_c214666d2e0d",
+      "agent_id": "agent_763a98d1e940",
+      "outcome": "success",
+      "reward": 0.015,
+      "penalty": 0.0,
+      "failures": [],
+      "liable_agent_id": "agent_763a98d1e940"
+    },
+    "latency_ms": 1009.3178749084473,
+    "token_cost_fil": 0.0015950000000000003,
+    "tokens_used": {
+      "input": 189,
+      "output": 130
+    },
+    "output_preview": "Here's a simplified translation of the given paragraph in 40-120 words, mentioning \"attention\" and \"parallel\", and ensuring at least 2 sentences:\n\nThe transformer is a special tool that helps computer",
+    "agent_strategy": "SpecialistStrategy"
   }
 ]

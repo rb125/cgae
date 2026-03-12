@@ -2,23 +2,16 @@
 
 **A Robustness-First Architecture for AI Economic Agency on Filecoin**
 
-CGAE is a formal architecture where an AI agent's economic permissions are upper-bounded by verified comprehension — not capability benchmarks. Agents earn access to higher-value contracts by demonstrating robustness across three orthogonal dimensions: constraint compliance (CDCT), epistemic integrity (DDFT), and behavioral alignment (AGT/EECT). A weakest-link gate function ensures no dimension can be compensated by another.
+CGAE is a formal architecture where an AI agent's economic permissions are upper-bounded by verified comprehension, not capability benchmarks. Agents earn access to higher-value contracts by demonstrating robustness across three orthogonal dimensions: constraint compliance (CDCT), epistemic integrity (DDFT), and behavioral alignment (AGT/EECT). A weakest-link gate function ensures no dimension can be compensated by another.
 
-This repository implements the full CGAE protocol as described in `cgae.tex`, including the economy engine, smart contracts for Filecoin Calibnet, a v2 autonomous agent architecture, live diagnostic framework integration, and a dashboard for real-time observation.
+This repository implements the CGAE protocol with an economy engine, smart contracts for Filecoin Calibnet, a v2 autonomous agent architecture, live diagnostic framework integration, and a dashboard for real-time observation.
 
 **Paper**: Baxi & Baxi (2026). *The Comprehension-Gated Agent Economy: A Robustness-First Architecture for AI Economic Agency.*
 
-## Demo-Ready Enforcement Scenarios
+**Evaluation Framework Papers**:
+- CDCT (Compression-Decay Comprehension Test): https://arxiv.org/abs/2512.17920
+- DDFT (Drill-Down Fabrication Test): https://arxiv.org/abs/2512.23850
 
-The live runner now includes explicit adversarial and delegation scenarios so demos can show enforcement behavior, not just happy-path throughput:
-
-- `CIRCUMVENTION_BLOCKED`: direct tier-bypass attempts are posted and rejected by gate checks.
-- `CIRCUMVENTION_BLOCKED` (architecture spoof): adversarial re-certification with a mismatched architecture hash is blocked.
-- `DELEGATION_ALLOWED`: one agent can "hire" another only when both independent tier checks and chain-tier checks pass.
-- `CIRCUMVENTION_BLOCKED` (delegation laundering): delegation to underqualified agents is blocked.
-- `UPGRADE` / `UPGRADE_DENIED`: tier changes follow a scaling-gate request flow instead of unconditional task-by-task promotion.
-
-These signals are written to `server/live_results/protocol_events.json` and summarized under `demo_highlights` in `server/live_results/final_summary.json`.
 
 Quick start with hosted framework APIs:
 
@@ -61,9 +54,13 @@ Explorer     : https://calibration.filscan.io
 ## Repository Structure
 
 ```
-cgae/
-├── cgae.tex                        # Formal paper (theorems, proofs, architecture)
+cgae_framework/
+├── README.md                       # This file (overview + runbook)
+├── ARCHITECTURE.md                 # Architectural design document
+├── DEPLOY_QUICK.md                 # Deployment quick guide
+├── .env.example                    # Public-safe env template
 ├── requirements.txt                # Python dependencies
+├── modal_deploy.py                 # Modal backend deployment entrypoint
 │
 ├── cgae_engine/                    # Core protocol engine (Python)
 │   ├── gate.py                     # Weakest-link gate function (Def 6, Eq 6-7)
@@ -112,16 +109,13 @@ cgae/
 ├── dashboard/                      # Streamlit visualization
 │   └── app.py                      # Interactive economy dashboard
 │
-├── cdct_framework/                 # Compression-Decay Comprehension Test
-├── ddft_framework/                 # Drill-Down Fabrication Test (2500+ results)
-├── eect_framework/                 # Ethical Emergence Comprehension Test
-│
-└── Research papers (PDF)
-    ├── cdct_arxiv.pdf              # CDCT paper
-    ├── ddft_icml2026.pdf           # DDFT paper
-    ├── agt_zenodo.pdf              # AGT paper
-    └── iht_icml2026.pdf            # IHT paper
+└── scripts/                        # Demo and deploy helper scripts
+    ├── run_demo_hosted.sh
+    ├── video_demo.py
+    └── prepare_deploy.sh
 ```
+
+Framework evaluators are consumed via hosted APIs (`CDCT_API_URL`, `DDFT_API_URL`, `EECT_API_URL`) and documented in the linked CDCT/DDFT arXiv preprints.
 
 ---
 
@@ -218,7 +212,7 @@ Two contracts targeting Filecoin Calibnet (Solidity ^0.8.20):
 - Penalty collateral deposit by agents
 - Settlement: reward release on success, penalty forfeiture on failure
 
-### 5. Live Simulation Runner (`simulation/live_runner.py`)
+### 5. Live Simulation Runner (`server/live_runner.py`)
 
 Replaces coin-flip execution with real LLM calls and v2 agents:
 
@@ -259,7 +253,7 @@ _finalize():
 | gpt-oss-120b | 0.002 | 0.006 |
 | Kimi-K2.5 | 0.001 | 0.002 |
 
-### 6. Synthetic Simulation (`simulation/runner.py`)
+### 6. Synthetic Simulation (`server/runner.py`)
 
 Reference implementation using v1 strategy archetypes and coin-flip task execution. Validates all three theorems deterministically without API dependencies.
 
@@ -424,6 +418,14 @@ Agents with any defaulted dimension are flagged in the `data_quality_warnings` s
 
 ---
 
+## Submission Artifacts
+
+- Demo video URL: https://youtu.be/E3jCNHC39-s
+- Calibration deployment proof: `contracts/deployed.json` plus Filscan links printed by `contracts/scripts/deploy.js`
+- Architecture document: `ARCHITECTURE.md`
+
+---
+
 ## Architecture Mapping: Paper → Code
 
 | Paper Concept | Code Location | Notes |
@@ -466,4 +468,4 @@ Agents with any defaulted dimension are flagged in the `data_quality_warnings` s
 
 ## License
 
-Research code. See `cgae.tex` for citation information.
+Research code.

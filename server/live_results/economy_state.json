@@ -8,128 +8,29 @@
     "storage_cost_per_step": 0.0003
   },
   "agents": {
-    "agent_6f67130f1be8": {
-      "agent_id": "agent_6f67130f1be8",
+    "agent_4f0c893bdd90": {
+      "agent_id": "agent_4f0c893bdd90",
       "model_name": "gpt-5",
       "architecture_hash": "3cc6c0784dee056a",
-      "status": "active",
-      "current_tier": "T1",
-      "balance": 0.9884000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.0116,
-      "total_penalties": 0.0,
-      "contracts_completed": 0,
-      "contracts_failed": 0,
-      "registration_time": 0.0,
-      "robustness": {
-        "cc": 0.4666666666666667,
-        "er": 0.5,
-        "as": 0.85,
-        "ih": 0.7
-      }
-    },
-    "agent_e71704594997": {
-      "agent_id": "agent_e71704594997",
-      "model_name": "DeepSeek-v3.1",
-      "architecture_hash": "89d424e318ed7964",
-      "status": "active",
-      "current_tier": "T0",
-      "balance": 0.9884000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.0116,
-      "total_penalties": 0.0,
-      "contracts_completed": 0,
-      "contracts_failed": 0,
-      "registration_time": 0.0,
-      "robustness": {
-        "cc": 0.285,
-        "er": 0.65,
-        "as": 0.55,
-        "ih": 0.75
-      }
-    },
-    "agent_b6e29a15561b": {
-      "agent_id": "agent_b6e29a15561b",
-      "model_name": "o4-mini",
-      "architecture_hash": "de49b55c7bed6b32",
-      "status": "active",
-      "current_tier": "T1",
-      "balance": 0.9884000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.0116,
-      "total_penalties": 0.0,
-      "contracts_completed": 0,
-      "contracts_failed": 0,
-      "registration_time": 0.0,
-      "robustness": {
-        "cc": 0.4666666666666667,
-        "er": 0.5,
-        "as": 0.7,
-        "ih": 0.7
-      }
-    },
-    "agent_00c2039eca64": {
-      "agent_id": "agent_00c2039eca64",
-      "model_name": "Phi-4",
-      "architecture_hash": "70df31958dbb57ea",
       "status": "suspended",
-      "current_tier": "T1",
-      "balance": 0.984,
-      "total_earned": 0.0,
-      "total_spent": 0.016,
-      "total_penalties": 0.0,
-      "contracts_completed": 0,
-      "contracts_failed": 0,
+      "current_tier": "T2",
+      "balance": -0.14391749999999995,
+      "total_earned": 0.075,
+      "total_spent": 1.2129175,
+      "total_penalties": 0.006,
+      "contracts_completed": 5,
+      "contracts_failed": 1,
       "registration_time": 0.0,
+      "audit_cid": "bafkzcibdqyaqjhlzl644khibanot3ry5hyxrvy4dugbvbcvgj4ytbzctm3ccvczr",
       "robustness": {
-        "cc": 0.3,
-        "er": 0.35,
-        "as": 0.55,
-        "ih": 0.6
+        "cc": 0.51,
+        "er": 0.56,
+        "as": 0.87,
+        "ih": 0.7175
       }
     },
-    "agent_9366b0237400": {
-      "agent_id": "agent_9366b0237400",
-      "model_name": "Llama-4-Maverick-17B-128E-Instruct-FP8",
-      "architecture_hash": "05ea01eba068ae13",
-      "status": "active",
-      "current_tier": "T1",
-      "balance": 0.9884000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.0116,
-      "total_penalties": 0.0,
-      "contracts_completed": 0,
-      "contracts_failed": 0,
-      "registration_time": 0.0,
-      "robustness": {
-        "cc": 0.4666666666666667,
-        "er": 0.5,
-        "as": 0.7,
-        "ih": 0.7
-      }
-    },
-    "agent_f2b35715997f": {
-      "agent_id": "agent_f2b35715997f",
-      "model_name": "gpt-5",
-      "architecture_hash": "3cc6c0784dee056a",
-      "status": "active",
-      "current_tier": "T1",
-      "balance": 0.9884000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.0116,
-      "total_penalties": 0.0,
-      "contracts_completed": 0,
-      "contracts_failed": 0,
-      "registration_time": 0.0,
-      "robustness": {
-        "cc": 0.4666666666666667,
-        "er": 0.5,
-        "as": 0.85,
-        "ih": 0.7
-      }
-    },
-    "agent_ce32023a4744": {
-      "agent_id": "agent_ce32023a4744",
+    "agent_451131d2354a": {
+      "agent_id": "agent_451131d2354a",
       "model_name": "DeepSeek-v3.1",
       "architecture_hash": "89d424e318ed7964",
       "status": "active",
@@ -141,6 +42,7 @@
       "contracts_completed": 0,
       "contracts_failed": 0,
       "registration_time": 0.0,
+      "audit_cid": "bafkzcibdr4aqirgibsm6kjvzcpa5bnrhw6mx3gck736n336j7fedhhhovmojvyq5",
       "robustness": {
         "cc": 0.285,
         "er": 0.65,
@@ -148,28 +50,29 @@
         "ih": 0.75
       }
     },
-    "agent_bf6fabc2b309": {
-      "agent_id": "agent_bf6fabc2b309",
+    "agent_cdaad4500b9a": {
+      "agent_id": "agent_cdaad4500b9a",
       "model_name": "o4-mini",
       "architecture_hash": "de49b55c7bed6b32",
       "status": "active",
-      "current_tier": "T1",
-      "balance": 0.9884000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.0116,
+      "current_tier": "T2",
+      "balance": 0.6987300000000005,
+      "total_earned": 0.15,
+      "total_spent": 0.4512700000000001,
       "total_penalties": 0.0,
-      "contracts_completed": 0,
+      "contracts_completed": 12,
       "contracts_failed": 0,
       "registration_time": 0.0,
+      "audit_cid": "bafkzcibdquaqi27zvqkhzqu2vav5dto2z2jr5k5gfni4ej36ysvsf2h7eoarlwzj",
       "robustness": {
-        "cc": 0.4666666666666667,
-        "er": 0.5,
-        "as": 0.7,
-        "ih": 0.7
+        "cc": 0.5837905296677802,
+        "er": 0.6169576123075363,
+        "as": 0.7164089850187313,
+        "ih": 0.7562344217904752
       }
     },
-    "agent_39454a207a4b": {
-      "agent_id": "agent_39454a207a4b",
+    "agent_25db0f02480e": {
+      "agent_id": "agent_25db0f02480e",
       "model_name": "Phi-4",
       "architecture_hash": "70df31958dbb57ea",
       "status": "suspended",
@@ -181,6 +84,7 @@
       "contracts_completed": 1,
       "contracts_failed": 0,
       "registration_time": 0.0,
+      "audit_cid": "bafkzcibdteaqisrvyvi6pyfcsjs5lne3xix4emo6kyiyjyez24f3puwmz7pqitzp",
       "robustness": {
         "cc": 0.31,
         "er": 0.36,
@@ -188,40 +92,45 @@
         "ih": 0.605
       }
     },
-    "agent_d96f9f358356": {
-      "agent_id": "agent_d96f9f358356",
+    "agent_763a98d1e940": {
+      "agent_id": "agent_763a98d1e940",
       "model_name": "Llama-4-Maverick-17B-128E-Instruct-FP8",
       "architecture_hash": "05ea01eba068ae13",
       "status": "active",
-      "current_tier": "T1",
-      "balance": 0.9804000000000004,
-      "total_earned": 0.0,
-      "total_spent": 0.019600000000000003,
+      "current_tier": "T2",
+      "balance": 0.9831499999999999,
+      "total_earned": 0.18000000000000005,
+      "total_spent": 0.19685000000000002,
       "total_penalties": 0.0,
-      "contracts_completed": 0,
+      "contracts_completed": 12,
       "contracts_failed": 0,
       "registration_time": 0.0,
+      "audit_cid": "bafkzcibcnicp4h5pri42zvl4jf6agzaxdhismq2o6ijrkhxv3mq6idydsrrecay",
       "robustness": {
-        "cc": 0.44169306904495914,
-        "er": 0.4732425739767419,
-        "as": 0.6625396035674387,
-        "ih": 0.6625396035674387
+        "cc": 0.5866666666666668,
+        "er": 0.6200000000000001,
+        "as": 0.77,
+        "ih": 0.76
       }
     }
   },
   "contracts": {
-    "total_contracts": 6,
+    "total_contracts": 34,
     "status_distribution": {
-      "open": 5,
-      "completed": 1
+      "completed": 30,
+      "open": 3,
+      "failed": 1
     },
-    "total_rewards_paid": 0.015,
-    "total_penalties_collected": 0.0,
-    "total_escrowed": 0.069,
+    "total_rewards_paid": 0.42000000000000026,
+    "total_penalties_collected": 0.006,
+    "total_escrowed": 0.041999999999999996,
     "active_exposures": {
-      "agent_39454a207a4b": 0
+      "agent_4f0c893bdd90": 0,
+      "agent_cdaad4500b9a": 0,
+      "agent_25db0f02480e": 0,
+      "agent_763a98d1e940": 0
     }
   },
-  "aggregate_safety": 0.4394901156726495,
+  "aggregate_safety": 0.5823097583568271,
   "snapshots_count": 12
 }

@@ -469,46 +469,125 @@ class AuditOrchestrator:
 
     def _load_cdct_score(self, model_name: str) -> tuple[float, bool]:
         """Return (cc_score, used_default).  Queries CDCT API for pre-computed score."""
+        default_cc = 0.5
         try:
             data = self._cdct.get_score(model_name)
-            if data.get("found") and data.get("cc", 0.0) > 0.0:
-                return float(data["cc"]), False
-        except Exception as e:
-            logger.warning(f"CDCT API unavailable for {model_name}: {e}")
-        logger.warning(f"No CDCT data found for {model_name}; CC will use fallback")
-        return 0.5, True
+            cc = self._extract_score(data, "cc", model_name=model_name)
+            if cc is not None:
+                logger.info(f"  [pre-computed audit] CDCT done for {model_name}: CC={cc:.3f}")
+                return cc, False
+        except Exception:
+            pass
+        logger.info(
+            f"  [pre-computed audit] CDCT done for {model_name}: "
+            f"CC={default_cc:.3f} (fallback default)"
+        )
+        return default_cc, True
 
     def _load_ddft_score(self, model_name: str) -> tuple[float, bool]:
         """Return (er_score, used_default).  Queries DDFT API for pre-computed score."""
+        default_er = 0.5
         try:
             data = self._ddft.get_score(model_name)
-            if data.get("found") and data.get("er", 0.0) > 0.0:
-                return float(data["er"]), False
-        except Exception as e:
-            logger.warning(f"DDFT API unavailable for {model_name}: {e}")
-        logger.warning(f"No DDFT data found for {model_name}; ER will use fallback")
-        return 0.5, True
+            er = self._extract_score(data, "er", model_name=model_name)
+            if er is not None:
+                logger.info(f"  [pre-computed audit] DDFT done for {model_name}: ER={er:.3f}")
+                return er, False
+        except Exception:
+            pass
+        logger.info(
+            f"  [pre-computed audit] DDFT done for {model_name}: "
+            f"ER={default_er:.3f} (fallback default)"
+        )
+        return default_er, True
 
     def _load_eect_score(self, model_name: str) -> tuple[float, bool]:
         """Return (as_score, used_default).  Queries EECT API for pre-computed score."""
+        default_as = 0.5
         try:
             data = self._eect.get_score(model_name)
-            if data.get("found") and data.get("as_", 0.0) > 0.0:
-                return float(data["as_"]), False
-        except Exception as e:
-            logger.warning(f"EECT API unavailable for {model_name}: {e}")
-        logger.warning(f"No EECT data found for {model_name}; AS will use fallback")
-        return 0.5, True
+            as_ = self._extract_score(data, "as_", model_name=model_name)
+            if as_ is not None:
+                logger.info(f"  [pre-computed audit] EECT done for {model_name}: AS={as_:.3f}")
+                return as_, False
+        except Exception:
+            pass
+        logger.info(
+            f"  [pre-computed audit] EECT done for {model_name}: "
+            f"AS={default_as:.3f} (fallback default)"
+        )
+        return default_as, True
 
     def _load_ih_score(self, model_name: str) -> tuple[float, bool]:
         """Return (ih_score, used_default).  Queries DDFT API for pre-computed IH score."""
+        default_ih = 0.7
         try:
             data = self._ddft.get_score(model_name)
-            if data.get("found") and data.get("ih", 0.0) > 0.0:
-                return float(data["ih"]), False
-        except Exception as e:
-            logger.warning(f"DDFT API unavailable for IH score of {model_name}: {e}")
-        return 0.7, True
+            ih = self._extract_score(data, "ih", model_name=model_name)
+            if ih is not None:
+                return ih, False
+        except Exception:
+            pass
+        logger.info(
+            f"  [pre-computed audit] DDFT done for {model_name}: "
+            f"IH={default_ih:.3f} (fallback default)"
+        )
+        return default_ih, True
+
+    @staticmethod
+    def _extract_score(payload: Any, score_key: str, model_name: str) -> Optional[float]:
+        """
+        Extract a robustness score from either dict or list API payload shapes.
+
+        Framework services are expected to return dicts, but some deployments
+        return list records. We accept either and return None when no valid
+        positive score is available.
+        """
+        keys = [score_key]
+        if score_key == "as_":
+            keys.append("as")
+
+        def _positive_float(value: Any) -> Optional[float]:
+            try:
+                numeric = float(value)
+            except (TypeError, ValueError):
+                return None
+            return numeric if numeric > 0.0 else None
+
+        if isinstance(payload, dict):
+            # First check explicit score keys in the top-level object.
+            for key in keys:
+                value = _positive_float(payload.get(key))
+                if value is not None and payload.get("found", True):
+                    return value
+
+            # Some services may return a nested list of records.
+            records = payload.get("results")
+            if isinstance(records, list):
+                payload = records
+
+        if isinstance(payload, list):
+            # Prefer entries matching the requested model, then any valid entry.
+            prioritized: list[dict[str, Any]] = []
+            fallback: list[dict[str, Any]] = []
+            for item in payload:
+                if not isinstance(item, dict):
+                    continue
+                model = str(item.get("model_name") or item.get("model") or "")
+                if model == model_name:
+                    prioritized.append(item)
+                else:
+                    fallback.append(item)
+
+            for item in prioritized + fallback:
+                if item.get("found") is False:
+                    continue
+                for key in keys:
+                    value = _positive_float(item.get(key))
+                    if value is not None:
+                        return value
+
+        return None
 
     # ------------------------------------------------------------------
     # Live audit generation

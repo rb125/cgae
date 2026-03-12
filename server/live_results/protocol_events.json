@@ -1,36 +1,39 @@
 [
   {
     "timestamp": 0.0,
-    "type": "CIRCUMVENTION_BLOCKED",
-    "agent": "Phi-4",
-    "message": "Phi-4 attempted tier bypass to T2; gate blocked acceptance.",
-    "required_tier": "T2",
-    "current_tier": "T1",
-    "contract_id": "contract_489e4aff7c8b"
+    "type": "DELEGATION_ALLOWED",
+    "agent": "gpt-5",
+    "message": "gpt-5 hired Phi-4 for t1_extract_entities; principal retains liability.",
+    "contract_id": "contract_f7c6924bddb8",
+    "delegate": "Phi-4",
+    "required_tier": "T1",
+    "chain_tier": "T1"
+  },
+  {
+    "timestamp": 0.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "o4-mini",
+    "message": "o4-mini hired gpt-5 for t1_translate_technical; principal retains liability.",
+    "contract_id": "contract_63f26d0b216f",
+    "delegate": "gpt-5",
+    "required_tier": "T1",
+    "chain_tier": "T1"
   },
   {
     "timestamp": 0.0,
     "type": "CIRCUMVENTION_BLOCKED",
     "agent": "Phi-4",
-    "message": "Phi-4 attempted certification with modified architecture hash; blocked.",
-    "current_tier": "T1",
-    "attempt": "architecture_spoof"
-  },
-  {
-    "timestamp": 0.0,
-    "type": "CIRCUMVENTION_BLOCKED",
-    "agent": "Phi-4",
     "message": "Phi-4 attempted tier bypass to T2; gate blocked acceptance.",
     "required_tier": "T2",
     "current_tier": "T1",
-    "contract_id": "contract_805349817a18"
+    "contract_id": "contract_a1c4e9c0b73c"
   },
   {
     "timestamp": 0.0,
     "type": "CIRCUMVENTION_BLOCKED",
     "agent": "Phi-4",
     "message": "Phi-4 attempted delegation/laundering via DeepSeek-v3.1; blocked (chain_tier_insufficient).",
-    "contract_id": "contract_68bc9c810553",
+    "contract_id": "contract_624e1470b03a",
     "delegate": "DeepSeek-v3.1",
     "required_tier": "T1",
     "principal_tier": "T1",
@@ -38,13 +41,23 @@
     "chain_tier": "T0"
   },
   {
+    "timestamp": 0.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "message": "Llama-4-Maverick-17B-128E-Instruct-FP8 hired Phi-4 for t1_translate_technical; principal retains liability.",
+    "contract_id": "contract_daa963d4ca5e",
+    "delegate": "Phi-4",
+    "required_tier": "T1",
+    "chain_tier": "T1"
+  },
+  {
     "timestamp": 1.0,
     "type": "CIRCUMVENTION_BLOCKED",
     "agent": "Phi-4",
     "message": "Phi-4 attempted tier bypass to T2; gate blocked acceptance.",
     "required_tier": "T2",
     "current_tier": "T1",
-    "contract_id": "contract_5e640191b9a2"
+    "contract_id": "contract_4613cbedb395"
   },
   {
     "timestamp": 1.0,
@@ -53,5 +66,129 @@
     "message": "Phi-4 attempted certification with modified architecture hash; blocked.",
     "current_tier": "T1",
     "attempt": "architecture_spoof"
+  },
+  {
+    "timestamp": 2.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "message": "Llama-4-Maverick-17B-128E-Instruct-FP8 hired o4-mini for t1_marketing_copy; principal retains liability.",
+    "contract_id": "contract_801526f5f45d",
+    "delegate": "o4-mini",
+    "required_tier": "T1",
+    "chain_tier": "T1"
+  },
+  {
+    "timestamp": 3.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "gpt-5",
+    "message": "gpt-5 hired o4-mini for t1_extract_entities; principal retains liability.",
+    "contract_id": "contract_6caec4541f4e",
+    "delegate": "o4-mini",
+    "required_tier": "T1",
+    "chain_tier": "T1"
+  },
+  {
+    "timestamp": 3.0,
+    "type": "UPGRADE",
+    "agent": "gpt-5",
+    "message": "gpt-5 upgraded to T2 via scaling-gate audit.",
+    "requested_tier": "T2",
+    "path": "upgrade_audit"
+  },
+  {
+    "timestamp": 3.0,
+    "type": "UPGRADE",
+    "agent": "o4-mini",
+    "message": "o4-mini upgraded to T2 via scaling-gate audit.",
+    "requested_tier": "T2",
+    "path": "upgrade_audit"
+  },
+  {
+    "timestamp": 3.0,
+    "type": "UPGRADE",
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "message": "Llama-4-Maverick-17B-128E-Instruct-FP8 upgraded to T2 via scaling-gate audit.",
+    "requested_tier": "T2",
+    "path": "upgrade_audit"
+  },
+  {
+    "timestamp": 5.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "o4-mini",
+    "message": "o4-mini hired gpt-5 for t1_email_triage; principal retains liability.",
+    "contract_id": "contract_51bc2e8156e1",
+    "delegate": "gpt-5",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 6.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "message": "Llama-4-Maverick-17B-128E-Instruct-FP8 hired o4-mini for t1_marketing_copy; principal retains liability.",
+    "contract_id": "contract_873578973d7d",
+    "delegate": "o4-mini",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 7.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "o4-mini",
+    "message": "o4-mini hired Llama-4-Maverick-17B-128E-Instruct-FP8 for t1_classify_sentiment; principal retains liability.",
+    "contract_id": "contract_99abf3cc65f8",
+    "delegate": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 8.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "o4-mini",
+    "message": "o4-mini hired Llama-4-Maverick-17B-128E-Instruct-FP8 for t1_email_triage; principal retains liability.",
+    "contract_id": "contract_8b12b9270a34",
+    "delegate": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 8.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "message": "Llama-4-Maverick-17B-128E-Instruct-FP8 hired o4-mini for t1_translate_technical; principal retains liability.",
+    "contract_id": "contract_412e6705d5d2",
+    "delegate": "o4-mini",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 10.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "o4-mini",
+    "message": "o4-mini hired Llama-4-Maverick-17B-128E-Instruct-FP8 for t1_email_triage; principal retains liability.",
+    "contract_id": "contract_3bbd1ae6429f",
+    "delegate": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 10.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "message": "Llama-4-Maverick-17B-128E-Instruct-FP8 hired o4-mini for t1_marketing_copy; principal retains liability.",
+    "contract_id": "contract_17a81f6f2058",
+    "delegate": "o4-mini",
+    "required_tier": "T1",
+    "chain_tier": "T2"
+  },
+  {
+    "timestamp": 11.0,
+    "type": "DELEGATION_ALLOWED",
+    "agent": "o4-mini",
+    "message": "o4-mini hired Llama-4-Maverick-17B-128E-Instruct-FP8 for t1_email_triage; principal retains liability.",
+    "contract_id": "contract_01ac295c7678",
+    "delegate": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "required_tier": "T1",
+    "chain_tier": "T2"
   }
 ]

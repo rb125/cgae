@@ -12,7 +12,8 @@ this runner:
 7. Deducts token-based costs from agent balances
 
 Run:
-  python -m simulation.live_runner
+  python -m server.live_runner
+  python server/live_runner.py
 
 Required environment variables:
   AZURE_API_KEY              - Azure API key
@@ -29,10 +30,17 @@ import argparse
 import hashlib
 import os
 import random
+import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
+
+# Allow direct script execution (`python server/live_runner.py`) by adding repo root.
+if __package__ is None or __package__ == "":
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
 # Load .env file before any env var reads (no-op if python-dotenv not installed)
 try:
@@ -274,12 +282,15 @@ class LiveSimulationRunner:
 
         # Audit data quality: model_name -> {"source": "real"|"default", "dims_defaulted": [...]}
         self._audit_quality: dict[str, dict] = {}
+        # Initial live-audit metadata (e.g., Filecoin CID) keyed by model.
+        self._initial_audit_details: dict[str, dict] = {}
 
         # Metrics
         self._results: list[dict] = []
         self._round_summaries: list[dict] = []
         self._protocol_events: list[dict] = []
         self._final_summary: Optional[dict] = None
+        self._setup_complete: bool = False
 
     def _resolve_initial_robustness(
         self, model_name: str, agent_id: str, llm_agent: Any
@@ -356,6 +367,7 @@ class LiveSimulationRunner:
                     "dims_real": dims_real,
                     "dims_defaulted": dims_defaulted,
                 }
+                self._initial_audit_details[model_name] = dict(audit_result.details or {})
                 return RobustnessVector(cc=cc, er=er, as_=as_, ih=ih)
 
             except Exception as e:
@@ -417,6 +429,10 @@ class LiveSimulationRunner:
 
     def setup(self):
         """Create LLM agents and register them in the economy."""
+        if self._setup_complete:
+            logger.info("Setup already complete; reusing existing agents.")
+            return
+
         # Video demo mode: curated 5-agent scenario showcasing all features
         if self.config.video_demo:
             self.config.model_names = [
@@ -496,6 +512,7 @@ class LiveSimulationRunner:
                 robustness,
                 audit_type="registration",
                 observed_architecture_hash=record.architecture_hash,
+                audit_details=self._initial_audit_details.get(model_name),
             )
             logger.info(
                 f"Registered {model_name} -> {record.agent_id} "
@@ -519,10 +536,12 @@ class LiveSimulationRunner:
             logger.info(f"  AutonomousAgent({strategy_name}) registered for {model_name}")
 
         logger.info(f"Setup complete: {len(self.llm_agents)} contestants, {len(self.jury_agents)} jury")
+        self._setup_complete = True
 
     def run(self) -> list[dict]:
         """Run all rounds of the live simulation."""
-        self.setup()
+        if not self._setup_complete:
+            self.setup()
 
         round_num = 0
         infinite = self.config.num_rounds == -1
@@ -593,7 +612,7 @@ class LiveSimulationRunner:
         # Find GPT-5 (growth strategy agent)
         target_model = "gpt-5"
         target_id = None
-        for model, aid in self.agent_model_map.items():
+        for aid, model in self.agent_model_map.items():
             if model == target_model:
                 target_id = aid
                 break
@@ -629,15 +648,21 @@ class LiveSimulationRunner:
         # Upload to Filecoin (simulated)
         logger.info("Uploading new audit certificate to Filecoin...")
         time.sleep(0.5)
-        
+        simulated_cid = f"bafybeig{hashlib.sha256(f'{target_id}:upgrade:{self.economy.current_time}'.encode()).hexdigest()[:32]}"
+
         # Update on-chain
         self.economy.registry.certify(
             target_id,
             new_r,
             audit_type="upgrade_investment",
             timestamp=self.economy.current_time,
+            audit_details={
+                "source": "simulated_upgrade",
+                "filecoin_cid": simulated_cid,
+                "filecoin_cid_real": False,
+            },
         )
-        
+
         new_tier = self.economy.registry.get_agent(target_id).current_tier
         new_cid = self.economy.registry.get_agent(target_id).audit_cid
         
@@ -815,8 +840,14 @@ class LiveSimulationRunner:
                 task = random.choice(available_tasks)
 
             if task is None:
-                logger.debug(f"{model_name}: planning layer chose idle this round")
-                continue
+                # Video demo should always show economic activity; if planning
+                # idles, force a task attempt to keep trade flow visible.
+                if self.config.video_demo and available_tasks:
+                    task = random.choice(available_tasks)
+                    logger.debug(f"{model_name}: forcing demo task {task.task_id} after idle plan")
+                else:
+                    logger.debug(f"{model_name}: planning layer chose idle this round")
+                    continue
 
             # Post contract in the economy
             contract = self.economy.post_contract(
@@ -1071,6 +1102,12 @@ class LiveSimulationRunner:
                 "dims_defaulted": ["cc", "er", "as", "ih"],
             })
             autonomous = self.autonomous_agents.get(model_name)
+            strategy_name = "unknown"
+            if self.config.agent_strategies:
+                strategy_name = self.config.agent_strategies.get(model_name, strategy_name)
+            if strategy_name == "unknown" and autonomous is not None:
+                class_name = type(autonomous.strategy).__name__
+                strategy_name = class_name[:-8].lower() if class_name.endswith("Strategy") else class_name.lower()
             agents_data.append({
                 "model_name": model_name,
                 "agent_id": agent_id,
@@ -1098,6 +1135,7 @@ class LiveSimulationRunner:
                 "audit_dims_real": aq["dims_real"],
                 "audit_dims_defaulted": aq["dims_defaulted"],
                 "llm_usage": usage,
+                "strategy": strategy_name,
                 # v2 AutonomousAgent metrics
                 "autonomous_metrics": autonomous.metrics_summary() if autonomous else None,
             })

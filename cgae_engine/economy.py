@@ -283,6 +283,7 @@ class Economy:
         robustness: RobustnessVector,
         audit_type: str = "registration",
         observed_architecture_hash: Optional[str] = None,
+        audit_details: Optional[dict] = None,
     ) -> dict:
         """
         Audit an agent and update their certification.
@@ -303,6 +304,7 @@ class Economy:
             robustness=robustness,
             audit_type=audit_type,
             timestamp=self.current_time,
+            audit_details=audit_details,
             observed_architecture_hash=observed_architecture_hash,
         )
 
