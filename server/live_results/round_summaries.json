@@ -1,0 +1,180 @@
+[
+  {
+    "round": 0,
+    "tasks_attempted": 1,
+    "tasks_passed": 1,
+    "tasks_failed": 0,
+    "total_reward": 0.015,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0006950000000000001,
+    "task_results": [
+      {
+        "agent": "Phi-4",
+        "agent_id": "agent_39454a207a4b",
+        "executed_by_agent_id": "agent_39454a207a4b",
+        "executed_by_model": "Phi-4",
+        "task_id": "t1_summarize_climate",
+        "tier": "T1",
+        "domain": "summarization",
+        "proof_cid": "bafybeig732ef58f4d72bd1a4d7342b6d244e629",
+        "verification": {
+          "task_id": "t1_summarize_climate",
+          "agent_model": "Phi-4",
+          "algorithmic_pass": true,
+          "constraints_passed": [
+            "word_count_30_100",
+            "required_keywords",
+            "min_sentences_2"
+          ],
+          "constraints_failed": [],
+          "jury_pass": null,
+          "jury_score": null,
+          "jury_reasoning": null,
+          "jury_model": null,
+          "overall_pass": true,
+          "output_length": 415,
+          "latency_ms": 4714.63942527771
+        },
+        "settlement": {
+          "contract_id": "contract_68bc9c810553",
+          "agent_id": "agent_39454a207a4b",
+          "outcome": "success",
+          "reward": 0.015,
+          "penalty": 0.0,
+          "failures": [],
+          "liable_agent_id": "agent_39454a207a4b"
+        },
+        "latency_ms": 4714.63942527771,
+        "token_cost_fil": 0.0006950000000000001,
+        "tokens_used": {
+          "input": 136,
+          "output": 71
+        },
+        "output_preview": "- Rising global temperatures are causing a significant reduction in Arctic sea ice extent, accelerating feedback loops that further increase warming.\n- The loss of ice reduces the albedo effect, as da",
+        "agent_strategy": "AdversarialStrategy",
+        "delegation": {
+          "principal_agent_id": "agent_39454a207a4b",
+          "principal_model": "Phi-4",
+          "delegate_agent_id": "agent_e71704594997",
+          "delegate_model": "DeepSeek-v3.1",
+          "allowed": false,
+          "reason": "chain_tier_insufficient",
+          "principal_tier": "T1",
+          "delegate_tier": "T0",
+          "chain_tier": "T0",
+          "required_tier": "T1"
+        }
+      }
+    ]
+  },
+  {
+    "round": 1,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 2,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 3,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 4,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 5,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 6,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 7,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 8,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 9,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 10,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  },
+  {
+    "round": 11,
+    "tasks_attempted": 0,
+    "tasks_passed": 0,
+    "tasks_failed": 0,
+    "total_reward": 0.0,
+    "total_penalty": 0.0,
+    "total_token_cost": 0.0,
+    "task_results": []
+  }
+]

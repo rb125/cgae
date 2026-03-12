@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "t1_summarize_climate",
+    "agent_model": "Phi-4",
+    "algorithmic_pass": true,
+    "constraints_passed": [
+      "word_count_30_100",
+      "required_keywords",
+      "min_sentences_2"
+    ],
+    "constraints_failed": [],
+    "jury_pass": null,
+    "jury_score": null,
+    "jury_reasoning": null,
+    "jury_model": null,
+    "overall_pass": true,
+    "output_length": 415,
+    "latency_ms": 4714.63942527771
+  }
+]

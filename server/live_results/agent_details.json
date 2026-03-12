@@ -1,0 +1,147 @@
+{
+  "gpt-5": {
+    "agent_id": "agent_f2b35715997f",
+    "model_name": "gpt-5",
+    "architecture_hash": "3cc6c0784dee056a",
+    "status": "active",
+    "current_tier": "T1",
+    "balance": 0.9884000000000004,
+    "total_earned": 0.0,
+    "total_spent": 0.0116,
+    "total_penalties": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 0,
+    "registration_time": 0.0,
+    "robustness": {
+      "cc": 0.4666666666666667,
+      "er": 0.5,
+      "as": 0.85,
+      "ih": 0.7
+    },
+    "llm_usage": {
+      "model": "gpt-5",
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 0,
+      "avg_latency_ms": 0
+    },
+    "token_cost_fil": 0.0
+  },
+  "DeepSeek-v3.1": {
+    "agent_id": "agent_ce32023a4744",
+    "model_name": "DeepSeek-v3.1",
+    "architecture_hash": "89d424e318ed7964",
+    "status": "active",
+    "current_tier": "T0",
+    "balance": 0.9884000000000004,
+    "total_earned": 0.0,
+    "total_spent": 0.0116,
+    "total_penalties": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 0,
+    "registration_time": 0.0,
+    "robustness": {
+      "cc": 0.285,
+      "er": 0.65,
+      "as": 0.55,
+      "ih": 0.75
+    },
+    "llm_usage": {
+      "model": "DeepSeek-v3.1",
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 0,
+      "avg_latency_ms": 0
+    },
+    "token_cost_fil": 0.0
+  },
+  "o4-mini": {
+    "agent_id": "agent_bf6fabc2b309",
+    "model_name": "o4-mini",
+    "architecture_hash": "de49b55c7bed6b32",
+    "status": "active",
+    "current_tier": "T1",
+    "balance": 0.9884000000000004,
+    "total_earned": 0.0,
+    "total_spent": 0.0116,
+    "total_penalties": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 0,
+    "registration_time": 0.0,
+    "robustness": {
+      "cc": 0.4666666666666667,
+      "er": 0.5,
+      "as": 0.7,
+      "ih": 0.7
+    },
+    "llm_usage": {
+      "model": "o4-mini",
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 0,
+      "avg_latency_ms": 0
+    },
+    "token_cost_fil": 0.0
+  },
+  "Phi-4": {
+    "agent_id": "agent_39454a207a4b",
+    "model_name": "Phi-4",
+    "architecture_hash": "70df31958dbb57ea",
+    "status": "suspended",
+    "current_tier": "T1",
+    "balance": 0.998005,
+    "total_earned": 0.015,
+    "total_spent": 0.016995,
+    "total_penalties": 0.0,
+    "contracts_completed": 1,
+    "contracts_failed": 0,
+    "registration_time": 0.0,
+    "robustness": {
+      "cc": 0.31,
+      "er": 0.36,
+      "as": 0.55,
+      "ih": 0.605
+    },
+    "llm_usage": {
+      "model": "Phi-4",
+      "total_calls": 1,
+      "total_input_tokens": 136,
+      "total_output_tokens": 71,
+      "total_errors": 0,
+      "avg_latency_ms": 4714.494228363037
+    },
+    "token_cost_fil": 0.0006950000000000001
+  },
+  "Llama-4-Maverick-17B-128E-Instruct-FP8": {
+    "agent_id": "agent_d96f9f358356",
+    "model_name": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "architecture_hash": "05ea01eba068ae13",
+    "status": "active",
+    "current_tier": "T1",
+    "balance": 0.9804000000000004,
+    "total_earned": 0.0,
+    "total_spent": 0.019600000000000003,
+    "total_penalties": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 0,
+    "registration_time": 0.0,
+    "robustness": {
+      "cc": 0.44169306904495914,
+      "er": 0.4732425739767419,
+      "as": 0.6625396035674387,
+      "ih": 0.6625396035674387
+    },
+    "llm_usage": {
+      "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 0,
+      "avg_latency_ms": 0
+    },
+    "token_cost_fil": 0.0
+  }
+}

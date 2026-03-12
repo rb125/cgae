@@ -179,7 +179,33 @@ def main():
 
     if not data["exists"]:
         st.title("Comprehension-Gated Agent Economy")
-        st.warning(f"Waiting for **{results_dir.name.replace('_', ' ').title()}** data in `{results_dir}`..."); time.sleep(2); st.rerun(); return
+        status_note = None
+        try:
+            from dashboard.modal_loader import IS_CLOUD, get_backend_health
+
+            if IS_CLOUD:
+                health = get_backend_health()
+                status = health.get("status", "unknown")
+                status_note = f"Backend status: `{status}`"
+                if status == "running":
+                    st.success(status_note)
+                elif status == "stale":
+                    age = int(health.get("age_seconds", 0))
+                    st.error(f"{status_note} (last heartbeat {age}s ago)")
+                elif status == "down":
+                    st.error(status_note)
+                else:
+                    st.info(status_note)
+        except Exception:
+            pass
+
+        wait_msg = f"Waiting for **{results_dir.name.replace('_', ' ').title()}** data in `{results_dir}`..."
+        if status_note:
+            wait_msg = f"{wait_msg}\n\n{status_note}"
+        st.warning(wait_msg)
+        time.sleep(2)
+        st.rerun()
+        return
 
     st.title("Comprehension-Gated Agent Economy")
     st.caption("RFS-4: Autonomous Agent Economy Monitor | Filecoin / IPC Proof-of-Safety")

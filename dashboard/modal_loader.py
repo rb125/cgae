@@ -149,3 +149,21 @@ def list_available_files() -> list[str]:
     else:
         # Local filesystem
         return []
+
+
+def get_backend_health() -> dict:
+    """Fetch backend health status from Modal health endpoint."""
+    if not IS_CLOUD:
+        return {}
+
+    try:
+        health_url = _derive_function_url("health")
+        if not health_url:
+            return {"status": "unknown", "reason": "health_endpoint_unresolved"}
+
+        response = requests.get(health_url, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        return {"status": "unknown", "reason": f"health_status_{response.status_code}"}
+    except Exception as e:
+        return {"status": "unknown", "reason": str(e)}

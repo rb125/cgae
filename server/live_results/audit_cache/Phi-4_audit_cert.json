@@ -1,0 +1,20 @@
+{
+  "agent_id": "agent_890ad140800f",
+  "model_name": "Phi-4",
+  "robustness": {
+    "cc": 0.3,
+    "er": 0.5,
+    "as": 0.55,
+    "ih": 0.7
+  },
+  "defaults_used": [
+    "er",
+    "ih"
+  ],
+  "framework_errors": [
+    "DDFT: API key not provided for Azure AI via None"
+  ],
+  "source": "live_audit",
+  "filecoin_cid": "bafkzcibdteaqisrvyvi6pyfcsjs5lne3xix4emo6kyiyjyez24f3puwmz7pqitzp",
+  "filecoin_cid_real": true
+}
