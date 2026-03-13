@@ -24,21 +24,35 @@ import plotly.graph_objects as go
 # Data loading
 # ---------------------------------------------------------------------------
 
+def _get_modal_loader():
+    """Import modal_loader whether app runs from repo root or dashboard/."""
+    try:
+        from dashboard import modal_loader
+
+        return modal_loader
+    except Exception:
+        try:
+            import modal_loader
+
+            return modal_loader
+        except Exception:
+            return None
+
+
 def get_config() -> tuple[int, bool, str, bool]:
     st.sidebar.title("CGAE Protocol Control")
 
-    modal_configured = False
-    try:
-        from dashboard.modal_loader import IS_CLOUD
-
-        modal_configured = IS_CLOUD
-    except Exception:
-        pass
+    modal_loader = _get_modal_loader()
+    modal_configured = bool(modal_loader and getattr(modal_loader, "IS_CLOUD", False))
 
     mode_label = "Live Execution"
     st.sidebar.info(f"Viewing: **{mode_label}**")
     if not modal_configured:
         st.sidebar.error("Modal backend not configured. Set `MODAL_ENDPOINT`.")
+    else:
+        endpoint = getattr(modal_loader, "MODAL_ENDPOINT", "")
+        if endpoint:
+            st.sidebar.caption(f"Modal endpoint: `{endpoint}`")
     
     poll_rate = st.sidebar.slider("Live Poll Rate (s)", 2, 30, 5)
     auto_refresh = st.sidebar.toggle("Auto Refresh", value=True)
@@ -56,23 +70,30 @@ def load_all_data() -> dict:
         "mode": "live_execution"
     }
 
-    try:
-        from dashboard.modal_loader import IS_CLOUD, load_json_file
-    except ImportError:
+    modal_loader = _get_modal_loader()
+    if not modal_loader:
         return data
 
-    if not IS_CLOUD:
+    if not getattr(modal_loader, "IS_CLOUD", False):
+        return data
+    load_json_file = modal_loader.load_json_file
+    available_files = set(modal_loader.list_available_files())
+    if not available_files:
         return data
 
     for key, filename in [("economy", "economy_state.json"),
                           ("details", "agent_details.json"),
                           ("recent_tasks", "task_results.json"),
                           ("events", "protocol_events.json")]:
+        if filename not in available_files:
+            continue
         loaded = load_json_file(filename)
         if loaded:
             data[key] = loaded
             data["exists"] = True
 
+    if "final_summary.json" not in available_files:
+        return data
     summary = load_json_file("final_summary.json")
     if summary:
         data["exists"] = True
@@ -85,7 +106,7 @@ def load_all_data() -> dict:
             "contracts_completed": [],
             "contracts_failed": []
         }
-        rounds = load_json_file("round_summaries.json") or []
+        rounds = load_json_file("round_summaries.json") if "round_summaries.json" in available_files else []
         if rounds:
             c_comp, c_fail = 0, 0
             for r in rounds:
@@ -290,10 +311,9 @@ def main():
     if not data["exists"]:
         status_note = None
         try:
-            from dashboard.modal_loader import IS_CLOUD, get_backend_health
-
-            if IS_CLOUD:
-                health = get_backend_health()
+            modal_loader = _get_modal_loader()
+            if modal_loader and getattr(modal_loader, "IS_CLOUD", False):
+                health = modal_loader.get_backend_health()
                 status = health.get("status", "unknown")
                 status_note = f"Backend status: `{status}`"
                 if status == "running":
@@ -312,10 +332,6 @@ def main():
         if status_note:
             wait_msg = f"{wait_msg}\n\n{status_note}"
         st.warning(wait_msg)
-        if auto_refresh:
-            time.sleep(max(2, poll_rate))
-            st.rerun()
-        return
 
     tab_overview, tab_trade, tab_tiers, tab_onchain = st.tabs(
         ["📈 Economy Overview", "🤝 Trade Activity", "🛡️ Protocol Tiers", "🔗 Onchain Transparency"]

@@ -4,10 +4,11 @@ Modal-aware data loader for Streamlit dashboard.
 Always reads from Modal web endpoints.
 """
 
-import os
 import requests
 from typing import Optional
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+
+HARDCODED_MODAL_ENDPOINT = "https://modal.com/apps/smartypans/main/deployed/cgae-economy"
 
 
 def _normalize_modal_endpoint(endpoint: str) -> str:
@@ -58,21 +59,13 @@ def _derive_function_url(function_suffix: str) -> Optional[str]:
     return None
 
 def _resolve_modal_endpoint() -> Optional[str]:
-    """Resolve endpoint from env first, then Streamlit secrets."""
-    endpoint = os.getenv("MODAL_ENDPOINT")
-    if endpoint:
-        return _normalize_modal_endpoint(endpoint)
+    """
+    Resolve endpoint using a hardcoded Modal app URL.
 
-    try:
-        import streamlit as st
-
-        secret_value = st.secrets.get("MODAL_ENDPOINT")
-        if secret_value:
-            return _normalize_modal_endpoint(str(secret_value))
-    except Exception:
-        pass
-
-    return None
+    This intentionally bypasses env/secrets so Streamlit always targets the
+    production Modal backend requested by the user.
+    """
+    return _normalize_modal_endpoint(HARDCODED_MODAL_ENDPOINT)
 
 
 MODAL_ENDPOINT = _resolve_modal_endpoint()

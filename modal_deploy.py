@@ -17,10 +17,12 @@ volume = modal.Volume.from_name("cgae-results", create_if_missing=True)
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install_from_requirements("requirements.txt")
-    .pip_install("fastapi>=0.110,<1")
+    .pip_install("fastapi>=0.110,<1", "openai>=1.30.0")
     .env({
         "PYTHONUNBUFFERED": "1",
     })
+    .add_local_python_source("server", "cgae_engine", "agents", "storage")
+    .add_local_file("contracts/deployed.json", remote_path="/app/contracts/deployed.json")
     .add_local_dir("server/live_results/audit_cache", remote_path="/app/audit_cache")  # Keep add_local_* last
 )
 
@@ -32,18 +34,26 @@ image = (
     timeout=86400,  # 24 hours
     cpu=2.0,
     memory=4096,
-    keep_warm=1,  # Keep one instance always running
+    min_containers=1,  # Keep one instance always running
 )
 def run_live_economy():
     """Run the CGAE live economy continuously."""
     import json
     import os
+    import sys
     import threading
     import time
     from pathlib import Path
 
+    # Ensure local project sources bundled into the image are importable.
+    for source_root in ("/root", "/app"):
+        if source_root not in sys.path:
+            sys.path.insert(0, source_root)
+
     # Set output directory to mounted volume
     os.environ["CGAE_OUTPUT_DIR"] = "/results"
+    results_dir = Path("/results")
+    results_dir.mkdir(parents=True, exist_ok=True)
 
     # Write heartbeat metadata so scheduler can detect healthy/stale workers.
     lock_path = Path("/results/.live_runner.lock")
@@ -63,6 +73,24 @@ def run_live_economy():
     heartbeat_thread = threading.Thread(target=heartbeat, name="live-runner-heartbeat", daemon=True)
     heartbeat_thread.start()
 
+    # Publish bootstrap files immediately so dashboard endpoints have data
+    # even while the first live round is still initializing.
+    bootstrap_files = {
+        "economy_state.json": {},
+        "agent_details.json": {},
+        "task_results.json": [],
+        "protocol_events.json": [],
+        "round_summaries.json": [],
+        "final_summary.json": {
+            "economy": {},
+            "agents": [],
+            "safety_trajectory": [],
+        },
+    }
+    for filename, payload in bootstrap_files.items():
+        (results_dir / filename).write_text(json.dumps(payload), encoding="utf-8")
+    volume.commit()
+
     # Import and run
     from server.live_runner import LiveSimulationRunner, LiveSimConfig
 
@@ -70,6 +98,7 @@ def run_live_economy():
         num_rounds=-1,  # Infinite
         output_dir="/results",
         live_audit_cache_dir="/app/audit_cache",  # Use pre-computed audits
+        run_live_audit=False,  # Avoid slow startup dependencies on external framework APIs
         seed=42,
     )
 
@@ -103,17 +132,49 @@ def ensure_live_economy_running():
 
     volume.reload()
     lock_path = Path("/results/.live_runner.lock")
+    results_dir = Path("/results")
     now = time.time()
     stale_after_seconds = 15 * 60
+    required_outputs = [
+        "final_summary.json",
+        "round_summaries.json",
+        "task_results.json",
+        "economy_state.json",
+        "agent_details.json",
+        "protocol_events.json",
+    ]
 
     if lock_path.exists():
         try:
             lock_data = json.loads(lock_path.read_text(encoding="utf-8"))
             last_heartbeat = float(lock_data.get("last_heartbeat", 0))
-            if now - last_heartbeat < stale_after_seconds:
+            missing_outputs = [
+                name for name in required_outputs if not (results_dir / name).exists()
+            ]
+            if now - last_heartbeat < stale_after_seconds and not missing_outputs:
                 return {
                     "status": "runner_healthy",
                     "last_heartbeat": last_heartbeat,
+                }
+            if now - last_heartbeat < stale_after_seconds and missing_outputs:
+                # Runner appears alive but has not produced output files.
+                # Restart to recover from startup/import deadlocks.
+                lock_path.write_text(
+                    json.dumps(
+                        {
+                            "status": "restarting_missing_outputs",
+                            "last_heartbeat": now,
+                            "missing_outputs": missing_outputs,
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                volume.commit()
+                run_live_economy.spawn()
+                return {
+                    "status": "runner_restarted_missing_outputs",
+                    "missing_outputs": missing_outputs,
+                    "restarted_at": now,
                 }
         except Exception:
             # Fall through and restart if lock file is malformed.
@@ -223,14 +284,26 @@ def health():
 
     volume.reload()
     lock_path = Path("/results/.live_runner.lock")
+    results_dir = Path("/results")
     now = time.time()
     stale_after_seconds = 15 * 60
+    required_outputs = [
+        "final_summary.json",
+        "round_summaries.json",
+        "task_results.json",
+        "economy_state.json",
+        "agent_details.json",
+        "protocol_events.json",
+    ]
+    missing_outputs = [name for name in required_outputs if not (results_dir / name).exists()]
 
     if not lock_path.exists():
+        run_live_economy.spawn()
         return {
-            "status": "down",
-            "reason": "heartbeat_lock_missing",
+            "status": "starting",
+            "reason": "heartbeat_lock_missing_spawned_runner",
             "stale_after_seconds": stale_after_seconds,
+            "missing_outputs": missing_outputs,
             "timestamp": now,
         }
 
@@ -242,11 +315,26 @@ def health():
     last_heartbeat = float(lock_data.get("last_heartbeat", 0))
     age_seconds = max(0.0, now - last_heartbeat)
     if age_seconds >= stale_after_seconds:
+        run_live_economy.spawn()
         return {
-            "status": "stale",
+            "status": "restarting",
+            "reason": "heartbeat_stale_spawned_runner",
             "age_seconds": age_seconds,
             "last_heartbeat": last_heartbeat,
             "stale_after_seconds": stale_after_seconds,
+            "missing_outputs": missing_outputs,
+            "lock": lock_data,
+        }
+
+    if missing_outputs:
+        run_live_economy.spawn()
+        return {
+            "status": "restarting",
+            "reason": "missing_outputs_spawned_runner",
+            "age_seconds": age_seconds,
+            "last_heartbeat": last_heartbeat,
+            "stale_after_seconds": stale_after_seconds,
+            "missing_outputs": missing_outputs,
             "lock": lock_data,
         }
 
@@ -255,6 +343,7 @@ def health():
         "age_seconds": age_seconds,
         "last_heartbeat": last_heartbeat,
         "stale_after_seconds": stale_after_seconds,
+        "missing_outputs": missing_outputs,
         "lock": lock_data,
     }
 
