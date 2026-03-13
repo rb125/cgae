@@ -1,14 +1,11 @@
 """
 Modal-aware data loader for Streamlit dashboard.
 
-When deployed to Streamlit Cloud, reads from Modal web endpoints.
-When running locally, reads from local filesystem.
+Always reads from Modal web endpoints.
 """
 
 import os
-import json
 import requests
-from pathlib import Path
 from typing import Optional
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
@@ -82,17 +79,14 @@ MODAL_ENDPOINT = _resolve_modal_endpoint()
 IS_CLOUD = bool(MODAL_ENDPOINT)
 
 
-def load_json_file(filename: str, results_dir: Optional[Path] = None) -> dict:
+def load_json_file(filename: str) -> dict:
     """
-    Load a JSON result file.
-    
-    - On Streamlit Cloud: Fetch from Modal web endpoint
-    - Locally: Read from filesystem
+    Load a JSON result file from the Modal endpoint.
     """
-    if IS_CLOUD:
-        return _load_from_modal(filename)
-    else:
-        return _load_from_filesystem(filename, results_dir)
+    if not IS_CLOUD:
+        print("Error loading from Modal: MODAL_ENDPOINT is not configured.")
+        return {}
+    return _load_from_modal(filename)
 
 
 def _load_from_modal(filename: str) -> dict:
@@ -110,24 +104,6 @@ def _load_from_modal(filename: str) -> dict:
             return {}
     except Exception as e:
         print(f"Error loading {filename} from Modal: {e}")
-        return {}
-
-
-def _load_from_filesystem(filename: str, results_dir: Optional[Path]) -> dict:
-    """Load from local filesystem."""
-    if results_dir is None:
-        return {}
-    
-    file_path = results_dir / filename
-    
-    if not file_path.exists():
-        return {}
-    
-    try:
-        with open(file_path) as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Error loading {filename} from filesystem: {e}")
         return {}
 
 

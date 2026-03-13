@@ -24,144 +24,79 @@ import plotly.graph_objects as go
 # Data loading
 # ---------------------------------------------------------------------------
 
-def get_config() -> tuple[Path, int, bool, str, bool]:
+def get_config() -> tuple[int, bool, str, bool]:
     st.sidebar.title("CGAE Protocol Control")
 
-    is_cloud = False
+    modal_configured = False
     try:
         from dashboard.modal_loader import IS_CLOUD
 
-        is_cloud = IS_CLOUD
+        modal_configured = IS_CLOUD
     except Exception:
         pass
 
-    # Stripe-style toggle for Live vs Simulation
-    is_live = st.sidebar.toggle(
-        "Live Execution Mode",
-        value=is_cloud,
-        help="Toggle between Simulation (Synthetic) and Live Execution (Real LLMs)",
-    )
-    mode_label = "Live Execution" if is_live else "Simulation"
+    mode_label = "Live Execution"
     st.sidebar.info(f"Viewing: **{mode_label}**")
-
-    use_modal_backend = st.sidebar.toggle(
-        "Use Modal Backend",
-        value=is_cloud,
-        help="When off, dashboard reads local files from server/live_results or server/results.",
-    )
-    if use_modal_backend and not is_cloud:
-        st.sidebar.caption("Modal endpoint not configured; local files will be used.")
+    if not modal_configured:
+        st.sidebar.error("Modal backend not configured. Set `MODAL_ENDPOINT`.")
     
     poll_rate = st.sidebar.slider("Live Poll Rate (s)", 2, 30, 5)
     auto_refresh = st.sidebar.toggle("Auto Refresh", value=True)
     if st.sidebar.button("🔄 Clear Cache"):
         st.cache_data.clear()
         st.rerun()
-    
-    # Use absolute path relative to this file
-    base_dir = Path(__file__).parent.parent
-    res_dir = base_dir / "server" / ("live_results" if is_live else "results")
-    return res_dir, poll_rate, auto_refresh, mode_label, use_modal_backend
+
+    return poll_rate, auto_refresh, mode_label, modal_configured
 
 
-def load_all_data(results_dir: Path, use_modal_backend: bool = True) -> dict:
+def load_all_data() -> dict:
     data = {
         "ts": {}, "agents": {}, "strategy": {}, "details": {}, 
         "economy": {}, "recent_tasks": [], "events": [], "exists": False,
-        "mode": "simulation" if "live" not in str(results_dir) else "live_execution"
+        "mode": "live_execution"
     }
-    
-    # Try Modal loader first if available
+
     try:
         from dashboard.modal_loader import IS_CLOUD, load_json_file
-        if IS_CLOUD and use_modal_backend:
-            # Load from Modal endpoints
-            for key, filename in [("economy", "economy_state.json"), 
-                                  ("details", "agent_details.json"),
-                                  ("recent_tasks", "task_results.json"),
-                                  ("events", "protocol_events.json")]:
-                loaded = load_json_file(filename)
-                if loaded:
-                    data[key] = loaded
-                    data["exists"] = True
-            
-            # Load mode-specific files
-            if data["mode"] == "simulation":
-                ts_data = load_json_file("time_series.json")
-                if ts_data:
-                    data["ts"] = ts_data
-                data["agents"] = load_json_file("agent_metrics.json") or {}
-                data["strategy"] = load_json_file("strategy_summary.json") or {}
-            else:
-                summary = load_json_file("final_summary.json")
-                if summary:
-                    data["exists"] = True
-                    traj = summary.get("safety_trajectory", [])
-                    data["ts"] = {
-                        "timestamps": [t["time"] for t in traj],
-                        "aggregate_safety": [t["safety"] for t in traj],
-                        "active_agent_count": [t["active_agents"] for t in traj],
-                        "total_balance": [t["total_balance"] for t in traj],
-                        "contracts_completed": [],
-                        "contracts_failed": []
-                    }
-                    rounds = load_json_file("round_summaries.json") or []
-                    if rounds:
-                        c_comp, c_fail = 0, 0
-                        for r in rounds:
-                            c_comp += r.get("tasks_passed", 0)
-                            c_fail += r.get("tasks_failed", 0)
-                            data["ts"]["contracts_completed"].append(c_comp)
-                            data["ts"]["contracts_failed"].append(c_fail)
-                    data["strategy"] = {"total_earned": {a["model_name"]: a["total_earned"] for a in summary.get("agents", [])}}
-            
-            return data
     except ImportError:
-        pass  # Modal loader not available, fall back to filesystem
-    
-    # Filesystem fallback (local development)
-    if not results_dir.exists():
         return data
 
-    for key, filename in [("economy", "economy_state.json"), 
+    if not IS_CLOUD:
+        return data
+
+    for key, filename in [("economy", "economy_state.json"),
                           ("details", "agent_details.json"),
                           ("recent_tasks", "task_results.json"),
                           ("events", "protocol_events.json")]:
-        path = results_dir / filename
-        if path.exists():
-            data[key] = json.loads(path.read_text())
+        loaded = load_json_file(filename)
+        if loaded:
+            data[key] = loaded
             data["exists"] = True
 
-    if data["mode"] == "simulation":
-        ts_path = results_dir / "time_series.json"
-        if ts_path.exists():
-            data["ts"] = json.loads(ts_path.read_text()); data["exists"] = True
-        metrics_path = results_dir / "agent_metrics.json"
-        if metrics_path.exists(): data["agents"] = json.loads(metrics_path.read_text())
-        strategy_path = results_dir / "strategy_summary.json"
-        if strategy_path.exists(): data["strategy"] = json.loads(strategy_path.read_text())
-    else:
-        summary_path = results_dir / "final_summary.json"
-        if summary_path.exists():
-            summary = json.loads(summary_path.read_text()); data["exists"] = True
-            traj = summary.get("safety_trajectory", [])
-            data["ts"] = {
-                "timestamps": [t["time"] for t in traj],
-                "aggregate_safety": [t["safety"] for t in traj],
-                "active_agent_count": [t["active_agents"] for t in traj],
-                "total_balance": [t["total_balance"] for t in traj],
-                "contracts_completed": [],
-                "contracts_failed": []
-            }
-            rounds_path = results_dir / "round_summaries.json"
-            if rounds_path.exists():
-                rounds = json.loads(rounds_path.read_text())
-                if rounds:  # Only process if not empty
-                    c_comp, c_fail = 0, 0
-                    for r in rounds:
-                        c_comp += r.get("tasks_passed", 0); c_fail += r.get("tasks_failed", 0)
-                        data["ts"]["contracts_completed"].append(c_comp); data["ts"]["contracts_failed"].append(c_fail)
-            data["strategy"] = {"total_earned": {a["model_name"]: a["total_earned"] for a in summary.get("agents", [])}}
+    summary = load_json_file("final_summary.json")
+    if summary:
+        data["exists"] = True
+        traj = summary.get("safety_trajectory", [])
+        data["ts"] = {
+            "timestamps": [t["time"] for t in traj],
+            "aggregate_safety": [t["safety"] for t in traj],
+            "active_agent_count": [t["active_agents"] for t in traj],
+            "total_balance": [t["total_balance"] for t in traj],
+            "contracts_completed": [],
+            "contracts_failed": []
+        }
+        rounds = load_json_file("round_summaries.json") or []
+        if rounds:
+            c_comp, c_fail = 0, 0
+            for r in rounds:
+                c_comp += r.get("tasks_passed", 0)
+                c_fail += r.get("tasks_failed", 0)
+                data["ts"]["contracts_completed"].append(c_comp)
+                data["ts"]["contracts_failed"].append(c_fail)
+        data["strategy"] = {
+            "total_earned": {a["model_name"]: a["total_earned"] for a in summary.get("agents", [])}
+        }
+
     return data
 
 
@@ -342,20 +277,15 @@ def render_event_feed(events: list[dict]) -> None:
 def main():
     st.set_page_config(page_title="CGAE Protocol Dashboard", page_icon="⚖️", layout="wide", initial_sidebar_state="expanded")
     inject_theme()
-    results_dir, poll_rate, auto_refresh, mode_label, use_modal_backend = get_config()
-    data = load_all_data(results_dir, use_modal_backend=use_modal_backend)
+    poll_rate, auto_refresh, mode_label, modal_configured = get_config()
+    data = load_all_data()
     onchain = load_onchain_data()
     render_header(data, mode_label, poll_rate)
-    try:
-        from dashboard.modal_loader import IS_CLOUD
-        using_modal = use_modal_backend and IS_CLOUD
-    except Exception:
-        using_modal = False
+    st.caption("Data source: Modal backend endpoint")
 
-    if using_modal:
-        st.caption("Data source: Modal backend endpoint")
-    else:
-        st.caption(f"Data source: local files in `{results_dir}`")
+    if not modal_configured:
+        st.error("Modal backend endpoint is not configured. Set `MODAL_ENDPOINT` to enable live polling.")
+        return
 
     if not data["exists"]:
         status_note = None
@@ -378,7 +308,7 @@ def main():
         except Exception:
             pass
 
-        wait_msg = f"Waiting for **{results_dir.name.replace('_', ' ').title()}** data in `{results_dir}`..."
+        wait_msg = "Waiting for **Live Execution** data from the Modal backend..."
         if status_note:
             wait_msg = f"{wait_msg}\n\n{status_note}"
         st.warning(wait_msg)
@@ -517,7 +447,7 @@ def main():
                     st.info(f"**Filecoin Proof (CID):** `{cid}`")
                     st.code(task.get("output_preview", "No output available"), language="text")
         else:
-            st.info("No work recorded. Start the simulation to see live trade activity.")
+            st.info("No work recorded yet. Waiting for live trade activity.")
 
     with tab_tiers:
         st.header("Comprehension-Gated Marketplace")
