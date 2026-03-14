@@ -228,6 +228,10 @@ class LiveSimConfig:
     delegation_rate: float = 0.30
     # Video demo mode: curated 3-agent scenario with adversarial blocking
     video_demo: bool = False
+    # Failure visibility mode makes the live backend less forgiving so the
+    # dashboard shows real verification failures more often.
+    failure_visibility_mode: bool = False
+    failure_task_bias: float = 0.75
 
 
 class LiveSimulationRunner:
@@ -247,6 +251,7 @@ class LiveSimulationRunner:
 
     def __init__(self, config: Optional[LiveSimConfig] = None):
         self.config = config or LiveSimConfig()
+        self._apply_failure_visibility_defaults()
         if self.config.seed is not None:
             random.seed(self.config.seed)
 
@@ -291,6 +296,24 @@ class LiveSimulationRunner:
         self._protocol_events: list[dict] = []
         self._final_summary: Optional[dict] = None
         self._setup_complete: bool = False
+
+    def _apply_failure_visibility_defaults(self):
+        """Tune the run toward visible verifier failures without faking them."""
+        if not self.config.failure_visibility_mode:
+            return
+
+        self.config.demo_mode = True
+        self.config.self_verify = False
+        self.config.max_retries = 0
+        self.config.circumvention_rate = max(self.config.circumvention_rate, 0.65)
+        self.config.delegation_rate = min(self.config.delegation_rate, 0.15)
+        self.config.decay_rate = max(self.config.decay_rate, 0.02)
+        self.config.failure_task_bias = max(0.0, min(1.0, self.config.failure_task_bias))
+
+        # Keep the already-initialized economy aligned when this is reapplied in setup().
+        if hasattr(self, "economy"):
+            self.economy.config.decay_rate = self.config.decay_rate
+            self.economy.decay.decay_rate = self.config.decay_rate
 
     def _resolve_initial_robustness(
         self, model_name: str, agent_id: str, llm_agent: Any
@@ -449,12 +472,20 @@ class LiveSimulationRunner:
                 "Phi-4": "adversarial",                         # Tries to bypass gates
                 "Llama-4-Maverick-17B-128E-Instruct-FP8": "specialist"  # Focused strategy
             }
-            self.config.num_rounds = 12  # Enough for temporal decay + upgrade
+            if self.config.num_rounds != -1:
+                self.config.num_rounds = 12  # Enough for temporal decay + upgrade
             self.config.demo_mode = True
             self.config.circumvention_rate = 0.8  # High adversarial activity
             self.config.delegation_rate = 0.5     # Show delegation features
             self.config.decay_rate = 0.02         # Faster decay for demo visibility
-            
+
+        self._apply_failure_visibility_defaults()
+        if self.config.failure_visibility_mode:
+            logger.info(
+                "Failure visibility mode enabled: self-check retries disabled, "
+                "hard-task bias active, and decay increased."
+            )
+
         if self.config.model_names:
             contestant_configs = [
                 get_model_config(n) for n in self.config.model_names
@@ -801,6 +832,44 @@ class LiveSimulationRunner:
             return None
         return random.choice(qualified).agent_id
 
+    def _maybe_bias_task_for_failures(
+        self,
+        planned_task: Optional[Task],
+        available_tasks: list[Task],
+        strategy_name: str,
+    ) -> Optional[Task]:
+        """Bias selection toward harder accessible tasks for live demo visibility."""
+        if not self.config.failure_visibility_mode or not available_tasks:
+            return planned_task
+
+        bias = self.config.failure_task_bias
+        if strategy_name == "growth":
+            bias *= 0.45
+        elif strategy_name == "conservative":
+            bias *= 0.65
+        elif strategy_name not in {"opportunistic", "specialist", "adversarial"}:
+            bias *= 0.80
+        bias = max(0.0, min(1.0, bias))
+
+        if planned_task is not None and random.random() > bias:
+            return planned_task
+
+        ranked = sorted(
+            available_tasks,
+            key=lambda task: (
+                task.tier.value,
+                task.difficulty,
+                len(task.constraints),
+                1 if task.jury_rubric else 0,
+                task.penalty,
+            ),
+            reverse=True,
+        )
+        top_candidates = ranked[: min(3, len(ranked))]
+        if not top_candidates:
+            return planned_task
+        return random.choice(top_candidates)
+
     def _run_round(self, round_num: int) -> dict:
         """Execute one round: each active agent attempts one task."""
         round_data = {
@@ -839,12 +908,16 @@ class LiveSimulationRunner:
                 # Fallback: random selection (no AutonomousAgent registered)
                 task = random.choice(available_tasks)
 
+            task = self._maybe_bias_task_for_failures(task, available_tasks, strategy_name)
+
             if task is None:
                 # Video demo should always show economic activity; if planning
                 # idles, force a task attempt to keep trade flow visible.
-                if self.config.video_demo and available_tasks:
-                    task = random.choice(available_tasks)
-                    logger.debug(f"{model_name}: forcing demo task {task.task_id} after idle plan")
+                if (self.config.video_demo or self.config.failure_visibility_mode) and available_tasks:
+                    task = self._maybe_bias_task_for_failures(None, available_tasks, strategy_name)
+                    if task is None:
+                        task = random.choice(available_tasks)
+                    logger.debug(f"{model_name}: forcing visible task {task.task_id} after idle plan")
                 else:
                     logger.debug(f"{model_name}: planning layer chose idle this round")
                     continue
@@ -1303,6 +1376,11 @@ def main():
     parser.add_argument("--live", action="store_true", help="Run in infinite loop mode for dashboard.")
     parser.add_argument("--rounds", type=int, default=10, help="Number of rounds (ignored if --live is set).")
     parser.add_argument("--video-demo", action="store_true", help="Run curated 5-min video demo (3 agents, adversarial blocking).")
+    parser.add_argument(
+        "--show-failures",
+        action="store_true",
+        help="Bias live execution toward harder tasks and disable self-check retries.",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -1332,6 +1410,7 @@ def main():
         num_rounds=-1 if args.live else args.rounds,
         seed=42,
         video_demo=args.video_demo,
+        failure_visibility_mode=args.show_failures,
     )
 
     runner = LiveSimulationRunner(config)

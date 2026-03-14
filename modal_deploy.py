@@ -100,6 +100,9 @@ def run_live_economy():
         live_audit_cache_dir="/app/audit_cache",  # Use pre-computed audits
         run_live_audit=False,  # Avoid slow startup dependencies on external framework APIs
         seed=42,
+        video_demo=True,
+        failure_visibility_mode=True,
+        failure_task_bias=1.0,
     )
 
     runner = LiveSimulationRunner(config)
