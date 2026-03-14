@@ -15,6 +15,10 @@ import time
 from pathlib import Path
 
 import streamlit as st
+try:
+    from streamlit import st_autorefresh
+except ImportError:
+    st_autorefresh = None
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -242,6 +246,21 @@ def inject_theme() -> None:
     )
 
 
+def schedule_refresh(auto_refresh: bool, poll_rate: int) -> None:
+    if not auto_refresh or poll_rate <= 0:
+        return
+    if st_autorefresh is not None:
+        st_autorefresh(interval=int(poll_rate * 1000), key="cgae_dashboard_refresh")
+        return
+    now = time.time()
+    last = st.session_state.get("cgae_dashboard_last_refresh", 0.0)
+    if now - last >= poll_rate:
+        st.session_state["cgae_dashboard_last_refresh"] = now
+        rerun_func = getattr(st, "experimental_rerun", None)
+        if callable(rerun_func):
+            rerun_func()
+
+
 def style_figure(fig: go.Figure, *, yaxis_title: str = "", height: int = 350) -> go.Figure:
     fig.update_layout(
         template="plotly_white",
@@ -391,7 +410,7 @@ def main():
                     annotation_position="top right",
                 )
             style_figure(fig_safety, yaxis_title="Safety Score", height=360)
-            st.plotly_chart(fig_safety, use_container_width=True)
+            st.plotly_chart(fig_safety, width='stretch')
 
         col_l, col_r = st.columns(2)
         with col_l:
@@ -410,7 +429,7 @@ def main():
                 )
                 fig_earned.update_traces(marker_line_width=0, opacity=0.9)
                 style_figure(fig_earned, yaxis_title="FIL Earned")
-                st.plotly_chart(fig_earned, use_container_width=True)
+                st.plotly_chart(fig_earned, width='stretch')
 
         with col_r:
             st.subheader("Economy Solvency")
@@ -426,7 +445,7 @@ def main():
                     )
                 )
                 style_figure(fig_bal, yaxis_title="FIL", height=360)
-                st.plotly_chart(fig_bal, use_container_width=True)
+                st.plotly_chart(fig_bal, width='stretch')
 
     with tab_trade:
         st.header("Verified Trade Activity & Proof-of-Safety")
@@ -488,7 +507,7 @@ def main():
             tiers_df = pd.DataFrame(rows).sort_values("Tier", ascending=False)
             st.dataframe(
                 tiers_df.style.format({"CC": "{:.2f}", "ER": "{:.2f}", "AS": "{:.2f}", "Balance": "{:.4f} FIL"}),
-                use_container_width=True,
+                width='stretch',
                 hide_index=True,
             )
 
@@ -501,7 +520,7 @@ def main():
                     color_discrete_sequence=COLORWAY,
                 )
                 style_figure(fig_tier, height=340)
-                st.plotly_chart(fig_tier, use_container_width=True)
+                st.plotly_chart(fig_tier, width='stretch')
 
             with c_right:
                 robust_df = tiers_df.melt(
@@ -521,7 +540,7 @@ def main():
                 )
                 fig_robust.update_traces(marker_line_width=0)
                 style_figure(fig_robust, yaxis_title="Score", height=340)
-                st.plotly_chart(fig_robust, use_container_width=True)
+                st.plotly_chart(fig_robust, width='stretch')
 
             upgrades = [
                 event
@@ -537,16 +556,14 @@ def main():
             contracts_df = pd.DataFrame(
                 [{"Contract": name, "Address": contract["address"]} for name, contract in onchain["contracts"].items()]
             )
-            st.dataframe(contracts_df, use_container_width=True, hide_index=True)
+            st.dataframe(contracts_df, width='stretch', hide_index=True)
             st.info(f"Network: {onchain['network']} | Chain ID: {onchain['chainId']}")
             st.link_button(
                 "View Registry on Explorer",
                 f"{onchain['explorer']}/address/{onchain['contracts']['CGAERegistry']['address']}",
             )
 
-    if auto_refresh:
-        time.sleep(poll_rate)
-        st.rerun()
+    schedule_refresh(auto_refresh, poll_rate)
 
 
 if __name__ == "__main__":
