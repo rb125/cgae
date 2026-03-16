@@ -38,6 +38,9 @@ class EconomyConfig:
     audit_cost: float = 0.005  # FIL per audit dimension
     # Storage cost per time step (FOC)
     storage_cost_per_step: float = 0.001  # FIL
+    # Controls for automatically minting test Filecoin when balances drop low.
+    test_fil_top_up_threshold: Optional[float] = None
+    test_fil_top_up_amount: float = 0.0
 
 
 @dataclass
@@ -53,6 +56,7 @@ class EconomySnapshot:
     total_penalties_collected: float
     aggregate_safety: float
     total_balance: float
+    total_test_fil_topups: float
     agent_summaries: list[dict]
 
 
@@ -85,6 +89,7 @@ class Economy:
         self._snapshots: list[EconomySnapshot] = []
         self._events: list[dict] = []
         self._delegations: dict[str, dict] = {}
+        self.total_test_fil_topups: float = 0.0
 
     def _effective_robustness(self, record: AgentRecord) -> Optional[RobustnessVector]:
         """Return temporally-decayed robustness for an agent record."""
@@ -93,6 +98,36 @@ class Economy:
             return None
         dt = self.current_time - cert.timestamp
         return self.decay.effective_robustness(record.current_robustness, dt)
+
+    def _should_top_up_agents(self) -> bool:
+        return (
+            self.config.test_fil_top_up_threshold is not None
+            and self.config.test_fil_top_up_amount > 0.0
+        )
+
+    def _maybe_top_up_agent(self, agent: AgentRecord) -> Optional[dict]:
+        if not self._should_top_up_agents():
+            return None
+
+        threshold = self.config.test_fil_top_up_threshold
+        amount = self.config.test_fil_top_up_amount
+        if threshold is None or agent.balance >= threshold:
+            return None
+
+        needed = max(0.0, threshold - agent.balance)
+        top_up_amount = max(amount, needed)
+
+        agent.balance += top_up_amount
+        agent.total_topups += top_up_amount
+        self.total_test_fil_topups += top_up_amount
+
+        entry = {
+            "agent_id": agent.agent_id,
+            "amount": top_up_amount,
+            "balance": agent.balance,
+        }
+        self._log("test_fil_topup", entry)
+        return entry
 
     def request_tier_upgrade(
         self,
@@ -448,6 +483,7 @@ class Economy:
             "agents_expired": [],
             "contracts_expired": [],
             "storage_costs": 0.0,
+            "test_fil_topups": [],
         }
 
         # 1. Process each active agent
@@ -505,6 +541,10 @@ class Economy:
             agent.balance -= self.config.storage_cost_per_step
             agent.total_spent += self.config.storage_cost_per_step
             step_events["storage_costs"] += self.config.storage_cost_per_step
+
+            topup = self._maybe_top_up_agent(agent)
+            if topup:
+                step_events["test_fil_topups"].append(topup)
 
             # Check for insolvency
             if agent.balance <= 0:
@@ -578,6 +618,7 @@ class Economy:
             total_penalties_collected=econ["total_penalties_collected"],
             aggregate_safety=self.aggregate_safety(),
             total_balance=sum(a.balance for a in agents),
+            total_test_fil_topups=self.total_test_fil_topups,
             agent_summaries=[a.to_dict() for a in agents],
         )
 
@@ -599,6 +640,8 @@ class Economy:
                 "initial_balance": self.config.initial_balance,
                 "audit_cost": self.config.audit_cost,
                 "storage_cost_per_step": self.config.storage_cost_per_step,
+                "test_fil_top_up_threshold": self.config.test_fil_top_up_threshold,
+                "test_fil_top_up_amount": self.config.test_fil_top_up_amount,
             },
             "agents": {
                 aid: agent.to_dict()
@@ -606,6 +649,7 @@ class Economy:
             },
             "contracts": self.contracts.economics_summary(),
             "aggregate_safety": self.aggregate_safety(),
+            "total_test_fil_topups": self.total_test_fil_topups,
             "snapshots_count": len(self._snapshots),
         }
         Path(path).write_text(json.dumps(state, indent=2, default=str))

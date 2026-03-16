@@ -52,11 +52,11 @@ def get_config() -> tuple[int, bool, str, bool]:
     mode_label = "Live Execution"
     st.sidebar.info(f"Viewing: **{mode_label}**")
     if not modal_configured:
-        st.sidebar.error("Modal backend not configured. Set `MODAL_ENDPOINT`.")
+        st.sidebar.error("Backend not configured.")
     else:
         endpoint = getattr(modal_loader, "MODAL_ENDPOINT", "")
         if endpoint:
-            st.sidebar.caption(f"Modal endpoint: `{endpoint}`")
+            st.sidebar.caption(f"Backend: `{endpoint}`")
     
     poll_rate = st.sidebar.slider("Live Poll Rate (s)", 2, 30, 5)
     auto_refresh = st.sidebar.toggle("Auto Refresh", value=True)
@@ -321,10 +321,10 @@ def main():
     data = load_all_data()
     onchain = load_onchain_data()
     render_header(data, mode_label, poll_rate)
-    st.caption("Data source: Modal backend endpoint")
+    st.caption("Data source: HuggingFace Space backend")
 
     if not modal_configured:
-        st.error("Modal backend endpoint is not configured. Set `MODAL_ENDPOINT` to enable live polling.")
+        st.error("Backend endpoint is not configured.")
         return
 
     if not data["exists"]:

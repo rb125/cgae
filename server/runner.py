@@ -54,6 +54,8 @@ class SimulationConfig:
     decay_rate: float = 0.005          # Temporal decay lambda (slower decay)
     audit_cost: float = 0.002          # Cost per audit dimension
     storage_cost_per_step: float = 0.0003  # FOC storage cost
+    test_fil_top_up_threshold: Optional[float] = None
+    test_fil_top_up_amount: float = 0.0
     # Market parameters
     contracts_per_step: int = 12
     # Output
@@ -113,6 +115,8 @@ class SimulationRunner:
             initial_balance=self.config.initial_balance,
             audit_cost=self.config.audit_cost,
             storage_cost_per_step=self.config.storage_cost_per_step,
+            test_fil_top_up_threshold=self.config.test_fil_top_up_threshold,
+            test_fil_top_up_amount=self.config.test_fil_top_up_amount,
         )
         self.economy = Economy(config=econ_config)
         self.marketplace = TaskMarketplace(

@@ -8,27 +8,19 @@ import requests
 from typing import Optional
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-HARDCODED_MODAL_ENDPOINT = "https://modal.com/apps/smartypans/main/deployed/cgae-economy"
+HARDCODED_MODAL_ENDPOINT = "https://rb512-cgae-backend.hf.space"
 
 
 def _normalize_modal_endpoint(endpoint: str) -> str:
-    """
-    Normalize endpoint input to a get-results URL.
+    return endpoint.strip().rstrip("/")
 
-    Supports either:
-    - Direct endpoint: https://<workspace>--<app>-get-results.modal.run
-    - Modal app page: https://modal.com/apps/<workspace>/<env>/deployed/<app>
-    """
-    normalized = endpoint.strip().rstrip("/")
-    parsed = urlparse(normalized)
-    parts = [p for p in parsed.path.split("/") if p]
 
-    if parsed.netloc == "modal.com" and len(parts) >= 5 and parts[0] == "apps" and parts[3] == "deployed":
-        workspace = parts[1]
-        app_name = parts[4]
-        return f"https://{workspace}--{app_name}-get-results.modal.run"
-
-    return normalized
+def _derive_function_url(function_suffix: str) -> Optional[str]:
+    if not MODAL_ENDPOINT:
+        return None
+    suffix_map = {"list-results": "list", "health": "health"}
+    path = suffix_map.get(function_suffix, function_suffix)
+    return f"{MODAL_ENDPOINT}/{path}"
 
 
 def _append_query_param(url: str, key: str, value: str) -> str:
@@ -83,20 +75,13 @@ def load_json_file(filename: str) -> dict:
 
 
 def _load_from_modal(filename: str) -> dict:
-    """Load from Modal web endpoint."""
     try:
-        url = _append_query_param(MODAL_ENDPOINT, "path", filename)
-        response = requests.get(url, timeout=10)
-        
+        response = requests.get(f"{MODAL_ENDPOINT}/results/{filename}", timeout=10)
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 404:
-            return {}
-        else:
-            print(f"Error loading {filename} from Modal: {response.status_code}")
-            return {}
+        return {}
     except Exception as e:
-        print(f"Error loading {filename} from Modal: {e}")
+        print(f"Error loading {filename} from backend: {e}")
         return {}
 
 

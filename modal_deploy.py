@@ -103,6 +103,8 @@ def run_live_economy():
         video_demo=True,
         failure_visibility_mode=True,
         failure_task_bias=1.0,
+        test_fil_top_up_threshold=0.05,
+        test_fil_top_up_amount=0.2,
     )
 
     runner = LiveSimulationRunner(config)

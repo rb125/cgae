@@ -232,6 +232,9 @@ class LiveSimConfig:
     # dashboard shows real verification failures more often.
     failure_visibility_mode: bool = False
     failure_task_bias: float = 0.75
+    # Automated test FIL refills when agent balances dip too low.
+    test_fil_top_up_threshold: Optional[float] = None
+    test_fil_top_up_amount: float = 0.0
 
 
 class LiveSimulationRunner:
@@ -261,6 +264,8 @@ class LiveSimulationRunner:
             initial_balance=self.config.initial_balance,
             audit_cost=self.config.audit_cost,
             storage_cost_per_step=self.config.storage_cost_per_step,
+            test_fil_top_up_threshold=self.config.test_fil_top_up_threshold,
+            test_fil_top_up_amount=self.config.test_fil_top_up_amount,
         )
         self.economy = Economy(config=econ_config)
 
@@ -284,6 +289,7 @@ class LiveSimulationRunner:
 
         # Cost tracking
         self._token_costs: dict[str, float] = {}  # agent_id -> total FIL spent on tokens
+        self._test_fil_topups_total: float = 0.0
 
         # Audit data quality: model_name -> {"source": "real"|"default", "dims_defaulted": [...]}
         self._audit_quality: dict[str, dict] = {}
@@ -588,6 +594,25 @@ class LiveSimulationRunner:
 
                 # Apply temporal dynamics and capture high-signal events
                 step_events = self.economy.step()
+                topups = step_events.get("test_fil_topups", [])
+                total_topups = sum(t.get("amount", 0.0) for t in topups)
+                round_results["total_topups"] = total_topups
+                if topups:
+                    self._test_fil_topups_total += total_topups
+                    for topup in topups:
+                        model_name = self.agent_model_map.get(topup["agent_id"], topup["agent_id"])
+                        self._protocol_events.append({
+                            "timestamp": self.economy.current_time,
+                            "type": "TEST_FIL_TOPUP",
+                            "agent": model_name,
+                            "agent_id": topup["agent_id"],
+                            "amount": topup["amount"],
+                            "new_balance": topup["balance"],
+                            "message": (
+                                f"Injected {topup['amount']:.4f} FIL into {model_name} "
+                                f"to keep them above the {self.config.test_fil_top_up_threshold} FIL threshold."
+                            ),
+                        })
                 
                 # Video demo: Force visible tier upgrade at round 5
                 if self.config.video_demo and round_num == 4:  # 0-indexed, so round 5
@@ -880,6 +905,7 @@ class LiveSimulationRunner:
             "total_reward": 0.0,
             "total_penalty": 0.0,
             "total_token_cost": 0.0,
+            "total_topups": 0.0,
             "task_results": [],
         }
 
@@ -1269,6 +1295,7 @@ class LiveSimulationRunner:
                 "num_rounds": self.config.num_rounds,
                 "num_agents": len(agents_data),
                 "active_agents": len(self.economy.registry.active_agents),
+                "test_fil_topups_total": self._test_fil_topups_total,
             },
             "demo_highlights": {
                 "protocol_event_counts": event_counts,

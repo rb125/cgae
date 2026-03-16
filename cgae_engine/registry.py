@@ -60,6 +60,7 @@ class AgentRecord:
     total_earned: float = 0.0
     total_spent: float = 0.0
     total_penalties: float = 0.0
+    total_topups: float = 0.0
     contracts_completed: int = 0
     contracts_failed: int = 0
 
@@ -104,6 +105,7 @@ class AgentRecord:
             "total_earned": self.total_earned,
             "total_spent": self.total_spent,
             "total_penalties": self.total_penalties,
+            "total_topups": self.total_topups,
             "contracts_completed": self.contracts_completed,
             "contracts_failed": self.contracts_failed,
             "registration_time": self.registration_time,

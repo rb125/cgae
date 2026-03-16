@@ -372,6 +372,8 @@ runner.setup()   # Registers agents, runs live audits, assigns tiers
 summary = runner.run()
 ```
 
+`LiveSimConfig` now exposes `test_fil_top_up_threshold` and `test_fil_top_up_amount`, so you can keep the simulated economy afloat by minting rescue FIL whenever an agent slips below the configured floor (e.g., `threshold=0.05`, `amount=0.2`).
+
 **Output** (`server/live_results/`):
 ```
 task_results.json       # Per-task: output preview, verification, settlement, latency
