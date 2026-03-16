@@ -328,29 +328,33 @@ def main():
         return
 
     if not data["exists"]:
-        status_note = None
+        health = {}
         try:
             modal_loader = _get_modal_loader()
             if modal_loader and getattr(modal_loader, "IS_CLOUD", False):
                 health = modal_loader.get_backend_health()
-                status = health.get("status", "unknown")
-                status_note = f"Backend status: `{status}`"
-                if status == "running":
-                    st.success(status_note)
-                elif status == "stale":
-                    age = int(health.get("age_seconds", 0))
-                    st.error(f"{status_note} (last heartbeat {age}s ago)")
-                elif status == "down":
-                    st.error(status_note)
-                else:
-                    st.info(status_note)
         except Exception:
             pass
 
-        wait_msg = "Waiting for **Live Execution** data from the Modal backend..."
-        if status_note:
-            wait_msg = f"{wait_msg}\n\n{status_note}"
-        st.warning(wait_msg)
+        status = health.get("status", "unknown")
+        st.markdown(
+            """
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                        min-height:60vh;gap:1.2rem;text-align:center;">
+                <div style="font-size:3rem;">⚙️</div>
+                <div style="font-size:1.4rem;font-weight:600;color:#0f766e;">
+                    Economy initializing…
+                </div>
+                <div style="color:#475569;max-width:420px;">
+                    The backend is spinning up agents and running the first simulation round.
+                    This usually takes 30–60 seconds.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.info(f"Backend status: `{status}` — page will refresh automatically.")
+        return
 
     tab_overview, tab_trade, tab_tiers, tab_onchain = st.tabs(
         ["📈 Economy Overview", "🤝 Trade Activity", "🛡️ Protocol Tiers", "🔗 Onchain Transparency"]
