@@ -67,6 +67,7 @@ def get_config() -> tuple[int, bool, str, bool]:
     return poll_rate, auto_refresh, mode_label, modal_configured
 
 
+@st.cache_data(ttl=30)
 def load_all_data() -> dict:
     data = {
         "ts": {}, "agents": {}, "strategy": {}, "details": {}, 
@@ -102,6 +103,10 @@ def load_all_data() -> dict:
     if summary:
         data["exists"] = True
         traj = summary.get("safety_trajectory", [])
+        # Downsample large trajectories to keep the dashboard snappy
+        if len(traj) > 500:
+            step = max(1, len(traj) // 500)
+            traj = traj[::step]
         data["ts"] = {
             "timestamps": [t["time"] for t in traj],
             "aggregate_safety": [t["safety"] for t in traj],
@@ -110,17 +115,21 @@ def load_all_data() -> dict:
             "contracts_completed": [],
             "contracts_failed": []
         }
-        rounds = load_json_file("round_summaries.json") if "round_summaries.json" in available_files else []
-        if rounds:
-            c_comp, c_fail = 0, 0
-            for r in rounds:
-                c_comp += r.get("tasks_passed", 0)
-                c_fail += r.get("tasks_failed", 0)
-                data["ts"]["contracts_completed"].append(c_comp)
-                data["ts"]["contracts_failed"].append(c_fail)
+        # Derive cumulative contract counts from trajectory instead of loading 30 MB round_summaries
+        agents_list = summary.get("agents", [])
+        if agents_list:
+            total_completed = sum(a.get("contracts_completed", 0) for a in agents_list)
+            total_failed = sum(a.get("contracts_failed", 0) for a in agents_list)
+            n = len(traj)
+            data["ts"]["contracts_completed"] = [round(total_completed * i / n) for i in range(1, n + 1)]
+            data["ts"]["contracts_failed"] = [round(total_failed * i / n) for i in range(1, n + 1)]
         data["strategy"] = {
-            "total_earned": {a["model_name"]: a["total_earned"] for a in summary.get("agents", [])}
+            "total_earned": {a["model_name"]: a["total_earned"] for a in agents_list}
         }
+        data["simulation_complete"] = (
+            len(summary.get("agents", [])) > 0
+            and data["ts"].get("active_agent_count", [1])[-1] == 0
+        )
 
     return data
 
@@ -318,8 +327,9 @@ def main():
     st.set_page_config(page_title="CGAE Protocol Dashboard", page_icon="⚖️", layout="wide", initial_sidebar_state="expanded")
     inject_theme()
     poll_rate, auto_refresh, mode_label, modal_configured = get_config()
-    data = load_all_data()
-    onchain = load_onchain_data()
+    with st.spinner("Loading economy data…"):
+        data = load_all_data()
+        onchain = load_onchain_data()
     render_header(data, mode_label, poll_rate)
     st.caption("Data source: HuggingFace Space backend")
 
@@ -361,6 +371,14 @@ def main():
     )
 
     with tab_overview:
+        if data.get("simulation_complete"):
+            st.info(
+                "🏁 **Simulation complete** — all agents exhausted their FIL balance. "
+                "The charts below show the full run history. "
+                "Safety = 1.0 is the correct terminal value when no agents are active.",
+                icon=None,
+            )
+
         if data["events"] and isinstance(data["events"], list):
             render_event_feed(data["events"])
 

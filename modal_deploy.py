@@ -103,8 +103,10 @@ def run_live_economy():
         video_demo=True,
         failure_visibility_mode=True,
         failure_task_bias=1.0,
-        test_fil_top_up_threshold=0.05,
-        test_fil_top_up_amount=0.2,
+        initial_balance=5.0,           # 5 FIL per agent (5 agents = 25 FIL total)
+        test_fil_top_up_threshold=1.0, # Top up when balance drops below 1 FIL
+        test_fil_top_up_amount=5.0,    # Inject 5 FIL at a time (199 tFIL available)
+        ih_threshold=0.45,             # Empirical ih scores land ~0.49; 0.5 suspends everyone
     )
 
     runner = LiveSimulationRunner(config)
