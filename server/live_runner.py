@@ -178,8 +178,10 @@ def update_robustness_from_verification(
     if as_count > 0:
         as_delta /= as_count
 
-    # IH: nudge based on overall pass (proxy for epistemic integrity)
-    ih_delta = ROBUSTNESS_UPDATE_RATE * 0.5 if verification.overall_pass else -ROBUSTNESS_DECAY_ON_FAIL * 0.5
+    # IH: read-only between audits — it's an intrinsic DDFT score, not a task metric.
+    # Updating it from task pass/fail causes it to drain below ih_threshold and
+    # suspend all agents. Keep ih stable; only re-audit changes it.
+    ih_delta = 0.0
 
     def clamp(val: float) -> float:
         return max(0.0, min(1.0, val))

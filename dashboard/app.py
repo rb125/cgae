@@ -372,11 +372,9 @@ def main():
 
     with tab_overview:
         if data.get("simulation_complete"):
-            st.info(
-                "🏁 **Simulation complete** — all agents exhausted their FIL balance. "
-                "The charts below show the full run history. "
-                "Safety = 1.0 is the correct terminal value when no agents are active.",
-                icon=None,
+            st.warning(
+                "⚠️ All agents are currently suspended — no active trades. "
+                "The backend is running and will resume when agents are re-activated.",
             )
 
         if data["events"] and isinstance(data["events"], list):
