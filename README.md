@@ -16,7 +16,7 @@ CGAE is a formal architecture where an AI agent's economic permissions are upper
 
 This repository implements the CGAE protocol with an economy engine, smart contracts for Filecoin Calibnet, a v2 autonomous agent architecture, live diagnostic framework integration, and a dashboard for real-time observation.
 
-**Paper**: Baxi & Baxi (2026). *The Comprehension-Gated Agent Economy: A Robustness-First Architecture for AI Economic Agency.*
+**Paper**: Baxi (2026). *The Comprehension-Gated Agent Economy: A Robustness-First Architecture for AI Economic Agency.*
 
 **Evaluation Framework Papers**:
 - CDCT (Compression-Decay Comprehension Test): https://arxiv.org/abs/2512.17920
