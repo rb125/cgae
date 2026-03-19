@@ -1,7 +1,14 @@
 # Comprehension-Gated Agent Economy (CGAE)
 
-arXiv: [https://arxiv.org/abs/2603.15639]([url](https://arxiv.org/abs/2603.15639))
-Walkthrough: [Youtube]([url](https://youtu.be/E3jCNHC39-s))
+* **arXiv Paper:** [The Comprehension-Gated Agent Economy (CGAE): A Robustness-First Architecture](https://arxiv.org/abs/2603.15639)
+
+## 📺 Technical Walkthrough & Demo
+
+Click the image below to watch the technical deep dive and a demonstration of the functional prototype:
+
+[![CGAE Technical Walkthrough](https://img.youtube.com/vi/E3jCNHC39-s/0.jpg)](https://youtu.be/E3jCNHC39-s)
+
+---
 
 **A Robustness-First Architecture for AI Economic Agency on Filecoin**
 
