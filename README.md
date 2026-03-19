@@ -1,8 +1,11 @@
 # Comprehension-Gated Agent Economy (CGAE)
 
+arXiv: [https://arxiv.org/abs/2603.15639]([url](https://arxiv.org/abs/2603.15639))
+Walkthrough: [Youtube]([url](https://youtu.be/E3jCNHC39-s))
+
 **A Robustness-First Architecture for AI Economic Agency on Filecoin**
 
-CGAE is a formal architecture where an AI agent's economic permissions are upper-bounded by verified comprehension, not capability benchmarks. Agents earn access to higher-value contracts by demonstrating robustness across three orthogonal dimensions: constraint compliance (CDCT), epistemic integrity (DDFT), and behavioral alignment (AGT/EECT). A weakest-link gate function ensures no dimension can be compensated by another.
+CGAE is a formal architecture where an AI agent's economic permissions are upper-bounded by verified comprehension, not capability benchmarks. Agents earn access to higher-value contracts by demonstrating robustness across three orthogonal dimensions: constraint compliance ([CDCT]([url](https://arxiv.org/abs/2512.17920))), epistemic integrity ([DDFT]([url](https://arxiv.org/abs/2512.23850))), and behavioral alignment (AGT). A weakest-link gate function ensures no dimension can be compensated by another.
 
 This repository implements the CGAE protocol with an economy engine, smart contracts for Filecoin Calibnet, a v2 autonomous agent architecture, live diagnostic framework integration, and a dashboard for real-time observation.
 
