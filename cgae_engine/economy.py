@@ -39,8 +39,10 @@ class EconomyConfig:
     # Storage cost per time step (FOC)
     storage_cost_per_step: float = 0.001  # FIL
     # Controls for automatically minting test Filecoin when balances drop low.
-    test_fil_top_up_threshold: Optional[float] = None
-    test_fil_top_up_amount: float = 0.0
+    # Defaults keep the economy running continuously: top up any agent below
+    # 5% of the default seed capital and restore them to half seed capital.
+    test_fil_top_up_threshold: Optional[float] = 0.05
+    test_fil_top_up_amount: float = 0.5
 
 
 @dataclass
@@ -553,6 +555,22 @@ class Economy:
                     "agent_id": agent.agent_id,
                     "balance": agent.balance,
                 })
+
+        # 1b. Reactivate suspended (insolvent) agents when top-up is enabled.
+        # This handles agents that were suspended in a previous step before the
+        # top-up defaults were in place, or that hit zero between steps.
+        if self._should_top_up_agents():
+            for agent in self.registry.agents.values():
+                if agent.status != AgentStatus.SUSPENDED:
+                    continue
+                topup = self._maybe_top_up_agent(agent)
+                if topup and agent.balance > 0:
+                    agent.status = AgentStatus.ACTIVE
+                    step_events["test_fil_topups"].append(topup)
+                    self._log("agent_reactivated", {
+                        "agent_id": agent.agent_id,
+                        "balance": agent.balance,
+                    })
 
         # 2. Expire overdue contracts
         expired = self.contracts.expire_contracts(self.current_time)

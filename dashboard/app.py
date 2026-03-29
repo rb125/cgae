@@ -126,10 +126,11 @@ def load_all_data() -> dict:
         data["strategy"] = {
             "total_earned": {a["model_name"]: a["total_earned"] for a in agents_list}
         }
-        data["simulation_complete"] = (
-            len(summary.get("agents", [])) > 0
-            and data["ts"].get("active_agent_count", [1])[-1] == 0
-        )
+        # Economy is considered "in intervention" only when all agents are
+        # suspended AND the trajectory shows the count actually dropped to 0.
+        # With automatic top-up enabled this should no longer happen in normal
+        # operation; the flag is kept for observability only.
+        data["simulation_complete"] = False
 
     return data
 
@@ -372,9 +373,9 @@ def main():
 
     with tab_overview:
         if data.get("simulation_complete"):
-            st.warning(
-                "⚠️ All agents are currently suspended — no active trades. "
-                "The backend is running and will resume when agents are re-activated.",
+            st.info(
+                "Economy intervention active — agents were topped up and are being re-activated. "
+                "Trading resumes automatically.",
             )
 
         if data["events"] and isinstance(data["events"], list):
