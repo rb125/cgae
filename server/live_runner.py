@@ -240,8 +240,8 @@ class LiveSimConfig:
     test_fil_top_up_threshold: Optional[float] = 0.05
     test_fil_top_up_amount: float = 0.5
     # IHT gate threshold — agents with ih < this are pinned to T0.
-    # Default 0.5; lower to 0.45 when empirical ih scores land below 0.5.
-    ih_threshold: float = 0.5
+    # Empirical default ih scores land ~0.499; 0.5 suspends everyone without a live audit.
+    ih_threshold: float = 0.45
 
 
 class LiveSimulationRunner:

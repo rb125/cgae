@@ -30,8 +30,10 @@ class EconomyConfig:
     thresholds: TierThresholds = field(default_factory=TierThresholds)
     # Temporal decay rate (lambda)
     decay_rate: float = 0.01
-    # IHT threshold for mandatory re-audit
-    ih_threshold: float = 0.5
+    # IHT threshold for mandatory re-audit.
+    # Empirical default ih scores from DEFAULT_ROBUSTNESS land ~0.499;
+    # keeping this at 0.5 suspends every agent that hasn't run a live audit.
+    ih_threshold: float = 0.45
     # Initial balance for new agents (seed capital)
     initial_balance: float = 0.1  # FIL
     # Audit cost per dimension
