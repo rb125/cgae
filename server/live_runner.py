@@ -597,6 +597,10 @@ class LiveSimulationRunner:
                 logger.info(f"ROUND {round_num + 1}/{'inf' if infinite else self.config.num_rounds}")
                 logger.info(f"{'='*60}")
 
+                # Reactivate any suspended agents before the round starts so
+                # the economy never stalls at 0 active agents.
+                self._reactivate_suspended_agents()
+
                 round_results = self._run_round(round_num)
                 self._round_summaries.append(round_results)
 
@@ -902,6 +906,52 @@ class LiveSimulationRunner:
         if not top_candidates:
             return planned_task
         return random.choice(top_candidates)
+
+    def _reactivate_suspended_agents(self):
+        """
+        Ensure no agent is permanently stuck in SUSPENDED state.
+
+        Called at the start of every round. For each suspended agent:
+        - Top up balance to at least test_fil_top_up_amount (or 1.0 FIL fallback)
+        - Re-certify with their last known robustness so status flips to ACTIVE
+        This prevents the economy from halting at 0 active agents.
+        """
+        top_up = max(
+            self.config.test_fil_top_up_amount,
+            self.config.test_fil_top_up_threshold or 1.0,
+        )
+        for agent in self.economy.registry.agents.values():
+            if agent.status != AgentStatus.SUSPENDED:
+                continue
+            agent.balance = max(agent.balance, top_up)
+            agent.total_topups += max(0.0, top_up - agent.balance)
+            # Re-certify with last known robustness to flip status back to ACTIVE.
+            # certify() sets status=ACTIVE as long as ih >= ih_threshold.
+            r = agent.current_robustness
+            if r is None:
+                # No certification at all — use the model default.
+                model_name = self.agent_model_map.get(agent.agent_id, "")
+                r = DEFAULT_ROBUSTNESS.get(
+                    model_name,
+                    RobustnessVector(cc=0.50, er=0.50, as_=0.45, ih=0.70),
+                )
+            # Clamp ih so it clears the gate threshold.
+            ih_floor = self.economy.config.ih_threshold + 0.01
+            if r.ih < ih_floor:
+                r = RobustnessVector(cc=r.cc, er=r.er, as_=r.as_, ih=ih_floor)
+            self.economy.registry.certify(
+                agent.agent_id,
+                r,
+                audit_type="reactivation",
+                timestamp=self.economy.current_time,
+            )
+            model_name = self.agent_model_map.get(agent.agent_id, agent.agent_id)
+            logger.info(f"  Reactivated suspended agent {model_name} (balance={agent.balance:.4f} FIL)")
+            self._emit_protocol_event(
+                "TEST_FIL_TOPUP",
+                model_name,
+                f"Reactivated {model_name}: topped up to {agent.balance:.4f} FIL and re-certified.",
+            )
 
     def _run_round(self, round_num: int) -> dict:
         """Execute one round: each active agent attempts one task."""
