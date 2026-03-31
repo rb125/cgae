@@ -14,6 +14,7 @@ COPY server/ server/
 COPY contracts/ contracts/
 COPY storage/ storage/
 COPY hf_backend/app.py hf_backend/app.py
+COPY hf_backend/dashboard.html hf_backend/dashboard.html
 
 # HF Spaces runs as non-root user 1000
 RUN mkdir -p /app/results && chmod 777 /app/results

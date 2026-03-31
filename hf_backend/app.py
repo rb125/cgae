@@ -11,7 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 
 # Ensure project root is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -75,7 +75,8 @@ def startup():
 
 @app.get("/")
 def dashboard():
-    return FileResponse(Path(__file__).parent / "dashboard.html", media_type="text/html")
+    html = (Path(__file__).parent / "dashboard.html").read_text()
+    return HTMLResponse(html)
 
 
 @app.get("/results/{filename}")
