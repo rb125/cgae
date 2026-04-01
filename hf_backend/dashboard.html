@@ -86,7 +86,6 @@
       <div class="tab active" onclick="switchTab('overview')">📈 Economy Overview</div>
       <div class="tab" onclick="switchTab('trade')">🤝 Trade Activity</div>
       <div class="tab" onclick="switchTab('tiers')">🛡️ Protocol Tiers</div>
-      <div class="tab" onclick="switchTab('onchain')">🔗 Onchain</div>
     </div>
 
     <!-- OVERVIEW -->
@@ -141,13 +140,7 @@
       </div>
     </div>
 
-    <!-- ONCHAIN -->
-    <div id="tab-onchain" class="tab-panel">
-      <div class="card">
-        <h3>Filecoin Virtual Machine (FVM) Contract Registry</h3>
-        <div id="onchain-content" style="font-size:.85rem;margin-top:.5rem"></div>
-      </div>
-    </div>
+    <!-- ONCHAIN (removed) -->
   </div>
 </div>
 
@@ -164,7 +157,7 @@ let countdown = 5;
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    const names=['overview','trade','tiers','onchain'];
+    const names=['overview','trade','tiers'];
     t.classList.toggle('active', names[i]===name);
   });
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -202,7 +195,6 @@ async function refresh() {
   renderOverview();
   renderTrade();
   renderTiers();
-  renderOnchain();
 }
 
 function updateStatus(health) {
@@ -361,24 +353,6 @@ function renderTiers() {
     if (!ub) { ub=document.createElement('div'); ub.className='event success upgrade-banner'; el.appendChild(ub); }
     ub.textContent = '✅ ' + (last.message||'');
   }
-}
-
-function renderOnchain() {
-  const el = document.getElementById('onchain-content');
-  // Hardcoded from deployed.json (static, no need to fetch)
-  el.innerHTML = `
-    <table style="margin-bottom:.75rem">
-      <thead><tr><th>Contract</th><th>Address</th></tr></thead>
-      <tbody>
-        <tr><td>CGAERegistry</td><td style="font-family:monospace;font-size:.75rem">0x7A4821c1811c8e6a623F98f62335e44BaeA83F3a</td></tr>
-        <tr><td>CGAEEscrow</td><td style="font-family:monospace;font-size:.75rem">0x38601c0c4525c483323F64F2F563dBb4877EA2C2</td></tr>
-      </tbody>
-    </table>
-    <p style="color:var(--muted);font-size:.8rem">Network: calibnet · Chain ID: 314159</p>
-    <p style="margin-top:.5rem">
-      <a href="https://calibration.filscan.io/address/0x7A4821c1811c8e6a623F98f62335e44BaeA83F3a"
-         target="_blank" style="color:var(--teal);font-size:.85rem">View Registry on Filscan Explorer ↗</a>
-    </p>`;
 }
 
 // Countdown + auto-refresh
