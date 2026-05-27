@@ -1,0 +1,15 @@
+{
+  "network": "devnet",
+  "cluster": "https://api.devnet.solana.com",
+  "explorer": "https://explorer.solana.com",
+  "deployedAt": "2026-04-10",
+  "deployer": "5VGdPCpthqfUFWqXjQpH7nhmJmeEM6hh4x3uk3o9qcLb",
+  "programs": {
+    "cgae_registry": "DR59DsHsJGHTqHRG1SLcZStdzgw97mqVFxjWBozE4Fyp",
+    "cgae_escrow":   "FhQDQVpwPZDAEd7HU4WmZBkwe7P8wtdg83tYr4h1FPUe"
+  },
+  "idl_metadata": {
+    "cgae_registry": "H7Q5Yp3Be5NhozswmMe6NdxZdAoicpkeRHy6HcfQDtJx",
+    "cgae_escrow":   "5kK1Sheun34EeZk36JuRZ4mfFkA9heuVnXMMA9BocL4K"
+  }
+}

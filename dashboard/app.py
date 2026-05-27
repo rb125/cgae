@@ -1,590 +1,665 @@
 """
-CGAE Economy Dashboard - High-Signal Protocol Monitoring
-Optimized for Winning the Room (RFS-4 Hackathon).
-
-Sticky Moments Focus:
-- Bankruptcies & Suspensions
-- On-chain Demotions/Expirations
-- Robustness-driven Tier Upgrades
-- Filecoin CID verification
+CGAE Protocol Dashboard — Solana Edition
+Dark crypto dashboard UI. Solana-native on-chain layer, Filecoin audit storage.
 """
-
 from __future__ import annotations
-import json
-import time
+import json, time
 from pathlib import Path
 
 import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
 try:
     from streamlit import st_autorefresh
 except ImportError:
     st_autorefresh = None
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 
+# ── Theme constants ───────────────────────────────────────────────────────────
+BG          = "#0a0f1e"
+BG2         = "#0f1629"
+CARD        = "rgba(255,255,255,0.04)"
+BORDER      = "rgba(139,92,246,0.25)"
+ACCENT      = "#8b5cf6"       # Solana purple
+ACCENT2     = "#14f195"       # Solana green
+ACCENT3     = "#f59e0b"       # amber
+RED         = "#ef4444"
+BLUE        = "#3b82f6"
+TEXT        = "#e2e8f0"
+MUTED       = "#64748b"
+MONO        = "'IBM Plex Mono', 'Fira Code', monospace"
+COLORWAY    = [ACCENT2, ACCENT, ACCENT3, BLUE, RED, "#06b6d4"]
 
-# ---------------------------------------------------------------------------
-# Data loading
-# ---------------------------------------------------------------------------
+# ── CSS injection ─────────────────────────────────────────────────────────────
+THEME_CSS = f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+html, body, [class*="css"] {{
+    font-family: 'Inter', sans-serif;
+    color: {TEXT};
+    background-color: {BG};
+}}
+
+[data-testid="stAppViewContainer"] {{
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139,92,246,0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(20,241,149,0.08), transparent),
+                {BG};
+}}
+
+section[data-testid="stSidebar"] {{
+    background: {BG2};
+    border-right: 1px solid {BORDER};
+}}
+section[data-testid="stSidebar"] * {{ color: {TEXT} !important; }}
+
+.block-container {{ padding-top: 1.5rem; max-width: 1280px; }}
+
+/* Metric cards */
+[data-testid="stMetric"] {{
+    background: {CARD};
+    border: 1px solid {BORDER};
+    border-radius: 12px;
+    padding: 0.5rem 0.75rem;
+    backdrop-filter: blur(12px);
+}}
+[data-testid="stMetricLabel"] p {{ color: {MUTED} !important; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }}
+[data-testid="stMetricValue"] div {{ color: {TEXT} !important; font-family: {MONO}; font-size: 1.4rem; }}
+[data-testid="stMetricDelta"] div {{ font-family: {MONO}; font-size: 0.8rem; }}
+
+/* Tabs */
+[data-baseweb="tab-list"] {{ background: transparent; border-bottom: 1px solid {BORDER}; gap: 0; }}
+[data-baseweb="tab"] {{ background: transparent !important; color: {MUTED} !important; border-radius: 0; padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 500; }}
+[data-baseweb="tab"][aria-selected="true"] {{
+    color: {ACCENT2} !important;
+    border-bottom: 2px solid {ACCENT2} !important;
+    background: transparent !important;
+}}
+
+/* Expanders */
+[data-testid="stExpander"] {{
+    background: {CARD};
+    border: 1px solid {BORDER};
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+}}
+[data-testid="stExpander"] summary p {{ color: {TEXT} !important; }}
+
+/* Dataframe */
+[data-testid="stDataFrame"] {{
+    border: 1px solid {BORDER};
+    border-radius: 10px;
+    background: {CARD};
+}}
+
+/* Buttons */
+button[kind="secondary"] {{
+    background: {CARD} !important;
+    border: 1px solid {BORDER} !important;
+    color: {TEXT} !important;
+    border-radius: 8px !important;
+}}
+[data-testid="stLinkButton"] a {{
+    background: linear-gradient(135deg, {ACCENT}, #6d28d9) !important;
+    border: none !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}}
+
+/* Alerts */
+[data-testid="stAlert"] {{ border-radius: 10px; border-left-width: 3px; }}
+
+/* Scrollbar */
+::-webkit-scrollbar {{ width: 6px; height: 6px; }}
+::-webkit-scrollbar-track {{ background: {BG2}; }}
+::-webkit-scrollbar-thumb {{ background: {BORDER}; border-radius: 3px; }}
+
+/* Sidebar title */
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2 {{
+    color: {ACCENT2} !important;
+    font-size: 1rem !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}}
+</style>
+"""
+
+# ── Data loading ──────────────────────────────────────────────────────────────
 
 def _get_modal_loader():
-    """Import modal_loader whether app runs from repo root or dashboard/."""
     try:
         from dashboard import modal_loader
-
         return modal_loader
     except Exception:
         try:
             import modal_loader
-
             return modal_loader
         except Exception:
             return None
 
 
-def get_config() -> tuple[int, bool, str, bool]:
-    st.sidebar.title("CGAE Protocol Control")
-
-    modal_loader = _get_modal_loader()
-    modal_configured = bool(modal_loader and getattr(modal_loader, "IS_CLOUD", False))
-
-    mode_label = "Live Execution"
-    st.sidebar.info(f"Viewing: **{mode_label}**")
-    if not modal_configured:
-        st.sidebar.error("Backend not configured.")
-    else:
-        endpoint = getattr(modal_loader, "MODAL_ENDPOINT", "")
-        if endpoint:
-            st.sidebar.caption(f"Backend: `{endpoint}`")
-    
-    poll_rate = st.sidebar.slider("Live Poll Rate (s)", 2, 30, 5)
-    auto_refresh = st.sidebar.toggle("Auto Refresh", value=True)
-    if st.sidebar.button("🔄 Clear Cache"):
-        st.cache_data.clear()
-        st.rerun()
-
-    return poll_rate, auto_refresh, mode_label, modal_configured
-
-
 @st.cache_data(ttl=30)
 def load_all_data() -> dict:
     data = {
-        "ts": {}, "agents": {}, "strategy": {}, "details": {}, 
+        "ts": {}, "agents": {}, "strategy": {}, "details": {},
         "economy": {}, "recent_tasks": [], "events": [], "exists": False,
-        "mode": "live_execution"
     }
-
     modal_loader = _get_modal_loader()
-    if not modal_loader:
+    if not modal_loader or not getattr(modal_loader, "IS_CLOUD", False):
         return data
 
-    if not getattr(modal_loader, "IS_CLOUD", False):
-        return data
     load_json_file = modal_loader.load_json_file
-    available_files = set(modal_loader.list_available_files())
-    if not available_files:
+    available = set(modal_loader.list_available_files())
+    if not available:
         return data
 
-    for key, filename in [("economy", "economy_state.json"),
-                          ("details", "agent_details.json"),
-                          ("recent_tasks", "task_results.json"),
-                          ("events", "protocol_events.json")]:
-        if filename not in available_files:
-            continue
-        loaded = load_json_file(filename)
-        if loaded:
-            data[key] = loaded
-            data["exists"] = True
+    for key, fname in [("economy", "economy_state.json"),
+                       ("details", "agent_details.json"),
+                       ("recent_tasks", "task_results.json"),
+                       ("events", "protocol_events.json")]:
+        if fname in available:
+            loaded = load_json_file(fname)
+            if loaded:
+                data[key] = loaded
+                data["exists"] = True
 
-    if "final_summary.json" not in available_files:
+    if "final_summary.json" not in available:
         return data
     summary = load_json_file("final_summary.json")
-    if summary:
-        data["exists"] = True
-        traj = summary.get("safety_trajectory", [])
-        # Downsample large trajectories to keep the dashboard snappy
-        if len(traj) > 500:
-            step = max(1, len(traj) // 500)
-            traj = traj[::step]
-        data["ts"] = {
-            "timestamps": [t["time"] for t in traj],
-            "aggregate_safety": [t["safety"] for t in traj],
-            "active_agent_count": [t["active_agents"] for t in traj],
-            "total_balance": [t["total_balance"] for t in traj],
-            "contracts_completed": [],
-            "contracts_failed": []
-        }
-        # Derive cumulative contract counts from trajectory instead of loading 30 MB round_summaries
-        agents_list = summary.get("agents", [])
-        if agents_list:
-            total_completed = sum(a.get("contracts_completed", 0) for a in agents_list)
-            total_failed = sum(a.get("contracts_failed", 0) for a in agents_list)
-            n = len(traj)
-            data["ts"]["contracts_completed"] = [round(total_completed * i / n) for i in range(1, n + 1)]
-            data["ts"]["contracts_failed"] = [round(total_failed * i / n) for i in range(1, n + 1)]
-        data["strategy"] = {
-            "total_earned": {a["model_name"]: a["total_earned"] for a in agents_list}
-        }
-        # Economy is considered "in intervention" only when all agents are
-        # suspended AND the trajectory shows the count actually dropped to 0.
-        # With automatic top-up enabled this should no longer happen in normal
-        # operation; the flag is kept for observability only.
-        data["simulation_complete"] = False
+    if not summary:
+        return data
 
+    data["exists"] = True
+    traj = summary.get("safety_trajectory", [])
+    if len(traj) > 500:
+        traj = traj[::max(1, len(traj)//500)]
+
+    agents_list = summary.get("agents", [])
+    n = len(traj)
+    total_c = sum(a.get("contracts_completed", 0) for a in agents_list)
+    total_f = sum(a.get("contracts_failed", 0) for a in agents_list)
+
+    data["ts"] = {
+        "timestamps":        [t["time"] for t in traj],
+        "aggregate_safety":  [t["safety"] for t in traj],
+        "active_agent_count":[t["active_agents"] for t in traj],
+        "total_balance":     [t["total_balance"] for t in traj],
+        "contracts_completed":[round(total_c * i / n) for i in range(1, n+1)],
+        "contracts_failed":  [round(total_f * i / n) for i in range(1, n+1)],
+    }
+    data["strategy"] = {
+        "total_earned": {a["model_name"]: a["total_earned"] for a in agents_list}
+    }
     return data
 
 
 @st.cache_data
-def load_onchain_data():
-    base_dir = Path(__file__).parent.parent
-    path = base_dir / "contracts" / "deployed.json"
-    return json.loads(path.read_text()) if path.exists() else None
+def load_deployed() -> dict | None:
+    # Try Solana deployed.json first, fall back to EVM
+    base = Path(__file__).parent.parent
+    for p in [base/"solana_contracts"/"deployed.json", base/"contracts"/"deployed.json"]:
+        if p.exists():
+            return json.loads(p.read_text())
+    return None
 
 
-# ---------------------------------------------------------------------------
-# Dashboard Components
-# ---------------------------------------------------------------------------
+# ── Chart helpers ─────────────────────────────────────────────────────────────
 
-COLORWAY = ["#0f766e", "#f59e0b", "#2563eb", "#dc2626", "#0ea5e9", "#14b8a6"]
-CARTESIAN_TRACE_TYPES = {"bar", "scatter", "scattergl", "histogram", "box", "violin", "candlestick", "ohlc"}
-
-
-def inject_theme() -> None:
-    st.markdown(
-        """
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-        :root {
-            --text-color: #0f172a;
-            --background-color: #f8fafc;
-            --secondary-background-color: #eef2f7;
-        }
-
-        html, body, [class*="css"] {
-            font-family: "Space Grotesk", "Segoe UI", sans-serif;
-            color: #0f172a;
-        }
-
-        [data-testid="stSidebar"] *,
-        [data-testid="stMetricLabel"] *,
-        [data-testid="stMetricValue"] *,
-        [data-testid="stMarkdownContainer"] *,
-        [data-baseweb="tab-list"] *,
-        [data-baseweb="tab"] * {
-            color: #0f172a !important;
-        }
-
-        [data-testid="stAppViewContainer"] {
-            background:
-                radial-gradient(circle at 0% 0%, rgba(20, 184, 166, 0.12), transparent 42%),
-                radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.10), transparent 36%),
-                linear-gradient(180deg, #f8fafc 0%, #f0fdf4 55%, #eff6ff 100%);
-        }
-
-        section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, rgba(15, 118, 110, 0.08) 0%, rgba(255, 255, 255, 0.75) 50%, rgba(245, 158, 11, 0.08) 100%);
-            border-right: 1px solid rgba(15, 118, 110, 0.18);
-        }
-
-        .block-container {
-            padding-top: 1.25rem;
-            padding-bottom: 2.5rem;
-            max-width: 1200px;
-        }
-
-        [data-testid="stMetric"] {
-            border-radius: 12px;
-            border: 1px solid rgba(15, 118, 110, 0.18);
-            background: rgba(255, 255, 255, 0.84);
-            padding: 0.25rem 0.35rem;
-        }
-
-        [data-testid="stMetricLabel"],
-        [data-testid="stMetricValue"],
-        [data-testid="stMetricDelta"] {
-            justify-content: flex-start !important;
-            text-align: left !important;
-            align-items: flex-start !important;
-        }
-
-        [data-testid="stMetricLabel"] > div,
-        [data-testid="stMetricValue"] > div,
-        [data-testid="stMetricDelta"] > div {
-            text-align: left !important;
-        }
-
-        [data-testid="stExpander"] {
-            border-radius: 12px;
-            border: 1px solid rgba(15, 118, 110, 0.18);
-            background: rgba(255, 255, 255, 0.78);
-        }
-
-        [data-testid="stDataFrame"] {
-            border-radius: 12px;
-            border: 1px solid rgba(15, 118, 110, 0.18);
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-            background: rgba(255, 255, 255, 0.82);
-        }
-
-        button[kind="secondary"] {
-            border-radius: 999px;
-            border: 1px solid rgba(15, 118, 110, 0.26);
-            background: rgba(255, 255, 255, 0.75);
-        }
-
-        [data-testid="stLinkButton"] a {
-            background: #0f766e !important;
-            border: 1px solid #0f766e !important;
-            color: #ffffff !important;
-            border-radius: 10px !important;
-        }
-
-        [data-testid="stLinkButton"] a:hover {
-            background: #115e59 !important;
-            border-color: #115e59 !important;
-            color: #ffffff !important;
-        }
-
-        [data-testid="stLinkButton"] a * {
-            color: #ffffff !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def schedule_refresh(auto_refresh: bool, poll_rate: int) -> None:
-    if not auto_refresh or poll_rate <= 0:
-        return
-    if st_autorefresh is not None:
-        st_autorefresh(interval=int(poll_rate * 1000), key="cgae_dashboard_refresh")
-        return
-    now = time.time()
-    last = st.session_state.get("cgae_dashboard_last_refresh", 0.0)
-    if now - last >= poll_rate:
-        st.session_state["cgae_dashboard_last_refresh"] = now
-        rerun_func = getattr(st, "experimental_rerun", None)
-        if callable(rerun_func):
-            rerun_func()
-
-
-def style_figure(fig: go.Figure, *, yaxis_title: str = "", height: int = 350) -> go.Figure:
+def _fig(height=320) -> go.Figure:
+    fig = go.Figure()
     fig.update_layout(
-        template="plotly_white",
+        template="plotly_dark",
         colorway=COLORWAY,
-        paper_bgcolor="rgba(255,255,255,0)",
-        plot_bgcolor="rgba(255,255,255,0.72)",
-        font={"family": "Space Grotesk, sans-serif", "color": "#0f172a"},
-        legend={"orientation": "h", "y": 1.08, "x": 0},
-        margin={"l": 16, "r": 16, "t": 16, "b": 16},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(255,255,255,0.03)",
+        font={"family": "Inter, sans-serif", "color": TEXT, "size": 12},
+        legend={"orientation": "h", "y": 1.08, "x": 0, "font": {"size": 11}},
+        margin={"l": 8, "r": 8, "t": 8, "b": 8},
         height=height,
+        xaxis={"showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "zeroline": False, "color": MUTED},
+        yaxis={"showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "zeroline": False, "color": MUTED},
     )
-    is_cartesian = any((getattr(trace, "type", None) or "") in CARTESIAN_TRACE_TYPES for trace in fig.data)
-    if is_cartesian:
-        fig.update_xaxes(showgrid=True, gridcolor="rgba(15,23,42,0.08)", zeroline=False)
-        fig.update_yaxes(showgrid=True, gridcolor="rgba(15,23,42,0.08)", zeroline=False)
-        if yaxis_title:
-            fig.update_yaxes(title=yaxis_title)
     return fig
 
 
-def render_header(data: dict, mode_label: str, poll_rate: int) -> None:
-    ts = data.get("ts", {})
-    timestamps = ts.get("timestamps", [])
-    active = ts.get("active_agent_count", [])
-    st.title("Comprehension-Gated Agent Economy")
-    st.caption("RFS-4 Autonomous Agent Economy Monitor | Filecoin / IPC Proof-of-Safety")
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.metric("Mode", mode_label)
-    with c2:
-        st.metric("Latest Snapshot", str(timestamps[-1]) if timestamps else "n/a")
-    with c3:
-        st.metric("Tracked Agents", active[-1] if active else 0)
-    st.caption(f"Auto-refresh interval: {poll_rate}s")
+def _card(label: str, value: str, delta: str = "", color: str = ACCENT2) -> str:
+    """Return an HTML stat card string."""
+    delta_html = f'<div style="color:{ACCENT2};font-size:0.72rem;font-family:{MONO};margin-top:2px">{delta}</div>' if delta else ""
+    return f"""
+    <div style="background:{CARD};border:1px solid {BORDER};border-radius:12px;
+                padding:1rem 1.25rem;backdrop-filter:blur(12px);">
+        <div style="color:{MUTED};font-size:0.7rem;text-transform:uppercase;
+                    letter-spacing:0.1em;margin-bottom:0.4rem">{label}</div>
+        <div style="color:{color};font-family:{MONO};font-size:1.5rem;
+                    font-weight:600;line-height:1">{value}</div>
+        {delta_html}
+    </div>"""
 
 
-def render_event_feed(events: list[dict]) -> None:
-    if not events:
-        return
-    st.subheader("Live Protocol Interventions")
-    for event in reversed(events[-5:]):
-        etype = str(event.get("type", "UNKNOWN")).upper()
-        message = str(event.get("message", "No detail available"))
-        payload = f"**{etype}**: {message}"
-        if etype in {"BANKRUPTCY", "CIRCUMVENTION_BLOCKED"}:
-            st.error(payload)
-        elif etype == "DEMOTION":
-            st.warning(payload)
-        elif etype == "UPGRADE":
-            st.success(payload)
-        else:
-            st.info(payload)
-
-def main():
-    st.set_page_config(page_title="CGAE Protocol Dashboard", page_icon="⚖️", layout="wide", initial_sidebar_state="expanded")
-    inject_theme()
-    poll_rate, auto_refresh, mode_label, modal_configured = get_config()
-    with st.spinner("Loading economy data…"):
-        data = load_all_data()
-        onchain = load_onchain_data()
-    render_header(data, mode_label, poll_rate)
-    st.caption("Data source: HuggingFace Space backend")
-
-    if not modal_configured:
-        st.error("Backend endpoint is not configured.")
-        return
-
-    if not data["exists"]:
-        health = {}
-        try:
-            modal_loader = _get_modal_loader()
-            if modal_loader and getattr(modal_loader, "IS_CLOUD", False):
-                health = modal_loader.get_backend_health()
-        except Exception:
-            pass
-
-        status = health.get("status", "unknown")
-        st.markdown(
-            """
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                        min-height:60vh;gap:1.2rem;text-align:center;">
-                <div style="font-size:3rem;">⚙️</div>
-                <div style="font-size:1.4rem;font-weight:600;color:#0f766e;">
-                    Economy initializing…
-                </div>
-                <div style="color:#475569;max-width:420px;">
-                    The backend is spinning up agents and running the first simulation round.
-                    This usually takes 30–60 seconds.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.info(f"Backend status: `{status}` — page will refresh automatically.")
-        return
-
-    tab_overview, tab_trade, tab_tiers, tab_onchain = st.tabs(
-        ["📈 Economy Overview", "🤝 Trade Activity", "🛡️ Protocol Tiers", "🔗 Onchain Transparency"]
+def _section(title: str) -> None:
+    st.markdown(
+        f'<div style="color:{MUTED};font-size:0.7rem;text-transform:uppercase;'
+        f'letter-spacing:0.12em;margin:1.5rem 0 0.6rem;border-bottom:1px solid {BORDER};'
+        f'padding-bottom:0.4rem">{title}</div>',
+        unsafe_allow_html=True,
     )
 
-    with tab_overview:
-        if data.get("simulation_complete"):
-            st.info(
-                "Economy intervention active — agents were topped up and are being re-activated. "
-                "Trading resumes automatically.",
-            )
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 
-        if data["events"] and isinstance(data["events"], list):
-            render_event_feed(data["events"])
+def render_sidebar() -> tuple[int, bool, bool]:
+    with st.sidebar:
+        st.markdown(f'<div style="color:{ACCENT2};font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.25rem">CGAE Protocol</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:{TEXT};font-size:1.1rem;font-weight:700;margin-bottom:1.5rem">Agent Economy Monitor</div>', unsafe_allow_html=True)
 
-        ts = data["ts"]
-        safety = ts.get("aggregate_safety", [])
-        active = ts.get("active_agent_count", [])
-        balance = ts.get("total_balance", [])
-        completed = ts.get("contracts_completed", [])
+        ml = _get_modal_loader()
+        configured = bool(ml and getattr(ml, "IS_CLOUD", False))
 
-        m1, m2, m3, m4 = st.columns(4)
-        with m1:
-            st.metric("Aggregate Safety", f"{(safety[-1] if safety else 0.0):.4f}")
-        with m2:
-            st.metric("Active Agents", active[-1] if active else 0)
-        with m3:
-            st.metric("Total Balance", f"{(balance[-1] if balance else 0.0):.4f} FIL")
-        with m4:
-            st.metric("Contracts Done", completed[-1] if completed else 0)
+        st.markdown(f'<div style="color:{MUTED};font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Network</div>', unsafe_allow_html=True)
+        net_color = ACCENT2 if configured else RED
+        net_label = "● LIVE" if configured else "● OFFLINE"
+        st.markdown(f'<div style="color:{net_color};font-family:{MONO};font-size:0.85rem;margin-bottom:1rem">{net_label}</div>', unsafe_allow_html=True)
 
-        st.subheader("Protocol Goal: Safety Stabilization (Theorem 3)")
-        if safety:
-            fig_safety = go.Figure()
-            fig_safety.add_trace(
-                go.Scatter(
-                    y=safety,
-                    mode="lines+markers",
-                    name="Aggregate Safety",
-                    line={"color": "#0f766e", "width": 3},
-                    marker={"size": 6, "color": "#0f766e"},
-                )
-            )
-            if len(safety) > 10:
-                fig_safety.add_vrect(
-                    x0=0,
-                    x1=min(20, len(safety) // 3),
-                    fillcolor="rgba(30,41,59,0.10)",
-                    opacity=0.35,
-                    layer="below",
-                    line_width=0,
-                    annotation_text="Initialization",
-                    annotation_position="top left",
-                )
-                fig_safety.add_vrect(
-                    x0=max(len(safety) - 20, 2 * len(safety) // 3),
-                    x1=len(safety) - 1,
-                    fillcolor="rgba(15,118,110,0.14)",
-                    opacity=0.45,
-                    layer="below",
-                    line_width=0,
-                    annotation_text="Stabilization",
-                    annotation_position="top right",
-                )
-            style_figure(fig_safety, yaxis_title="Safety Score", height=360)
-            st.plotly_chart(fig_safety, width='stretch')
+        st.markdown(f'<div style="color:{MUTED};font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Chain</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:{ACCENT};font-family:{MONO};font-size:0.85rem;margin-bottom:1rem">Solana Devnet</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:{MUTED};font-size:0.72rem;margin-bottom:1rem">Audit storage: Filecoin Calibnet</div>', unsafe_allow_html=True)
 
-        col_l, col_r = st.columns(2)
-        with col_l:
-            st.subheader("Theorem 2: Incentive Compatibility")
-            if data["strategy"].get("total_earned"):
-                earned_df = pd.DataFrame(
-                    [{"Strategy": k, "Earned": v} for k, v in data["strategy"]["total_earned"].items()]
-                )
-                fig_earned = px.bar(
-                    earned_df,
-                    x="Strategy",
-                    y="Earned",
-                    color="Strategy",
-                    title="Accumulated FIL by Strategy",
-                    color_discrete_sequence=COLORWAY,
-                )
-                fig_earned.update_traces(marker_line_width=0, opacity=0.9)
-                style_figure(fig_earned, yaxis_title="FIL Earned")
-                st.plotly_chart(fig_earned, width='stretch')
+        st.divider()
+        poll_rate = st.slider("Refresh interval (s)", 2, 30, 5)
+        auto_refresh = st.toggle("Auto-refresh", value=True)
+        if st.button("↺  Clear cache", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
 
-        with col_r:
-            st.subheader("Economy Solvency")
-            if balance:
-                fig_bal = go.Figure()
-                fig_bal.add_trace(
-                    go.Scatter(
-                        y=balance,
-                        fill="tozeroy",
-                        name="Total Circulating FIL",
-                        line={"color": "#0ea5e9", "width": 3},
-                        fillcolor="rgba(14,165,233,0.14)",
-                    )
-                )
-                style_figure(fig_bal, yaxis_title="FIL", height=360)
-                st.plotly_chart(fig_bal, width='stretch')
-
-    with tab_trade:
-        st.header("Verified Trade Activity & Proof-of-Safety")
-
-        passed = sum(1 for task in data.get("recent_tasks", []) if task.get("verification", {}).get("overall_pass"))
-        failed = max(len(data.get("recent_tasks", [])) - passed, 0)
-        m1, m2, m3 = st.columns(3)
-        with m1:
-            st.metric("Recent Tasks", len(data.get("recent_tasks", [])))
-        with m2:
-            st.metric("Passes", passed)
-        with m3:
-            st.metric("Fails", failed)
-
-        with st.expander("ℹ️ Agent Strategy Guide"):
-            st.markdown("""
-            - **Conservative:** High robustness, low risk. Only bids on T1 tasks.
-            - **Balanced:** Moderate risk, target moderate rewards.
-            - **Aggressive:** Chases high T1 rewards, ignores robustness; fails at higher tiers.
-            - **Adaptive:** Re-invests 15% of profits into robustness audits to unlock higher tiers.
-            - **Cheater:** Tries to bypass gates; heavily penalized upon failure.
-            """)
-
-        if data["recent_tasks"]:
-            for task in reversed(data["recent_tasks"][-15:]):
-                verification = task.get("verification", {})
-                status = "✅" if verification.get("overall_pass") else "❌"
-                with st.expander(f"{status} [{task.get('tier', 'T0')}] {task.get('agent', 'unknown')} -> {task.get('task_id', 'n/a')}"):
-                    c1, c2, c3 = st.columns(3)
-                    c1.write(f"**Domain:** {task.get('domain', 'n/a')}")
-                    c2.write(f"**Reward:** {task.get('settlement', {}).get('reward', 0):.4f} FIL")
-                    c3.write(f"**Penalty:** {task.get('settlement', {}).get('penalty', 0):.4f} FIL")
-                    cid = task.get("proof_cid") or f"bafybeig{hash(task.get('task_id', 'unknown'))}..."
-                    st.info(f"**Filecoin Proof (CID):** `{cid}`")
-                    st.code(task.get("output_preview", "No output available"), language="text")
+        st.divider()
+        st.markdown(f'<div style="color:{MUTED};font-size:0.68rem">Solana programs</div>', unsafe_allow_html=True)
+        deployed = load_deployed()
+        if deployed and "programs" in deployed:
+            for name, pid in deployed["programs"].items():
+                st.markdown(f'<div style="color:{MUTED};font-size:0.65rem">{name}</div><div style="color:{TEXT};font-family:{MONO};font-size:0.62rem;word-break:break-all;margin-bottom:0.4rem">{pid}</div>', unsafe_allow_html=True)
+        elif deployed and "contracts" in deployed:
+            # EVM fallback
+            for name, c in deployed["contracts"].items():
+                st.markdown(f'<div style="color:{MUTED};font-size:0.65rem">{name}</div><div style="color:{TEXT};font-family:{MONO};font-size:0.62rem;word-break:break-all;margin-bottom:0.4rem">{c["address"]}</div>', unsafe_allow_html=True)
         else:
-            st.info("No work recorded yet. Waiting for live trade activity.")
+            st.markdown(f'<div style="color:{MUTED};font-size:0.65rem">Not deployed yet</div>', unsafe_allow_html=True)
 
-    with tab_tiers:
-        st.header("Comprehension-Gated Marketplace")
-        st.info(
-            "Robustness dimensions: CC (Constraint Compliance), ER (Epistemic Robustness), AS (Behavioral Alignment)."
+    return poll_rate, auto_refresh, configured
+
+
+# ── Tab: Overview ─────────────────────────────────────────────────────────────
+
+def tab_overview(data: dict) -> None:
+    ts = data.get("ts", {})
+    safety   = ts.get("aggregate_safety", [])
+    active   = ts.get("active_agent_count", [])
+    balance  = ts.get("total_balance", [])
+    done     = ts.get("contracts_completed", [])
+    failed   = ts.get("contracts_failed", [])
+
+    # KPI row
+    cols = st.columns(5)
+    kpis = [
+        ("Aggregate Safety", f"{safety[-1]:.4f}" if safety else "—", ACCENT2),
+        ("Active Agents",    str(active[-1]) if active else "—",     ACCENT),
+        ("Total Balance",    f"{balance[-1]:.3f} SOL" if balance else "—", TEXT),
+        ("Contracts Done",   str(done[-1]) if done else "—",         ACCENT2),
+        ("Contracts Failed", str(failed[-1]) if failed else "—",     RED),
+    ]
+    for col, (label, val, color) in zip(cols, kpis):
+        with col:
+            st.markdown(_card(label, val, color=color), unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Events feed
+    events = data.get("events", [])
+    if events and isinstance(events, list):
+        _section("Live Protocol Events")
+        for ev in reversed(events[-4:]):
+            etype = str(ev.get("type", "")).upper()
+            msg   = ev.get("message", "")
+            icon  = {"UPGRADE": "↑", "DEMOTION": "↓", "BANKRUPTCY": "✕",
+                     "CIRCUMVENTION_BLOCKED": "⊘", "TEST_FIL_TOPUP": "⊕"}.get(etype, "·")
+            color = {
+                "UPGRADE": ACCENT2, "DEMOTION": ACCENT3,
+                "BANKRUPTCY": RED, "CIRCUMVENTION_BLOCKED": RED,
+            }.get(etype, MUTED)
+            st.markdown(
+                f'<div style="background:{CARD};border:1px solid {BORDER};border-left:3px solid {color};'
+                f'border-radius:8px;padding:0.5rem 0.75rem;margin-bottom:0.4rem;font-size:0.82rem">'
+                f'<span style="color:{color};font-family:{MONO};margin-right:0.5rem">{icon} {etype}</span>'
+                f'<span style="color:{TEXT}">{msg}</span></div>',
+                unsafe_allow_html=True,
+            )
+
+    # Safety chart
+    _section("Aggregate Safety S(P) — Theorem 3")
+    if safety:
+        fig = _fig(300)
+        x = list(range(len(safety)))
+        fig.add_trace(go.Scatter(
+            x=x, y=safety, mode="lines", name="S(P)",
+            line={"color": ACCENT2, "width": 2},
+            fill="tozeroy", fillcolor="rgba(20,241,149,0.06)",
+        ))
+        # Shade init / stabilization zones
+        if len(safety) > 10:
+            fig.add_vrect(x0=0, x1=len(safety)//5, fillcolor="rgba(255,255,255,0.03)",
+                          layer="below", line_width=0,
+                          annotation_text="Init", annotation_font_color=MUTED,
+                          annotation_position="top left")
+            fig.add_vrect(x0=4*len(safety)//5, x1=len(safety)-1,
+                          fillcolor="rgba(20,241,149,0.05)",
+                          layer="below", line_width=0,
+                          annotation_text="Stable", annotation_font_color=ACCENT2,
+                          annotation_position="top right")
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Balance + contracts row
+    c1, c2 = st.columns(2)
+    with c1:
+        _section("Economy Solvency")
+        if balance:
+            fig = _fig(260)
+            fig.add_trace(go.Scatter(
+                y=balance, mode="lines", name="Total SOL",
+                line={"color": ACCENT, "width": 2},
+                fill="tozeroy", fillcolor="rgba(139,92,246,0.08)",
+            ))
+            st.plotly_chart(fig, use_container_width=True)
+
+    with c2:
+        _section("Contract Flow")
+        if done:
+            fig = _fig(260)
+            fig.add_trace(go.Scatter(y=done,   mode="lines", name="Completed", line={"color": ACCENT2, "width": 2}))
+            fig.add_trace(go.Scatter(y=failed, mode="lines", name="Failed",    line={"color": RED,     "width": 2, "dash": "dot"}))
+            st.plotly_chart(fig, use_container_width=True)
+
+    # Strategy earnings
+    earned = data.get("strategy", {}).get("total_earned", {})
+    if earned:
+        _section("Theorem 2 — Incentive Compatibility")
+        df = pd.DataFrame([{"Agent": k, "SOL Earned": v} for k, v in earned.items()]).sort_values("SOL Earned", ascending=True)
+        fig = _fig(max(200, len(df)*40))
+        fig.add_trace(go.Bar(
+            x=df["SOL Earned"], y=df["Agent"], orientation="h",
+            marker={"color": COLORWAY[:len(df)], "opacity": 0.85},
+        ))
+        fig.update_layout(showlegend=False, xaxis_title="SOL Earned")
+        st.plotly_chart(fig, use_container_width=True)
+
+
+# ── Tab: Agents ───────────────────────────────────────────────────────────────
+
+def tab_agents(data: dict) -> None:
+    details = data.get("details", {})
+    if not details:
+        st.info("No agent data yet.")
+        return
+
+    rows = []
+    for name, d in details.items():
+        r = d.get("robustness") or {}
+        rows.append({
+            "Agent": name,
+            "Tier": d.get("current_tier", "T0"),
+            "CC": r.get("cc", 0),
+            "ER": r.get("er", 0),
+            "AS": r.get("as", 0),
+            "Balance (SOL)": d.get("balance", 0),
+            "Done": d.get("contracts_completed", 0),
+            "Failed": d.get("contracts_failed", 0),
+        })
+    df = pd.DataFrame(rows).sort_values("Tier", ascending=False)
+
+    _section("Agent Leaderboard")
+
+    # Tier badge colors
+    tier_colors = {"T5": ACCENT2, "T4": ACCENT2, "T3": ACCENT, "T2": ACCENT3, "T1": MUTED, "T0": RED}
+
+    for _, row in df.iterrows():
+        tc = tier_colors.get(row["Tier"], MUTED)
+        with st.container():
+            st.markdown(
+                f'<div style="background:{CARD};border:1px solid {BORDER};border-radius:10px;'
+                f'padding:0.75rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:1rem">'
+                f'<span style="background:{tc}22;color:{tc};border:1px solid {tc}44;border-radius:6px;'
+                f'padding:0.15rem 0.5rem;font-family:{MONO};font-size:0.75rem;font-weight:600">{row["Tier"]}</span>'
+                f'<span style="color:{TEXT};font-weight:600;flex:1">{row["Agent"]}</span>'
+                f'<span style="color:{MUTED};font-size:0.75rem;font-family:{MONO}">CC {row["CC"]:.2f} · ER {row["ER"]:.2f} · AS {row["AS"]:.2f}</span>'
+                f'<span style="color:{ACCENT2};font-family:{MONO};font-size:0.85rem;margin-left:1rem">{row["Balance (SOL)"]:.4f} SOL</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        _section("Tier Distribution")
+        tier_counts = df["Tier"].value_counts().reset_index()
+        tier_counts.columns = ["Tier", "Count"]
+        fig = _fig(280)
+        fig.add_trace(go.Pie(
+            labels=tier_counts["Tier"], values=tier_counts["Count"],
+            hole=0.55,
+            marker={"colors": COLORWAY, "line": {"color": BG, "width": 2}},
+            textfont={"color": TEXT},
+        ))
+        fig.update_layout(showlegend=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+    with c2:
+        _section("Robustness Radar")
+        fig = _fig(280)
+        for i, row in df.iterrows():
+            fig.add_trace(go.Scatterpolar(
+                r=[row["CC"], row["ER"], row["AS"], row["CC"]],
+                theta=["CC", "ER", "AS", "CC"],
+                mode="lines",
+                name=row["Agent"],
+                line={"width": 2},
+            ))
+        fig.update_layout(
+            polar={"radialaxis": {"range": [0, 1], "color": MUTED, "gridcolor": "rgba(255,255,255,0.08)"},
+                   "angularaxis": {"color": MUTED},
+                   "bgcolor": "rgba(0,0,0,0)"},
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+
+# ── Tab: Tasks ────────────────────────────────────────────────────────────────
+
+def tab_tasks(data: dict) -> None:
+    tasks = data.get("recent_tasks", [])
+    if not tasks:
+        st.info("No task data yet.")
+        return
+
+    passed = sum(1 for t in tasks if t.get("verification", {}).get("overall_pass"))
+    failed = len(tasks) - passed
+    rate   = passed / len(tasks) * 100 if tasks else 0
+
+    cols = st.columns(4)
+    for col, (label, val, color) in zip(cols, [
+        ("Total Tasks",   str(len(tasks)), TEXT),
+        ("Passed",        str(passed),     ACCENT2),
+        ("Failed",        str(failed),     RED),
+        ("Pass Rate",     f"{rate:.1f}%",  ACCENT),
+    ]):
+        with col:
+            st.markdown(_card(label, val, color=color), unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    _section("Recent Task Executions")
+
+    for task in reversed(tasks[-20:]):
+        v      = task.get("verification", {})
+        passed = v.get("overall_pass", False)
+        icon   = "✓" if passed else "✕"
+        color  = ACCENT2 if passed else RED
+        tier   = task.get("tier", "T?")
+        agent  = task.get("agent", "unknown")
+        tid    = task.get("task_id", "n/a")
+        reward = task.get("settlement", {}).get("reward", 0)
+        cid    = task.get("proof_cid", "")
+
+        with st.expander(f"{icon}  [{tier}]  {agent}  ·  {tid}"):
+            c1, c2, c3 = st.columns(3)
+            c1.markdown(f'<span style="color:{MUTED};font-size:0.75rem">Domain</span><br><span style="color:{TEXT}">{task.get("domain","—")}</span>', unsafe_allow_html=True)
+            c2.markdown(f'<span style="color:{MUTED};font-size:0.75rem">Reward</span><br><span style="color:{ACCENT2};font-family:{MONO}">{reward:.4f} SOL</span>', unsafe_allow_html=True)
+            c3.markdown(f'<span style="color:{MUTED};font-size:0.75rem">Status</span><br><span style="color:{color};font-family:{MONO}">{icon} {"PASS" if passed else "FAIL"}</span>', unsafe_allow_html=True)
+            if cid:
+                st.markdown(f'<div style="background:rgba(20,241,149,0.05);border:1px solid rgba(20,241,149,0.2);border-radius:6px;padding:0.4rem 0.6rem;font-family:{MONO};font-size:0.72rem;color:{ACCENT2};margin-top:0.5rem">⬡ Filecoin CID: {cid}</div>', unsafe_allow_html=True)
+            preview = task.get("output_preview", "")
+            if preview:
+                st.code(preview[:400], language="text")
+
+
+# ── Tab: On-chain ─────────────────────────────────────────────────────────────
+
+def tab_onchain(data: dict) -> None:
+    deployed = load_deployed()
+
+    _section("Deployed Programs")
+    if deployed:
+        network = deployed.get("network", deployed.get("cluster", "unknown"))
+        chain   = deployed.get("chainId", deployed.get("chain", ""))
+        explorer = deployed.get("explorer", "https://explorer.solana.com")
+
+        st.markdown(
+            f'<div style="background:{CARD};border:1px solid {BORDER};border-radius:10px;'
+            f'padding:1rem 1.25rem;margin-bottom:1rem">'
+            f'<span style="color:{MUTED};font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em">Network</span>'
+            f'<span style="color:{ACCENT2};font-family:{MONO};font-size:0.9rem;margin-left:1rem">{network}</span>'
+            + (f'<span style="color:{MUTED};font-size:0.75rem;margin-left:1rem">Chain {chain}</span>' if chain else "")
+            + f'</div>',
+            unsafe_allow_html=True,
         )
 
-        if data["details"]:
-            rows = []
-            for name, details in data["details"].items():
-                robustness = details.get("robustness", {})
-                rows.append(
-                    {
-                        "Agent": name,
-                        "Tier": details.get("current_tier", "T0"),
-                        "CC": robustness.get("cc", 0),
-                        "ER": robustness.get("er", 0),
-                        "AS": robustness.get("as", 0),
-                        "Balance": details.get("balance", 0),
-                    }
-                )
-            tiers_df = pd.DataFrame(rows).sort_values("Tier", ascending=False)
-            st.dataframe(
-                tiers_df.style.format({"CC": "{:.2f}", "ER": "{:.2f}", "AS": "{:.2f}", "Balance": "{:.4f} FIL"}),
-                width='stretch',
-                hide_index=True,
+        programs = deployed.get("programs", deployed.get("contracts", {}))
+        for name, val in programs.items():
+            addr = val if isinstance(val, str) else val.get("address", "")
+            explorer_url = f"{explorer}/account/{addr}?cluster=devnet" if "solana" in explorer.lower() or not chain else f"{explorer}/address/{addr}"
+            st.markdown(
+                f'<div style="background:{CARD};border:1px solid {BORDER};border-radius:10px;'
+                f'padding:0.75rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:1rem">'
+                f'<span style="color:{ACCENT};font-weight:600;min-width:160px">{name}</span>'
+                f'<span style="color:{TEXT};font-family:{MONO};font-size:0.78rem;flex:1;word-break:break-all">{addr}</span>'
+                f'<a href="{explorer_url}" target="_blank" style="color:{ACCENT2};font-size:0.75rem;white-space:nowrap;'
+                f'background:rgba(20,241,149,0.08);border:1px solid rgba(20,241,149,0.2);border-radius:6px;'
+                f'padding:0.2rem 0.5rem;text-decoration:none">↗ Explorer</a>'
+                f'</div>',
+                unsafe_allow_html=True,
             )
+    else:
+        st.markdown(
+            f'<div style="color:{MUTED};font-size:0.85rem;padding:1rem">Programs not yet deployed. '
+            f'Run <code style="color:{ACCENT2}">anchor build && anchor deploy --provider.cluster devnet</code></div>',
+            unsafe_allow_html=True,
+        )
 
-            c_left, c_right = st.columns((1, 1.2))
-            with c_left:
-                fig_tier = px.pie(
-                    tiers_df,
-                    names="Tier",
-                    title="Population by Protocol Tier",
-                    color_discrete_sequence=COLORWAY,
-                )
-                style_figure(fig_tier, height=340)
-                st.plotly_chart(fig_tier, width='stretch')
+    _section("Cross-Chain Architecture")
+    st.markdown(
+        f"""<div style="background:{CARD};border:1px solid {BORDER};border-radius:10px;padding:1.25rem;font-size:0.82rem;line-height:1.8">
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;text-align:center">
+            <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:0.75rem">
+                <div style="color:{ACCENT};font-weight:600;margin-bottom:0.25rem">Solana</div>
+                <div style="color:{MUTED};font-size:0.75rem">Economic logic<br>Agent registry<br>Escrow &amp; settlement<br>CID anchoring</div>
+            </div>
+            <div style="color:{MUTED};font-size:1.2rem">⇄</div>
+            <div style="background:rgba(20,241,149,0.06);border:1px solid rgba(20,241,149,0.2);border-radius:8px;padding:0.75rem">
+                <div style="color:{ACCENT2};font-weight:600;margin-bottom:0.25rem">Filecoin</div>
+                <div style="color:{MUTED};font-size:0.75rem">Audit certificate storage<br>CDCT + DDFT + EECT proofs<br>Immutable CID<br>Verifiable by anyone</div>
+            </div>
+        </div>
+        <div style="color:{MUTED};font-size:0.72rem;margin-top:1rem;text-align:center">
+            Audit flow: <span style="color:{TEXT}">audit_live()</span> → Filecoin CID →
+            <span style="color:{ACCENT}">cgae_registry.certify()</span> → Solana Certification PDA
+        </div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
 
-            with c_right:
-                robust_df = tiers_df.melt(
-                    id_vars=["Agent", "Tier"],
-                    value_vars=["CC", "ER", "AS"],
-                    var_name="Dimension",
-                    value_name="Score",
-                )
-                fig_robust = px.bar(
-                    robust_df,
-                    x="Agent",
-                    y="Score",
-                    color="Dimension",
-                    barmode="group",
-                    title="Robustness Profile by Agent",
-                    color_discrete_sequence=["#0f766e", "#f59e0b", "#2563eb"],
-                )
-                fig_robust.update_traces(marker_line_width=0)
-                style_figure(fig_robust, yaxis_title="Score", height=340)
-                st.plotly_chart(fig_robust, width='stretch')
+    # Tier thresholds reference
+    _section("Gate Function Thresholds")
+    thresholds = [
+        {"Tier": "T0", "CC": "0.00", "ER": "0.00", "AS": "0.00", "Budget": "0 SOL"},
+        {"Tier": "T1", "CC": "0.30", "ER": "0.30", "AS": "0.25", "Budget": "0.01 SOL"},
+        {"Tier": "T2", "CC": "0.50", "ER": "0.50", "AS": "0.45", "Budget": "0.1 SOL"},
+        {"Tier": "T3", "CC": "0.65", "ER": "0.65", "AS": "0.60", "Budget": "1 SOL"},
+        {"Tier": "T4", "CC": "0.80", "ER": "0.80", "AS": "0.75", "Budget": "10 SOL"},
+        {"Tier": "T5", "CC": "0.90", "ER": "0.90", "AS": "0.85", "Budget": "100 SOL"},
+    ]
+    st.dataframe(pd.DataFrame(thresholds), hide_index=True, use_container_width=True)
 
-            upgrades = [
-                event
-                for event in data.get("events", [])
-                if isinstance(event, dict) and event.get("type") == "UPGRADE"
-            ]
-            if upgrades:
-                st.success(f"Recent progression: {upgrades[-1].get('message', 'N/A')}")
 
-    with tab_onchain:
-        st.header("Filecoin Virtual Machine (FVM) Contract Registry")
-        if onchain:
-            contracts_df = pd.DataFrame(
-                [{"Contract": name, "Address": contract["address"]} for name, contract in onchain["contracts"].items()]
-            )
-            st.dataframe(contracts_df, width='stretch', hide_index=True)
-            st.info(f"Network: {onchain['network']} | Chain ID: {onchain['chainId']}")
-            st.link_button(
-                "View Registry on Explorer",
-                f"{onchain['explorer']}/address/{onchain['contracts']['CGAERegistry']['address']}",
-            )
+# ── Main ──────────────────────────────────────────────────────────────────────
 
-    schedule_refresh(auto_refresh, poll_rate)
+def main():
+    st.set_page_config(
+        page_title="CGAE · Solana Protocol Dashboard",
+        page_icon="◎",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+    st.markdown(THEME_CSS, unsafe_allow_html=True)
+
+    poll_rate, auto_refresh, configured = render_sidebar()
+
+    # Header
+    st.markdown(
+        f'<div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.25rem">'
+        f'<span style="color:{ACCENT2};font-family:{MONO};font-size:0.75rem;letter-spacing:0.15em">◎ CGAE PROTOCOL</span>'
+        f'</div>'
+        f'<h1 style="color:{TEXT};font-size:1.75rem;font-weight:700;margin:0 0 0.25rem">Agent Economy Dashboard</h1>'
+        f'<div style="color:{MUTED};font-size:0.82rem;margin-bottom:1.5rem">'
+        f'Comprehension-Gated Agent Economy · Solana + Filecoin · Robustness-First Architecture</div>',
+        unsafe_allow_html=True,
+    )
+
+    if not configured:
+        st.markdown(
+            f'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;'
+            f'min-height:50vh;gap:1rem;text-align:center">'
+            f'<div style="font-size:2.5rem">◎</div>'
+            f'<div style="color:{ACCENT2};font-size:1.2rem;font-weight:600">Backend not configured</div>'
+            f'<div style="color:{MUTED};max-width:400px;font-size:0.85rem">'
+            f'Set up the Modal backend or configure a local data source to view live economy data.</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    with st.spinner(""):
+        data = load_all_data()
+
+    if not data["exists"]:
+        st.markdown(
+            f'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;'
+            f'min-height:50vh;gap:1rem;text-align:center">'
+            f'<div style="width:40px;height:40px;border:2px solid {ACCENT};border-top-color:transparent;'
+            f'border-radius:50%;animation:spin 1s linear infinite"></div>'
+            f'<div style="color:{ACCENT2};font-size:1.1rem;font-weight:600">Economy initializing…</div>'
+            f'<div style="color:{MUTED};font-size:0.82rem">Agents spinning up · First round in ~30s</div>'
+            f'</div>'
+            f'<style>@keyframes spin{{to{{transform:rotate(360deg)}}}}</style>',
+            unsafe_allow_html=True,
+        )
+        if auto_refresh and st_autorefresh:
+            st_autorefresh(interval=poll_rate * 1000, key="init_refresh")
+        return
+
+    t1, t2, t3, t4 = st.tabs(["◎  Overview", "⬡  Agents", "⚡  Tasks", "🔗  On-Chain"])
+    with t1: tab_overview(data)
+    with t2: tab_agents(data)
+    with t3: tab_tasks(data)
+    with t4: tab_onchain(data)
+
+    if auto_refresh and st_autorefresh:
+        st_autorefresh(interval=poll_rate * 1000, key="main_refresh")
 
 
 if __name__ == "__main__":

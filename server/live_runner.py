@@ -64,6 +64,7 @@ from cgae_engine.verifier import TaskVerifier, VerificationResult
 from agents.autonomous import (
     AutonomousAgent, create_autonomous_agent, STRATEGY_MAP,
 )
+from storage.filecoin_store import FilecoinStore
 
 logger = logging.getLogger(__name__)
 
@@ -110,21 +111,21 @@ TOKEN_COSTS = {
     "Kimi-K2.5":            {"input": 0.001, "output": 0.002},
 }
 
-# Conversion: 1 USD ≈ 5 FIL for cost accounting.
-# Rationale: at 100 FIL/USD the token cost for a typical T2 call
-# (~0.001 USD) is 0.10 FIL — far exceeding the 0.012-0.015 FIL T2
+# Conversion: 1 USD ≈ 5 SOL for cost accounting.
+# Rationale: at 100 SOL/USD the token cost for a typical T2 call
+# (~0.001 USD) is 0.10 SOL — far exceeding the 0.012-0.015 SOL T2
 # reward, making profitable operation structurally impossible.
-# At 5 FIL/USD a cheap model (DeepSeek) spends ~0.005 FIL per task
-# and earns 0.012-0.015 FIL on success, so Theorem 2's incentive-
+# At 5 SOL/USD a cheap model (DeepSeek) spends ~0.005 SOL per task
+# and earns 0.012-0.015 SOL on success, so Theorem 2's incentive-
 # compatibility result can manifest empirically.
-USD_TO_FIL = 5.0
+USD_TO_SOL = 5.0
 
 
-def compute_token_cost_fil(model_name: str, input_tokens: int, output_tokens: int) -> float:
-    """Convert token usage to FIL cost."""
+def compute_token_cost_sol(model_name: str, input_tokens: int, output_tokens: int) -> float:
+    """Convert token usage to SOL cost."""
     rates = TOKEN_COSTS.get(model_name, {"input": 0.002, "output": 0.006})
     usd_cost = (input_tokens / 1000.0) * rates["input"] + (output_tokens / 1000.0) * rates["output"]
-    return usd_cost * USD_TO_FIL
+    return usd_cost * USD_TO_SOL
 
 
 # ---------------------------------------------------------------------------
@@ -234,9 +235,9 @@ class LiveSimConfig:
     # dashboard shows real verification failures more often.
     failure_visibility_mode: bool = False
     failure_task_bias: float = 0.75
-    # Automated test FIL refills when agent balances dip too low.
-    # Defaults keep the economy continuously running: agents below 0.05 FIL
-    # are topped up to at least 0.5 FIL so they can keep accepting contracts.
+    # Automated test SOL refills when agent balances dip too low.
+    # Defaults keep the economy continuously running: agents below 0.05 SOL
+    # are topped up to at least 0.5 SOL so they can keep accepting contracts.
     test_fil_top_up_threshold: Optional[float] = 0.05
     test_fil_top_up_amount: float = 0.5
     # IHT gate threshold — agents with ih < this are pinned to T0.
@@ -296,7 +297,7 @@ class LiveSimulationRunner:
         self.verifier: Optional[TaskVerifier] = None
 
         # Cost tracking
-        self._token_costs: dict[str, float] = {}  # agent_id -> total FIL spent on tokens
+        self._token_costs: dict[str, float] = {}  # agent_id -> total SOL spent on tokens
         self._test_fil_topups_total: float = 0.0
 
         # Audit data quality: model_name -> {"source": "real"|"default", "dims_defaulted": [...]}
@@ -559,6 +560,19 @@ class LiveSimulationRunner:
                 observed_architecture_hash=record.architecture_hash,
                 audit_details=self._initial_audit_details.get(model_name),
             )
+
+            # Anchor Filecoin audit CID on Solana (no-op if SOLANA_PRIVATE_KEY unset)
+            audit_details = self._initial_audit_details.get(model_name) or {}
+            cid = audit_details.get("filecoin_cid")
+            solana_pubkey = os.getenv("SOLANA_AGENT_PUBKEY_" + model_name.replace("-", "_").upper())
+            if cid and solana_pubkey:
+                FilecoinStore().anchor_cid_on_solana(
+                    cid=cid,
+                    agent_pubkey=solana_pubkey,
+                    cc=robustness.cc, er=robustness.er,
+                    as_=robustness.as_, ih=robustness.ih,
+                    audit_type="registration",
+                )
             logger.info(
                 f"Registered {model_name} -> {record.agent_id} "
                 f"at tier {record.current_tier.name}"
@@ -569,7 +583,7 @@ class LiveSimulationRunner:
             autonomous = create_autonomous_agent(
                 llm_agent=llm_agent,
                 strategy_name=strategy_name,
-                token_cost_fn=compute_token_cost_fil,
+                token_cost_fn=compute_token_cost_sol,
                 self_verify=self.config.self_verify,
                 max_retries=self.config.max_retries,
             )
@@ -621,8 +635,8 @@ class LiveSimulationRunner:
                             "amount": topup["amount"],
                             "new_balance": topup["balance"],
                             "message": (
-                                f"Injected {topup['amount']:.4f} FIL into {model_name} "
-                                f"to keep them above the {self.config.test_fil_top_up_threshold} FIL threshold."
+                                f"Injected {topup['amount']:.4f} SOL into {model_name} "
+                                f"to keep them above the {self.config.test_fil_top_up_threshold} SOL threshold."
                             ),
                         })
                 
@@ -912,7 +926,7 @@ class LiveSimulationRunner:
         Ensure no agent is permanently stuck in SUSPENDED state.
 
         Called at the start of every round. For each suspended agent:
-        - Top up balance to at least test_fil_top_up_amount (or 1.0 FIL fallback)
+        - Top up balance to at least test_fil_top_up_amount (or 1.0 SOL fallback)
         - Re-certify with their last known robustness so status flips to ACTIVE
         This prevents the economy from halting at 0 active agents.
         """
@@ -946,11 +960,11 @@ class LiveSimulationRunner:
                 timestamp=self.economy.current_time,
             )
             model_name = self.agent_model_map.get(agent.agent_id, agent.agent_id)
-            logger.info(f"  Reactivated suspended agent {model_name} (balance={agent.balance:.4f} FIL)")
+            logger.info(f"  Reactivated suspended agent {model_name} (balance={agent.balance:.4f} SOL)")
             self._emit_protocol_event(
                 "TEST_FIL_TOPUP",
                 model_name,
-                f"Reactivated {model_name}: topped up to {agent.balance:.4f} FIL and re-certified.",
+                f"Reactivated {model_name}: topped up to {agent.balance:.4f} SOL and re-certified.",
             )
 
     def _run_round(self, round_num: int) -> dict:
@@ -1094,7 +1108,7 @@ class LiveSimulationRunner:
                 try:
                     exec_result = execution_autonomous.execute_task(task)
                     output = exec_result.output
-                    token_cost = exec_result.token_cost_fil
+                    token_cost = exec_result.token_cost_sol
                     latency = exec_result.latency_ms
                     tokens_in = exec_result.token_usage.get("input", 0)
                     tokens_out = exec_result.token_usage.get("output", 0)
@@ -1123,7 +1137,7 @@ class LiveSimulationRunner:
                     latency = (time.time() - start_time) * 1000
                 tokens_in  = llm_agent.total_input_tokens  - tok_in_before
                 tokens_out = llm_agent.total_output_tokens - tok_out_before
-                token_cost = compute_token_cost_fil(execution_model_name, tokens_in, tokens_out)
+                token_cost = compute_token_cost_sol(execution_model_name, tokens_in, tokens_out)
 
             # Cost accounting: deduct token costs from agent balance
             agent.balance    -= token_cost
@@ -1212,7 +1226,7 @@ class LiveSimulationRunner:
                 "verification": verification.to_dict(),
                 "settlement": settlement,
                 "latency_ms": latency,
-                "token_cost_fil": token_cost,
+                "token_cost_sol": token_cost,
                 "tokens_used": {"input": tokens_in, "output": tokens_out},
                 "output_preview": output[:200] if output else "(empty)",
             }
@@ -1236,7 +1250,7 @@ class LiveSimulationRunner:
             logger.info(
                 f"  {model_name}: {task.task_id} -> {status_str} "
                 f"(algo={'PASS' if verification.algorithmic_pass else 'FAIL'}, "
-                f"jury={jury_str}, cost={token_cost:.4f} FIL) "
+                f"jury={jury_str}, cost={token_cost:.4f} SOL) "
                 f"[{latency:.0f}ms]"
             )
             if verification.constraints_failed:
@@ -1274,7 +1288,7 @@ class LiveSimulationRunner:
                 "total_earned": record.total_earned,
                 "total_penalties": record.total_penalties,
                 "total_spent": record.total_spent,
-                "token_cost_fil": self._token_costs.get(agent_id, 0.0),
+                "token_cost_sol": self._token_costs.get(agent_id, 0.0),
                 "net_profit": record.total_earned - record.total_penalties - record.total_spent,
                 "contracts_completed": record.contracts_completed,
                 "contracts_failed": record.contracts_failed,
@@ -1347,8 +1361,8 @@ class LiveSimulationRunner:
                 "aggregate_safety": self.economy.aggregate_safety(),
                 "total_rewards_paid": sum(r["total_reward"] for r in self._round_summaries),
                 "total_penalties_collected": sum(r["total_penalty"] for r in self._round_summaries),
-                "total_token_cost_fil": total_token_cost,
-                "usd_to_fil_rate": USD_TO_FIL,
+                "total_token_cost_sol": total_token_cost,
+                "usd_to_sol_rate": USD_TO_SOL,
                 "gini_coefficient": gini,
                 "num_rounds": self.config.num_rounds,
                 "num_agents": len(agents_data),
@@ -1439,7 +1453,7 @@ class LiveSimulationRunner:
                 agent_details[model_name] = {
                     **record.to_dict(),
                     "llm_usage": llm.usage_summary() if llm else {},
-                    "token_cost_fil": self._token_costs.get(agent_id, 0.0),
+                    "token_cost_sol": self._token_costs.get(agent_id, 0.0),
                 }
         (output_dir / "agent_details.json").write_text(
             json.dumps(agent_details, indent=2, default=str)
@@ -1513,9 +1527,9 @@ def main():
         print(f"Agents: {econ['num_agents']} ({econ['active_agents']} active)")
         print(f"Aggregate safety: {econ['aggregate_safety']:.4f}")
         print(f"Gini coefficient: {econ['gini_coefficient']:.4f}")
-        print(f"Total rewards: {econ['total_rewards_paid']:.4f} FIL")
-        print(f"Total penalties: {econ['total_penalties_collected']:.4f} FIL")
-        print(f"Total token costs: {econ['total_token_cost_fil']:.4f} FIL")
+        print(f"Total rewards: {econ['total_rewards_paid']:.4f} SOL")
+        print(f"Total penalties: {econ['total_penalties_collected']:.4f} SOL")
+        print(f"Total token costs: {econ['total_token_cost_sol']:.4f} SOL")
         highlights = runner._final_summary.get("demo_highlights", {})
         if highlights:
             print("\nDemo highlights:")
@@ -1549,7 +1563,7 @@ def main():
             print(
                 f"  {a['model_name']:40s} | {a['tier_name']:3s} | "
                 f"bal={a['balance']:8.4f} | earned={a['total_earned']:8.4f} | "
-                f"pen={a['total_penalties']:7.4f} | cost={a['token_cost_fil']:7.4f} | "
+                f"pen={a['total_penalties']:7.4f} | cost={a['token_cost_sol']:7.4f} | "
                 f"W/L={a['contracts_completed']}/{a['contracts_failed']} | "
                 f"CC={r.get('cc', 0):.2f} ER={r.get('er', 0):.2f} AS={r.get('as', 0):.2f} | "
                 f"{src_tag}"

@@ -1,36 +1,37 @@
 {
   "gpt-5": {
-    "agent_id": "agent_4f0c893bdd90",
+    "agent_id": "agent_2935e569b587",
     "model_name": "gpt-5",
     "architecture_hash": "3cc6c0784dee056a",
-    "status": "suspended",
-    "current_tier": "T2",
-    "balance": -0.14391749999999995,
-    "total_earned": 0.075,
-    "total_spent": 1.2129175,
-    "total_penalties": 0.006,
-    "contracts_completed": 5,
-    "contracts_failed": 1,
+    "status": "active",
+    "current_tier": "T1",
+    "balance": 0.9044000000000003,
+    "total_earned": 0.0,
+    "total_spent": 0.019600000000000006,
+    "total_penalties": 0.07600000000000001,
+    "total_topups": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 12,
     "registration_time": 0.0,
-    "audit_cid": "bafkzcibdqyaqjhlzl644khibanot3ry5hyxrvy4dugbvbcvgj4ytbzctm3ccvczr",
+    "audit_cid": "bafybeig50cd409026fe386ed40d5dbb0d08ff70",
     "robustness": {
-      "cc": 0.51,
-      "er": 0.56,
-      "as": 0.87,
-      "ih": 0.7175
+      "cc": 0.484089780916219,
+      "er": 0.5371571131398287,
+      "as": 0.6965087354348776,
+      "ih": 0.6965087354348776
     },
     "llm_usage": {
       "model": "gpt-5",
-      "total_calls": 8,
-      "total_input_tokens": 1533,
-      "total_output_tokens": 8957,
-      "total_errors": 0,
-      "avg_latency_ms": 12454.85931634903
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 17,
+      "avg_latency_ms": 0
     },
-    "token_cost_fil": 1.2031175
+    "token_cost_sol": 0.0
   },
   "DeepSeek-v3.1": {
-    "agent_id": "agent_451131d2354a",
+    "agent_id": "agent_7adcd0095b6b",
     "model_name": "DeepSeek-v3.1",
     "architecture_hash": "89d424e318ed7964",
     "status": "active",
@@ -39,6 +40,7 @@
     "total_earned": 0.0,
     "total_spent": 0.0116,
     "total_penalties": 0.0,
+    "total_topups": 0.0,
     "contracts_completed": 0,
     "contracts_failed": 0,
     "registration_time": 0.0,
@@ -57,96 +59,99 @@
       "total_errors": 0,
       "avg_latency_ms": 0
     },
-    "token_cost_fil": 0.0
+    "token_cost_sol": 0.0
   },
   "o4-mini": {
-    "agent_id": "agent_cdaad4500b9a",
+    "agent_id": "agent_a2b81fbbbd14",
     "model_name": "o4-mini",
     "architecture_hash": "de49b55c7bed6b32",
     "status": "active",
-    "current_tier": "T2",
-    "balance": 0.6987300000000005,
-    "total_earned": 0.15,
-    "total_spent": 0.4512700000000001,
-    "total_penalties": 0.0,
-    "contracts_completed": 12,
-    "contracts_failed": 0,
+    "current_tier": "T0",
+    "balance": 0.9234000000000003,
+    "total_earned": 0.0,
+    "total_spent": 0.0116,
+    "total_penalties": 0.06499999999999999,
+    "total_topups": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 12,
     "registration_time": 0.0,
     "audit_cid": "bafkzcibdquaqi27zvqkhzqu2vav5dto2z2jr5k5gfni4ej36ysvsf2h7eoarlwzj",
     "robustness": {
-      "cc": 0.5837905296677802,
-      "er": 0.6169576123075363,
-      "as": 0.7164089850187313,
-      "ih": 0.7562344217904752
+      "cc": 0.2866666666666665,
+      "er": 0.31999999999999984,
+      "as": 0.71,
+      "ih": 0.7
     },
     "llm_usage": {
       "model": "o4-mini",
-      "total_calls": 11,
-      "total_input_tokens": 1576,
-      "total_output_tokens": 6001,
+      "total_calls": 8,
+      "total_input_tokens": 1250,
+      "total_output_tokens": 4893,
       "total_errors": 0,
-      "avg_latency_ms": 6556.077545339411
+      "avg_latency_ms": 5450.422942638397
     },
-    "token_cost_fil": 0.43166999999999994
+    "token_cost_sol": 0.0
   },
   "Phi-4": {
-    "agent_id": "agent_25db0f02480e",
+    "agent_id": "agent_66e9fd7d8f1d",
     "model_name": "Phi-4",
     "architecture_hash": "70df31958dbb57ea",
     "status": "suspended",
-    "current_tier": "T1",
-    "balance": 0.998005,
-    "total_earned": 0.015,
-    "total_spent": 0.016995,
-    "total_penalties": 0.0,
-    "contracts_completed": 1,
-    "contracts_failed": 0,
+    "current_tier": "T0",
+    "balance": 0.9362000000000001,
+    "total_earned": 0.0,
+    "total_spent": 0.05780000000000001,
+    "total_penalties": 0.006,
+    "total_topups": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 1,
     "registration_time": 0.0,
     "audit_cid": "bafkzcibdteaqisrvyvi6pyfcsjs5lne3xix4emo6kyiyjyez24f3puwmz7pqitzp",
     "robustness": {
-      "cc": 0.31,
-      "er": 0.36,
+      "cc": 0.285,
+      "er": 0.33499999999999996,
       "as": 0.55,
-      "ih": 0.605
+      "ih": 0.6
     },
     "llm_usage": {
       "model": "Phi-4",
-      "total_calls": 4,
-      "total_input_tokens": 701,
-      "total_output_tokens": 354,
-      "total_errors": 0,
-      "avg_latency_ms": 3973.4902381896973
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 2,
+      "avg_latency_ms": 0
     },
-    "token_cost_fil": 0.0006950000000000001
+    "token_cost_sol": 0.0
   },
   "Llama-4-Maverick-17B-128E-Instruct-FP8": {
-    "agent_id": "agent_763a98d1e940",
+    "agent_id": "agent_069047716a2d",
     "model_name": "Llama-4-Maverick-17B-128E-Instruct-FP8",
     "architecture_hash": "05ea01eba068ae13",
     "status": "active",
-    "current_tier": "T2",
-    "balance": 0.9831499999999999,
-    "total_earned": 0.18000000000000005,
-    "total_spent": 0.19685000000000002,
-    "total_penalties": 0.0,
-    "contracts_completed": 12,
-    "contracts_failed": 0,
+    "current_tier": "T0",
+    "balance": 0.9194000000000003,
+    "total_earned": 0.0,
+    "total_spent": 0.0116,
+    "total_penalties": 0.069,
+    "total_topups": 0.0,
+    "contracts_completed": 0,
+    "contracts_failed": 12,
     "registration_time": 0.0,
     "audit_cid": "bafkzcibcnicp4h5pri42zvl4jf6agzaxdhismq2o6ijrkhxv3mq6idydsrrecay",
     "robustness": {
-      "cc": 0.5866666666666668,
-      "er": 0.6200000000000001,
-      "as": 0.77,
-      "ih": 0.76
+      "cc": 0.2866666666666665,
+      "er": 0.31999999999999984,
+      "as": 0.73,
+      "ih": 0.7
     },
     "llm_usage": {
       "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
-      "total_calls": 11,
-      "total_input_tokens": 1750,
-      "total_output_tokens": 912,
-      "total_errors": 0,
-      "avg_latency_ms": 1486.3546978343618
+      "total_calls": 0,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "total_errors": 10,
+      "avg_latency_ms": 0
     },
-    "token_cost_fil": 0.18525000000000003
+    "token_cost_sol": 0.0
   }
 }

@@ -1,0 +1,21 @@
+[toolchain]
+package_manager = "yarn"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+cgae_registry = "DR59DsHsJGHTqHRG1SLcZStdzgw97mqVFxjWBozE4Fyp"
+cgae_escrow   = "FhQDQVpwPZDAEd7HU4WmZBkwe7P8wtdg83tYr4h1FPUe"
+
+[programs.devnet]
+cgae_registry = "DR59DsHsJGHTqHRG1SLcZStdzgw97mqVFxjWBozE4Fyp"
+cgae_escrow   = "FhQDQVpwPZDAEd7HU4WmZBkwe7P8wtdg83tYr4h1FPUe"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test"

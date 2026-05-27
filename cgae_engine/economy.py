@@ -35,15 +35,15 @@ class EconomyConfig:
     # keeping this at 0.5 suspends every agent that hasn't run a live audit.
     ih_threshold: float = 0.45
     # Initial balance for new agents (seed capital)
-    initial_balance: float = 0.1  # FIL
+    initial_balance: float = 0.1  # SOL
     # Audit cost per dimension
-    audit_cost: float = 0.005  # FIL per audit dimension
-    # Storage cost per time step (FOC)
-    storage_cost_per_step: float = 0.001  # FIL
-    # Controls for automatically minting test Filecoin when balances drop low.
+    audit_cost: float = 0.005  # SOL per audit dimension
+    # Storage cost per time step
+    storage_cost_per_step: float = 0.001  # SOL
+    # Controls for automatically minting test SOL when balances drop low.
     # Defaults keep the economy running continuously: top up any agent below
     # 5% of the default seed capital and restore them to half seed capital.
-    test_fil_top_up_threshold: Optional[float] = 0.05
+    test_fil_top_up_threshold: Optional[float] = 0.05  # kept for back-compat
     test_fil_top_up_amount: float = 0.5
 
 
@@ -93,7 +93,7 @@ class Economy:
         self._snapshots: list[EconomySnapshot] = []
         self._events: list[dict] = []
         self._delegations: dict[str, dict] = {}
-        self.total_test_fil_topups: float = 0.0
+        self.total_test_fil_topups: float = 0.0  # kept for back-compat; tracks SOL top-ups
 
     def _effective_robustness(self, record: AgentRecord) -> Optional[RobustnessVector]:
         """Return temporally-decayed robustness for an agent record."""

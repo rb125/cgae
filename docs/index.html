@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CGAE | Comprehension-Gated Agent Economy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#030303;--surface:#0a0a0a;--border:#1a1a1a;--text:#e0e0e0;--muted:#888;--purple:#9945FF;--green:#14F195;--grad:linear-gradient(135deg,var(--purple),var(--green))}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+code,.mono{font-family:'JetBrains Mono',monospace}
+a{color:var(--green);text-decoration:none;transition:opacity .2s}
+a:hover{opacity:.8}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+section{padding:100px 0;position:relative}
+
+/* Blobs */
+.blob{position:fixed;border-radius:50%;filter:blur(120px);opacity:.15;pointer-events:none;animation:float 20s infinite ease-in-out}
+.blob-1{width:600px;height:600px;background:var(--purple);top:-200px;left:-200px}
+.blob-2{width:500px;height:500px;background:var(--green);bottom:-200px;right:-200px;animation-delay:-10s}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,40px)}}
+
+/* Fade-in */
+.fade{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.fade.visible{opacity:1;transform:none}
+
+/* Gradient border util */
+.glow-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;position:relative;overflow:hidden;transition:border-color .3s}
+.glow-card:hover{border-color:#333}
+.glow-card::before{content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;border-radius:12px;background:var(--grad);opacity:0;transition:opacity .3s;z-index:-1}
+.glow-card:hover::before{opacity:.15}
+
+/* Hero */
+#hero{min-height:100vh;display:flex;align-items:center;text-align:center}
+#hero .container{width:100%}
+#hero h1{font-size:clamp(4rem,10vw,7rem);font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#hero .subtitle{font-size:1.4rem;color:var(--muted);margin:8px 0 4px}
+#hero .tagline{font-size:1.05rem;color:var(--text);margin-bottom:8px}
+#hero .author{color:var(--muted);margin-bottom:24px}
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{padding:10px 24px;border-radius:8px;font-weight:500;font-size:.9rem;transition:transform .2s,box-shadow .2s}
+.btn-primary{background:var(--grad);color:#000}
+.btn-outline{border:1px solid var(--border);color:var(--text)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(153,69,255,.2)}
+
+/* Table */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(153,69,255,.05)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:500}
+.badge-jury{background:rgba(20,241,149,.15);color:var(--green)}
+.badge-contestant{background:rgba(153,69,255,.15);color:var(--purple)}
+
+/* Architecture diagram */
+.arch-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin:40px 0}
+.arch-layer{padding:20px 28px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center;min-width:200px;transition:border-color .3s}
+.arch-layer:hover{border-color:var(--purple)}
+.arch-layer h4{font-size:.75rem;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.arch-layer p{font-weight:500;font-size:.95rem}
+.arch-arrow{font-size:1.5rem;color:var(--purple);padding:0 12px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* Grid */
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+
+/* Section headers */
+.sec-title{font-size:2rem;font-weight:700;margin-bottom:8px}
+.sec-sub{color:var(--muted);margin-bottom:40px}
+
+/* Theorem */
+.theorem{border-left:3px solid var(--purple);padding-left:16px;margin-bottom:24px}
+.theorem h4{font-size:.8rem;text-transform:uppercase;color:var(--green);margin-bottom:4px}
+.theorem p{font-size:.95rem}
+
+/* Tech stack */
+.tech-icon{font-size:2rem;margin-bottom:8px}
+
+/* Footer */
+footer{border-top:1px solid var(--border);padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
+footer a{margin:0 12px}
+
+@media(max-width:600px){
+  .arch-flow{flex-direction:column}
+  .arch-arrow{transform:rotate(90deg)}
+  section{padding:60px 0}
+}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<section id="hero">
+<div class="container fade">
+<h1>CGAE</h1>
+<p class="subtitle">Comprehension-Gated Agent Economy</p>
+<p class="tagline">A Robustness-First Architecture for AI Economic Agency</p>
+<p class="author">Rahul Baxi</p>
+<div class="btn-row">
+<a href="https://arxiv.org/abs/2603.15639v2" class="btn btn-primary">arXiv Paper</a>
+<a href="https://github.com/rb125/cgae" class="btn btn-outline">GitHub</a>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="sec-title fade">Benchmarked Models</h2>
+<p class="sec-sub fade">11 frontier models evaluated across the CGAE gate system</p>
+<div class="table-wrap fade">
+<table>
+<thead><tr><th>Model</th><th>Provider</th><th>Architecture</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td class="mono">GPT-5.4</td><td>OpenAI</td><td>Reasoning-aligned</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">DeepSeek-V3.2</td><td>DeepSeek</td><td>Mixture-of-experts</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Mistral-Large-3</td><td>Mistral</td><td>Dense</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Grok-4-20-reasoning</td><td>xAI</td><td>Dense</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Phi-4</td><td>Microsoft</td><td>Reasoning-aligned · 14B</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Llama-4-Maverick-17B-128E</td><td>Meta</td><td>MoE · 17B/128 experts</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Kimi-K2.5</td><td>Moonshot</td><td>Dense</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Gemma-4-27B-it</td><td>Google</td><td>MoE · 27B/4B active</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Nova-Pro</td><td>Amazon</td><td>Dense</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+<tr><td class="mono">Claude-Sonnet-4.6</td><td>Anthropic</td><td>Dense</td><td><span class="badge badge-jury">Jury/Verifier</span></td></tr>
+<tr><td class="mono">MiniMax-M2.5</td><td>MiniMax</td><td>Dense</td><td><span class="badge badge-contestant">Contestant</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="sec-title fade">Three-Layer Architecture</h2>
+<p class="sec-sub fade">Progressive gating ensures only comprehension-verified agents access economic primitives</p>
+<div class="arch-flow fade">
+<div class="arch-layer"><h4>Layer 1</h4><p>Identity &amp; Registration</p></div>
+<span class="arch-arrow">→</span>
+<div class="arch-layer"><h4>Layer 2</h4><p>Contract Formalization</p></div>
+<span class="arch-arrow">→</span>
+<div class="arch-layer"><h4>Layer 3</h4><p>Scaling Gate</p></div>
+</div>
+<svg viewBox="0 0 800 60" style="width:100%;max-width:700px;margin:0 auto;display:block" class="fade">
+<defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#9945FF"/><stop offset="100%" stop-color="#14F195"/></linearGradient></defs>
+<line x1="80" y1="30" x2="720" y2="30" stroke="url(#g1)" stroke-width="2" stroke-dasharray="8 4"><animate attributeName="stroke-dashoffset" from="0" to="-24" dur="1.5s" repeatCount="indefinite"/></line>
+<circle cx="80" cy="30" r="8" fill="#9945FF"/><circle cx="400" cy="30" r="8" fill="#6b6dff"/><circle cx="720" cy="30" r="8" fill="#14F195"/>
+</svg>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="sec-title fade">Formal Properties</h2>
+<p class="sec-sub fade">Provable guarantees for safe economic scaling</p>
+<div class="fade">
+<div class="theorem"><h4>Theorem 1: Bounded Economic Exposure</h4><p>Agent economic liability is upper-bounded by the stake deposited at the current gate level, preventing unbounded loss propagation.</p></div>
+<div class="theorem"><h4>Theorem 2: Incentive-Compatible Robustness Investment</h4><p>Rational agents maximize expected utility by investing in comprehension improvements rather than attempting gate circumvention.</p></div>
+<div class="theorem"><h4>Theorem 3: Monotonic Safety Scaling</h4><p>System-wide safety guarantees strengthen monotonically as the number of gated agents increases.</p></div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="sec-title fade">Tech Stack</h2>
+<p class="sec-sub fade">Production infrastructure powering CGAE</p>
+<div class="grid-4 fade">
+<div class="glow-card"><div class="tech-icon">◎</div><h4>Solana</h4><p style="color:var(--muted);font-size:.85rem">On-chain escrow &amp; registry</p></div>
+<div class="glow-card"><div class="tech-icon">⬡</div><h4>Filecoin / IPFS</h4><p style="color:var(--muted);font-size:.85rem">Immutable audit storage</p></div>
+<div class="glow-card"><div class="tech-icon">⟁</div><h4>Python</h4><p style="color:var(--muted);font-size:.85rem">CGAE engine core</p></div>
+<div class="glow-card"><div class="tech-icon">⧉</div><h4>Multi-Provider LLM</h4><p style="color:var(--muted);font-size:.85rem">Azure · Bedrock · Modal</p></div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="sec-title fade">Prior Work</h2>
+<p class="sec-sub fade">Building blocks leading to CGAE</p>
+<div class="grid-3 fade">
+<div class="glow-card"><p style="color:var(--green);font-size:.75rem;margin-bottom:4px">2025</p><h4>CDCT</h4><p style="color:var(--muted);font-size:.85rem;margin-top:4px">Compression Decay Comprehension Test. Measures how well LLMs retain understanding under progressive information compression.</p><a href="https://arxiv.org/abs/2512.17920" style="font-size:.8rem;margin-top:8px;display:inline-block">arXiv:2512.17920</a></div>
+<div class="glow-card"><p style="color:var(--green);font-size:.75rem;margin-bottom:4px">2025</p><h4>DDFT</h4><p style="color:var(--muted);font-size:.85rem;margin-top:4px">Drill Down and Fabricate Test. Probes LLM comprehension by requiring agents to drill into details and detect fabricated content.</p><a href="https://arxiv.org/abs/2512.23850" style="font-size:.8rem;margin-top:8px;display:inline-block">arXiv:2512.23850</a></div>
+<div class="glow-card"><p style="color:var(--green);font-size:.75rem;margin-bottom:4px">2026</p><h4>AGT</h4><p style="color:var(--muted);font-size:.85rem;margin-top:4px">Action Gating Test. Gates agent economic actions based on verified comprehension scores. Peer-reviewed in Springer AI &amp; Ethics.</p><a href="https://link.springer.com/article/10.1007/s43681-026-01175-3" style="font-size:.8rem;margin-top:8px;display:inline-block">Springer AI &amp; Ethics</a></div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<h2 class="sec-title fade">Live Demo</h2>
+<p class="sec-sub fade">Deployed and battle-tested in competitive environments</p>
+<div class="grid-3 fade">
+<div class="glow-card"><h4>Colosseum Hackathon</h4><p style="color:var(--muted);font-size:.85rem;margin-top:8px">Full CGAE pipeline demo: agent registration, comprehension gating, and on-chain escrow settlement on Solana devnet.</p></div>
+<div class="glow-card"><h4>Arc Circle Hackathon</h4><p style="color:var(--muted);font-size:.85rem;margin-top:8px">Circle USDC integration: stablecoin-denominated stakes and payouts via programmable wallets.</p></div>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="container fade">
+<p>CGAE | Comprehension-Gated Agent Economy</p>
+<p style="margin-top:8px">
+<a href="https://arxiv.org/abs/2603.15639v2">arXiv</a>
+<a href="https://github.com/rb125/cgae">GitHub</a>
+<a href="https://x.com/rahulbaxi">Twitter</a>
+</p>
+<p style="margin-top:12px;font-size:.75rem">© 2026 Rahul Baxi</p>
+</div>
+</footer>
+
+<script>
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+document.querySelectorAll('.fade').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

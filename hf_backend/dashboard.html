@@ -103,11 +103,11 @@
       </div>
       <div class="grid2">
         <div class="card">
-          <h3>Theorem 2: Incentive Compatibility — Accumulated FIL by Agent</h3>
+          <h3>Theorem 2: Incentive Compatibility — Accumulated SOL by Agent</h3>
           <div id="chart-earned" style="height:240px"></div>
         </div>
         <div class="card">
-          <h3>Economy Solvency — Total Circulating FIL</h3>
+          <h3>Economy Solvency — Total Circulating SOL</h3>
           <div id="chart-balance" style="height:240px"></div>
         </div>
       </div>
@@ -130,7 +130,7 @@
       </div>
       <div class="card">
         <table id="tiers-table">
-          <thead><tr><th>Agent</th><th>Tier</th><th>CC</th><th>ER</th><th>AS</th><th>Balance (FIL)</th></tr></thead>
+          <thead><tr><th>Agent</th><th>Tier</th><th>CC</th><th>ER</th><th>AS</th><th>Balance (SOL)</th></tr></thead>
           <tbody id="tiers-body"></tbody>
         </table>
       </div>
@@ -218,7 +218,7 @@ function renderOverview() {
 
   document.getElementById('m-safety').textContent = safety.length ? safety[safety.length-1].toFixed(4) : '—';
   document.getElementById('m-agents').textContent = active.length ? active[active.length-1] : '—';
-  document.getElementById('m-balance').textContent = balance.length ? balance[balance.length-1].toFixed(4)+' FIL' : '—';
+  document.getElementById('m-balance').textContent = balance.length ? balance[balance.length-1].toFixed(4)+' SOL' : '—';
   document.getElementById('m-contracts').textContent = totalCompleted;
 
   // Events feed
@@ -253,14 +253,14 @@ function renderOverview() {
   if (Object.keys(earned).length) {
     Plotly.react('chart-earned',[{x:Object.keys(earned),y:Object.values(earned),type:'bar',
       marker:{color:COLORS,opacity:.9}}],
-      {...LAYOUT,yaxis:{...LAYOUT.yaxis,title:'FIL Earned'},height:240},{responsive:true});
+      {...LAYOUT,yaxis:{...LAYOUT.yaxis,title:'SOL Earned'},height:240},{responsive:true});
   }
 
   // Balance area
   if (balance.length) {
-    Plotly.react('chart-balance',[{y:balance,fill:'tozeroy',name:'Total FIL',
+    Plotly.react('chart-balance',[{y:balance,fill:'tozeroy',name:'Total SOL',
       line:{color:'#0ea5e9',width:2.5},fillcolor:'rgba(14,165,233,.12)'}],
-      {...LAYOUT,yaxis:{...LAYOUT.yaxis,title:'FIL'},height:240},{responsive:true});
+      {...LAYOUT,yaxis:{...LAYOUT.yaxis,title:'SOL'},height:240},{responsive:true});
   }
 }
 
@@ -292,8 +292,8 @@ function renderTrade() {
       <div class="task-body" id="task-body-${i}">
         <div class="task-meta">
           <div><span>Domain: </span>${t.domain||'n/a'}</div>
-          <div><span>Reward: </span>${reward} FIL</div>
-          <div><span>Penalty: </span>${penalty} FIL</div>
+          <div><span>Reward: </span>${reward} SOL</div>
+          <div><span>Penalty: </span>${penalty} SOL</div>
         </div>
         ${cid?`<div class="cid">📦 Filecoin CID: ${cid}</div>`:''}
         <pre>${preview}</pre>

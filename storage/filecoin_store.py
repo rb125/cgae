@@ -23,13 +23,18 @@ Filecoin Integration:
     has a CID to work with.  The 'real' field on StoreResult tells callers
     which mode was used.
 
-On-chain anchoring:
-    After a successful upload, pass result.cid to CGAERegistry.certify()
-    so the Calibnet registry permanently references the Filecoin proof.
+On-chain anchoring (Solana):
+    After a successful upload, the CID is written to the agent's Certification
+    PDA on Solana via the cgae_registry program's `certify` instruction.
+    Set SOLANA_PRIVATE_KEY and call store_audit_json(..., solana_anchor={...})
+    or FilecoinStore.anchor_cid_on_solana() directly.
+
+    Previously this called CGAERegistry.certify() on Filecoin Calibnet (EVM).
+    That path is removed; Solana is now the canonical on-chain registry.
 
 Network:
-    Default: Filecoin Calibration Testnet (chain 314159)
-    RPC:     https://api.calibration.node.glif.io/rpc/v1
+    Filecoin: Calibration Testnet (chain 314159) — for audit storage only
+    Solana:   Devnet — for on-chain CID anchoring and economic logic
 """
 
 from __future__ import annotations
@@ -273,6 +278,90 @@ class FilecoinStore:
         )
 
     # ------------------------------------------------------------------
+    # Solana: anchor CID on-chain via cgae_registry program
+    # ------------------------------------------------------------------
+
+    def anchor_cid_on_solana(
+        self,
+        cid: str,
+        agent_pubkey: str,
+        cc: float,
+        er: float,
+        as_: float,
+        ih: float,
+        audit_type: str = "registration",
+        rpc_url: str = "https://api.devnet.solana.com",
+    ) -> Optional[str]:
+        """
+        Write the Filecoin audit CID into the agent's Certification PDA on Solana
+        by calling the cgae_registry program's `certify` instruction.
+
+        Requires:
+          - SOLANA_PRIVATE_KEY env var (base58 keypair or path to keypair JSON)
+          - `solana` CLI in PATH (used as a lightweight RPC bridge until
+            anchorpy client is wired up)
+
+        Returns the transaction signature, or None if unavailable.
+
+        Scores are passed as floats [0,1] and scaled to u16 (×10000) to match
+        the on-chain representation.
+        """
+        private_key = os.getenv("SOLANA_PRIVATE_KEY")
+        if not private_key:
+            logger.info("[solana] SOLANA_PRIVATE_KEY not set — skipping on-chain CID anchor")
+            return None
+
+        # Scale scores to u16 (matches Anchor program's 0-10000 range)
+        def scale(v: float) -> int:
+            return max(0, min(10000, round(v * 10000)))
+
+        payload = {
+            "agent": agent_pubkey,
+            "cc": scale(cc),
+            "er": scale(er),
+            "as_": scale(as_),
+            "ih": scale(ih),
+            "audit_type": audit_type,
+            "audit_cid": cid,
+            "rpc_url": rpc_url,
+        }
+
+        # Write payload to a temp file and invoke the anchor client script
+        import tempfile
+        tmp = Path(tempfile.mktemp(suffix=".json"))
+        tmp.write_text(json.dumps(payload))
+
+        anchor_client = Path(__file__).resolve().parent / "anchor_certify.mjs"
+        node = self._node or _find_node()
+        if not anchor_client.exists() or node is None:
+            logger.info(
+                "[solana] anchor_certify.mjs not found or node unavailable — "
+                "CID not anchored on-chain. Deploy the script to storage/ to enable."
+            )
+            tmp.unlink(missing_ok=True)
+            return None
+
+        try:
+            env = {**os.environ, "SOLANA_PRIVATE_KEY": private_key}
+            proc = subprocess.run(
+                [node, str(anchor_client), str(tmp)],
+                capture_output=True, text=True, timeout=60, env=env,
+            )
+            tmp.unlink(missing_ok=True)
+            if proc.returncode == 0:
+                result = json.loads(proc.stdout.strip())
+                sig = result.get("signature")
+                logger.info(f"[solana] CID anchored on-chain. tx={sig}")
+                return sig
+            else:
+                logger.warning(f"[solana] anchor_certify failed: {proc.stderr.strip()}")
+                return None
+        except Exception as e:
+            tmp.unlink(missing_ok=True)
+            logger.warning(f"[solana] anchor_certify exception: {e}")
+            return None
+
+    # ------------------------------------------------------------------
     # Internal: fallback (deterministic content-addressed CID)
     # ------------------------------------------------------------------
 
@@ -324,13 +413,32 @@ def store_audit_json(
     model_name: str,
     json_path: str | Path,
     network: str = "calibration",
+    solana_anchor: Optional[dict] = None,
 ) -> StoreResult:
     """
-    Convenience wrapper: upload an audit JSON and return the StoreResult.
+    Convenience wrapper: upload an audit JSON to Filecoin and return the StoreResult.
     Used directly in cgae_engine/audit.py after audit_live().
+
+    If solana_anchor is provided, also anchors the CID on Solana via the
+    cgae_registry program. Expected keys:
+        agent_pubkey, cc, er, as_, ih, audit_type, rpc_url (optional)
     """
     store = FilecoinStore(network=network)
-    return store.store_audit_result(model_name, json_path)
+    result = store.store_audit_result(model_name, json_path)
+
+    if solana_anchor and result.cid:
+        store.anchor_cid_on_solana(
+            cid=result.cid,
+            agent_pubkey=solana_anchor["agent_pubkey"],
+            cc=solana_anchor["cc"],
+            er=solana_anchor["er"],
+            as_=solana_anchor["as_"],
+            ih=solana_anchor["ih"],
+            audit_type=solana_anchor.get("audit_type", "registration"),
+            rpc_url=solana_anchor.get("rpc_url", "https://api.devnet.solana.com"),
+        )
+
+    return result
 
 
 # ---------------------------------------------------------------------------

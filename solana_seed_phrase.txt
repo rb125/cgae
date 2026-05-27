@@ -1,0 +1,2 @@
+Save this seed phrase and your BIP39 passphrase to recover your new keypair:
+disorder file image argue holiday obscure chief people jar harsh print erode

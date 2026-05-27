@@ -56,7 +56,7 @@ class AgentRecord:
     current_certification: Optional[Certification] = None
     certification_history: list[Certification] = field(default_factory=list)
     last_audit_time: float = 0.0
-    balance: float = 0.0             # Token balance (in FIL)
+    balance: float = 0.0             # Token balance (in SOL)
     total_earned: float = 0.0
     total_spent: float = 0.0
     total_penalties: float = 0.0
@@ -79,11 +79,12 @@ class AgentRecord:
     @property
     def audit_cid(self) -> Optional[str]:
         """
-        Return the most recent Filecoin audit CID on this agent.
+        Return the most recent Filecoin audit CID stored on this agent.
 
-        Older call sites expect ``record.audit_cid`` to exist. Certifications such
-        as task updates may not include Filecoin metadata, so we scan the history
-        in reverse and return the latest available CID.
+        The CID is uploaded to Filecoin and anchored on Solana via the
+        cgae_registry program's Certification PDA. Older certifications
+        (e.g. task-outcome updates) may not carry a CID, so we scan
+        history in reverse and return the latest available one.
         """
         for cert in reversed(self.certification_history):
             details = cert.audit_details
